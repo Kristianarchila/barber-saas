@@ -1,24 +1,33 @@
 const express = require("express");
 const router = express.Router();
 
-const Servicio = require("../models/Servicio");
-const Barbero = require("../models/Barbero");
+// Importar controller nuevo
+const {
+  getBarberiaBySlug,
+  getBarberosBySlug,
+  getServiciosBySlug,
+  getDisponibilidadBySlug,
+  crearReservaBySlug
+} = require("../controllers/public.controller");
 
-/**
- * Servicios públicos (solo activos)
- * ejemplo: corte de cabello, barba, etc.
- */
-router.get("/servicios", async (req, res) => {
-  const servicios = await Servicio.find({ activo: true });
-  res.json(servicios);
-});
+// =========================================================
+// RUTAS NUEVAS (Sistema completo por SLUG)
+// =========================================================
 
-/**
- * Barberos públicos (solo activos)
- */
-router.get("/barberos", async (req, res) => {
-  const barberos = await Barbero.find({ activo: true });
-  res.json(barberos);
-});
+// Información de la barbería
+router.get("/:slug", getBarberiaBySlug);
+
+// Barberos de la barbería
+router.get("/:slug/barberos", getBarberosBySlug);
+
+// Servicios de la barbería
+router.get("/:slug/servicios", getServiciosBySlug);
+
+// Disponibilidad de un barbero
+router.get("/:slug/barberos/:barberoId/disponibilidad", getDisponibilidadBySlug);
+
+// Crear reserva
+router.post("/:slug/barberos/:barberoId/reservar", crearReservaBySlug);
 
 module.exports = router;
+
