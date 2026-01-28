@@ -1,25 +1,69 @@
+/**
+ * @file serviciosService.js
+ * @description Servicio para gestión de servicios (rol: BARBERIA_ADMIN)
+ * 
+ * CRUD de servicios de la barbería
+ * 
+ * 🔐 Autenticación: Requiere token JWT con rol BARBERIA_ADMIN
+ * 🏢 Multi-tenant: Todas las rutas están bajo /api/barberias/:slug/admin/servicios
+ * 📍 Slug: Se obtiene automáticamente de la URL
+ */
+
 import api from "./api";
 
-export async function getServicios(barberiaId) {
-  const res = await api.get(`/servicios?barberiaId=${barberiaId}`);
+/**
+ * Obtiene el slug de la barbería actual desde la URL del navegador
+ * @returns {string} slug de la barbería
+ */
+function getSlugActual() {
+  return window.location.pathname.split("/")[1];
+}
+
+/**
+ * Obtiene todos los servicios de la barbería
+ * @returns {Promise<Array>} Lista de servicios
+ * @endpoint GET /api/barberias/:slug/admin/servicios
+ */
+export async function getServicios() {
+  const slug = getSlugActual();
+  const res = await api.get(`/barberias/${slug}/admin/servicios`);
   return res.data;
 }
 
-// crear servicio
-
-export const crearServicio = async (data) => {
-  const res = await api.post("/servicios", data);
+/**
+ * Crea un nuevo servicio
+ * @param {Object} data - Datos del servicio (nombre, precio, duracion, etc.)
+ * @returns {Promise<Object>} Servicio creado
+ * @endpoint POST /api/barberias/:slug/admin/servicios
+ */
+export async function crearServicio(data) {
+  const slug = getSlugActual();
+  const res = await api.post(`/barberias/${slug}/admin/servicios`, data);
   return res.data;
-};
+}
 
-// Editar servicio
-export const editarServicio = async (id, data) => {
-  const res = await api.put(`/servicios/${id}`, data);
+/**
+ * Actualiza un servicio existente
+ * @param {string} id - ID del servicio
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Servicio actualizado
+ * @endpoint PUT /api/barberias/:slug/admin/servicios/:id
+ */
+export async function editarServicio(id, data) {
+  const slug = getSlugActual();
+  const res = await api.put(`/barberias/${slug}/admin/servicios/${id}`, data);
   return res.data;
-};
+}
 
-// Activar / Desactivar servicio
-export const cambiarEstadoServicio = async (id, activo) => {
-  const res = await api.patch(`/servicios/${id}/estado`, { activo });
+/**
+ * Cambia el estado activo/inactivo de un servicio
+ * @param {string} id - ID del servicio
+ * @param {boolean} activo - Nuevo estado
+ * @returns {Promise<Object>} Servicio actualizado
+ * @endpoint PATCH /api/barberias/:slug/admin/servicios/:id
+ */
+export async function cambiarEstadoServicio(id, activo) {
+  const slug = getSlugActual();
+  const res = await api.patch(`/barberias/${slug}/admin/servicios/${id}`, { activo });
   return res.data;
-};
+}

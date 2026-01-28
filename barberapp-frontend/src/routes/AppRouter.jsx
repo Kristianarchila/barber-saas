@@ -1,45 +1,27 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Routers por rol
-import AdminRouter from "./AdminRouter";
-import BarberoRouter from "./BarberoRouter";
+import SlugRouter from "./SlugRouter";
 import SuperAdminRouter from "./SuperAdminRouter";
 
-// Páginas públicas
-import Home from "../pages/public/Home";
-import Book from "../pages/public/Book";
-
-// Autenticación
+// pages públicas fuera de slug (opcional)
 import Login from "../pages/auth/Login";
-
-// Páginas de error
 import Error404 from "../pages/errors/Error404";
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
+    
       <Routes>
-        {/* Página principal - HOME */}
-        <Route path="/" element={<Home />} />
+        {/* SuperAdmin sin slug */}
+        <Route path="/superadmin/*" element={<SuperAdminRouter />} />
 
-        {/* Reservar */}
-        <Route path="/book" element={<Book />} />
+        {/* Todo lo de la barbería vive bajo /:slug */}
+        <Route path="/:slug/*" element={<SlugRouter />} />
 
-        {/* Login */}
+        {/* Auth genérica si la usas */}
         <Route path="/login" element={<Login />} />
 
-        {/* Admin */}
-        <Route path="/role/admin/*" element={<AdminRouter />} />
-
-        {/* Barbero */}
-        <Route path="/role/barbero/*" element={<BarberoRouter />} />
-
-        {/* SuperAdmin */}
-        <Route path="/role/superadmin/*" element={<SuperAdminRouter />} />
-
-        {/* Error 404 - DEBE IR AL FINAL */}
         <Route path="*" element={<Error404 />} />
       </Routes>
-    </BrowserRouter>
+    
   );
 }

@@ -1,12 +1,11 @@
-import { Routes, Route } from "react-router-dom";
 import Home from "../pages/public/Home";
-import Book from "../pages/public/Book";
 
+/**
+ * PublicRouter - Componente para la página principal pública
+ * 
+ * Nota: Las rutas ahora se manejan en SlugRouter.
+ * Este componente solo renderiza la página Home.
+ */
 export default function PublicRouter() {
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />        {/* Landing page */}
-      <Route path="/book" element={<Book />} />    {/* Reservas */}
-    </Routes>
-  );
+  return <Home />;
 }

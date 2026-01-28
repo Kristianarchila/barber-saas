@@ -1,0 +1,186 @@
+.lista-resenas {
+    width: 100%;
+}
+
+.lista-resenas-loading,
+.lista-resenas-error,
+.lista-resenas-empty {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.lista-resenas-error p {
+    color: #e74c3c;
+    font-size: 16px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.lista-resenas-empty h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.lista-resenas-empty p {
+    font-size: 16px;
+    color: #666;
+}
+
+.resenas-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    color: white;
+}
+
+.resenas-stats {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.promedio-general {
+    text-align: center;
+}
+
+.promedio-numero {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+.total-resenas {
+    margin-top: 12px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.distribucion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.distribucion-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stars-label {
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 50px;
+}
+
+.bar-container {
+    flex: 1;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    transition: width 0.5s ease;
+    border-radius: 10px;
+}
+
+.count {
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: right;
+}
+
+.resenas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ver-mas-container {
+    text-align: center;
+    margin-top: 24px;
+}
+
+.btn-ver-mas {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-ver-mas:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-ver-mas:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .resenas-header {
+        padding: 24px;
+    }
+
+    .resenas-stats {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .promedio-numero {
+        font-size: 48px;
+    }
+
+    .distribucion {
+        gap: 6px;
+    }
+
+    .stars-label {
+        min-width: 40px;
+        font-size: 13px;
+    }
+
+    .bar-container {
+        height: 16px;
+    }
+}

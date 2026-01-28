@@ -1,350 +1,287 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import {
   getAgendaBarbero,
   completarReserva,
   cancelarReserva,
+  getEstadisticasBarbero,
 } from "../../services/barberoDashboardService";
+import { getMiBalance } from "../../services/transactionService";
+import { Card, Stat, Button, Badge } from "../../components/ui";
+import {
+  Calendar,
+  Users,
+  Scissors,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  Wallet,
+  ArrowUpRight,
+  CheckCircle,
+  XCircle,
+  Play
+} from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { useBarberia } from "../../context/BarberiaContext";
 
 dayjs.locale("es");
 
 export default function Dashboard() {
+  const { slug } = useParams();
+  const { barberia } = useBarberia();
   const [reservas, setReservas] = useState([]);
+  const [estadisticas, setEstadisticas] = useState(null);
+  const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+
   const fecha = dayjs().format("YYYY-MM-DD");
 
   useEffect(() => {
-    cargarReservas();
+    cargarDatos();
   }, []);
 
-  const cargarReservas = async () => {
+  const cargarDatos = async () => {
     try {
       setLoading(true);
-      setError(null);
-      console.log("📡 Cargando agenda para fecha:", fecha);
-      
-      const data = await getAgendaBarbero(fecha);
-      
-      console.log("✅ Reservas cargadas:", data);
-      setReservas(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("❌ Error cargando reservas:", error);
-      setError(error.response?.data?.message || error.message || "Error desconocido");
+      const [agendaData, statsData, balanceData] = await Promise.all([
+        getAgendaBarbero(fecha),
+        getEstadisticasBarbero(),
+        getMiBalance().catch(() => null) // No bloqueante si falla
+      ]);
+      setReservas(Array.isArray(agendaData) ? agendaData : []);
+      setEstadisticas(statsData);
+      setBalance(balanceData);
+    } catch (err) {
+      console.error("Error cargando datos:", err);
+      setError("No se pudo cargar el dashboard");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔢 Cálculos del día
-  const total = reservas.length;
-  const completadas = reservas.filter(r => r.estado === "COMPLETADA").length;
-  const canceladas = reservas.filter(r => r.estado === "CANCELADA").length;
-  const pendientes = reservas.filter(r => r.estado === "RESERVADA").length;
-  const ingresos = reservas
-    .filter(r => r.estado === "COMPLETADA")
-    .reduce((acc, r) => {
-      const precio = r.servicioId?.precio || r.precio || 0;
-      return acc + precio;
-    }, 0);
-
   const onCompletar = async (id) => {
     try {
-      console.log("🔄 Completando reserva:", id);
       await completarReserva(id);
-      console.log("✅ Reserva completada");
-      await cargarReservas();
-    } catch (error) {
-      console.error("❌ Error completando reserva:", error);
-      alert(error.response?.data?.message || "Error al completar reserva");
+      await cargarDatos();
+    } catch (err) {
+      console.error("Error completando reserva:", err);
     }
   };
 
   const onCancelar = async (id) => {
-    if (!confirm("¿Estás seguro de cancelar esta reserva?")) return;
-    
+    if (!confirm("¿Cancelar cita?")) return;
     try {
-      console.log("🔄 Cancelando reserva:", id);
       await cancelarReserva(id);
-      console.log("✅ Reserva cancelada");
-      await cargarReservas();
-    } catch (error) {
-      console.error("❌ Error cancelando reserva:", error);
-      alert(error.response?.data?.message || "Error al cancelar reserva");
+      await cargarDatos();
+    } catch (err) {
+      console.error("Error cancelando reserva:", err);
     }
   };
 
-  // Filtrar solo reservas pendientes para la lista principal
-  const reservasPendientes = reservas.filter(r => r.estado === "RESERVADA");
-  const reservasFinalizadas = reservas.filter(r => r.estado !== "RESERVADA");
-
-  // 🚨 Mostrar error
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-6">
-        <div className="text-red-400 p-6 bg-red-900/20 rounded-xl border border-red-500/50 max-w-md">
-          <h2 className="text-2xl font-bold mb-3">❌ Error</h2>
-          <p className="mb-4">{error}</p>
-          <button 
-            onClick={cargarReservas}
-            className="bg-gradient-to-r from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 px-6 py-3 rounded-lg font-semibold transition-all w-full"
-          >
-            🔄 Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ⏳ Loading
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl">✂️</div>
-        </div>
-        <p className="text-amber-400 mt-6 font-semibold">Cargando agenda...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-6">
-      {/* Header con estilo vintage */}
-      <div className="mb-8 pb-6 border-b-2 border-amber-600/30">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent mb-2">
-              ✂️ Mi Agenda
-            </h1>
-            <p className="text-gray-400 text-lg capitalize">
-              {dayjs(fecha).format("dddd, DD [de] MMMM YYYY")}
-            </p>
-          </div>
-          <button 
-            onClick={cargarReservas}
-            className="bg-gradient-to-r from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-amber-500/50 flex items-center gap-2"
-          >
-            <span className="text-xl">🔄</span>
-            Actualizar
-          </button>
-        </div>
-      </div>
-
-      {/* Cards de estadísticas con estilo premium */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard 
-          icon="📅" 
-          title="Total Citas" 
-          value={total}
-          subtitle="del día"
-          gradient="from-blue-600 to-blue-800"
-        />
-        <StatCard 
-          icon="✅" 
-          title="Completadas" 
-          value={completadas}
-          subtitle="finalizadas"
-          gradient="from-green-600 to-emerald-800"
-        />
-        <StatCard 
-          icon="❌" 
-          title="Canceladas" 
-          value={canceladas}
-          subtitle="anuladas"
-          gradient="from-red-600 to-rose-800"
-        />
-        <StatCard 
-          icon="💰" 
-          title="Ingresos" 
-          value={`$${ingresos.toLocaleString()}`}
-          subtitle="ganados hoy"
-          gradient="from-purple-600 to-pink-800"
-        />
-      </div>
-
-      {/* Citas Pendientes */}
-      {reservasPendientes.length > 0 && (
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-6 mb-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-8 bg-gradient-to-b from-amber-500 to-yellow-600 rounded-full"></div>
-            <h2 className="text-2xl font-bold text-amber-400">⏳ Citas Pendientes</h2>
-          </div>
-
-          <div className="space-y-4">
-            {reservasPendientes.map((r, index) => (
-              <AppointmentCard 
-                key={r._id}
-                reserva={r}
-                index={index}
-                onCompletar={onCompletar}
-                onCancelar={onCancelar}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Citas Finalizadas (colapsable) */}
-      {reservasFinalizadas.length > 0 && (
-        <details className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-6">
-          <summary className="cursor-pointer text-xl font-bold text-gray-300 hover:text-white transition flex items-center gap-3">
-            <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-red-500 rounded-full"></div>
-            📋 Citas Finalizadas ({reservasFinalizadas.length})
-          </summary>
-          
-          <div className="space-y-4 mt-6">
-            {reservasFinalizadas.map((r, index) => (
-              <AppointmentCard 
-                key={r._id}
-                reserva={r}
-                index={index}
-                onCompletar={onCompletar}
-                onCancelar={onCancelar}
-                showActions={false}
-              />
-            ))}
-          </div>
-        </details>
-      )}
-
-      {/* Mensaje si no hay citas */}
-      {reservas.length === 0 && (
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-6">
-          <div className="text-center py-16 bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700">
-            <div className="text-6xl mb-4">📭</div>
-            <p className="text-gray-400 text-xl font-semibold">No hay citas programadas</p>
-            <p className="text-gray-500 mt-2">Disfruta tu día libre</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Componente de tarjeta de estadísticas
-function StatCard({ icon, title, value, subtitle, gradient }) {
-  return (
-    <div className={`bg-gradient-to-br ${gradient} rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-white/10`}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-4xl">{icon}</span>
-        <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-          <span className="text-2xl">📊</span>
-        </div>
-      </div>
-      <p className="text-white/80 text-sm font-medium mb-1">{title}</p>
-      <p className="text-4xl font-bold text-white mb-1">{value}</p>
-      <p className="text-white/60 text-xs">{subtitle}</p>
-    </div>
-  );
-}
-
-// Componente de tarjeta de cita
-function AppointmentCard({ reserva, index, onCompletar, onCancelar, showActions = true }) {
-  const r = reserva;
-  const estadoConfig = {
-    RESERVADA: { 
-      bg: "bg-gradient-to-r from-amber-500 to-yellow-600",
-      text: "PENDIENTE",
-      icon: "⏳",
-      border: "border-amber-500/50"
-    },
-    COMPLETADA: { 
-      bg: "bg-gradient-to-r from-green-500 to-emerald-600",
-      text: "COMPLETADA",
-      icon: "✅",
-      border: "border-green-500/50"
-    },
-    CANCELADA: { 
-      bg: "bg-gradient-to-r from-red-500 to-pink-600",
-      text: "CANCELADA",
-      icon: "❌",
-      border: "border-red-500/50"
-    }
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP'
+    }).format(amount || 0);
   };
 
-  const config = estadoConfig[r.estado] || estadoConfig.RESERVADA;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-slate-500 font-bold animate-pulse">Preparando tu jornada...</p>
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="p-8 text-center bg-red-500/10 border border-red-500/20 rounded-2xl">
+      <XCircle className="text-red-500 mx-auto mb-4" size={48} />
+      <h3 className="text-xl font-bold text-white mb-2">{error}</h3>
+      <Button onClick={cargarDatos} variant="secondary">Reintentar</Button>
+    </div>
+  );
 
   return (
-    <div 
-      className={`bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 border ${config.border} hover:border-amber-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10`}
-      style={{ 
-        animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
-      }}
-    >
-      <div className="flex justify-between items-start gap-4 flex-wrap lg:flex-nowrap">
-        <div className="flex-1 min-w-0">
-          {/* Servicio y estado */}
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-2xl shadow-lg flex-shrink-0">
-              ✂️
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-xl font-bold text-white truncate">
-                {r.servicioId?.nombre || r.servicioNombre || "Servicio"}
-              </h3>
-              <span className={`${config.bg} text-white text-xs px-3 py-1 rounded-full font-semibold inline-flex items-center gap-1 shadow-lg`}>
-                <span>{config.icon}</span>
-                {config.text}
-              </span>
-            </div>
+    <div className="space-y-10 animate-slide-in">
+      {/* HEADER BIENVENIDA */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <Badge variant="primary" className="mb-2">¡Hola de nuevo!</Badge>
+          <div className="flex flex-col">
+            <h1 className="text-4xl font-black text-white">Buen día, Barbero</h1>
+            {barberia && (
+              <p className="text-indigo-400 font-bold flex items-center gap-2 mt-1">
+                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
+                {barberia.nombre}
+              </p>
+            )}
           </div>
-
-          {/* Detalles */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl flex-shrink-0">👤</span>
-              <div className="min-w-0">
-                <p className="text-xs text-gray-500">Cliente</p>
-                <p className="text-white font-semibold truncate">
-                  {r.nombreCliente || "Sin nombre"}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-2xl flex-shrink-0">🕐</span>
-              <div>
-                <p className="text-xs text-gray-500">Hora</p>
-                <p className="text-white font-semibold text-lg">{r.hora}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-2xl flex-shrink-0">💵</span>
-              <div>
-                <p className="text-xs text-gray-500">Precio</p>
-                <p className="text-amber-400 font-bold text-lg">
-                  ${(r.servicioId?.precio || r.precio || 0).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="text-slate-500 capitalize mt-2 font-medium">{dayjs().format("dddd DD [de] MMMM")}</p>
         </div>
 
-        {/* Botones de acción - Solo para pendientes */}
-        {showActions && r.estado === "RESERVADA" && (
-          <div className="flex flex-col gap-2 w-full lg:w-auto lg:ml-4">
-            <button
-              onClick={() => onCompletar(r._id)}
-              className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-green-500/50 hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap"
-            >
-              <span className="text-xl">✓</span>
-              Completar
-            </button>
-            <button
-              onClick={() => onCancelar(r._id)}
-              className="bg-gradient-to-r from-red-600 to-pink-700 hover:from-red-700 hover:to-pink-800 px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-red-500/50 hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap"
-            >
-              <span className="text-xl">✕</span>
-              Cancelar
-            </button>
+        {/* Quick Wallet Summary */}
+        <Link to={`/${slug}/barbero/finanzas`}>
+          <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 hover:border-indigo-500/50 transition-all group">
+            <div className="p-3 bg-indigo-500/10 rounded-xl group-hover:bg-indigo-500/20 transition-all">
+              <Wallet className="text-indigo-400" size={24} />
+            </div>
+            <div>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Mi Balance</p>
+              <p className="text-white font-black text-lg">{formatCurrency(balance?.pendiente?.totalMontoBarbero)}</p>
+            </div>
+            <ArrowUpRight className="text-slate-600 group-hover:text-indigo-400 transition-all ml-4" size={20} />
           </div>
-        )}
+        </Link>
+      </header>
+
+      {/* SECCIÓN DE MÉTRICAS */}
+      {estadisticas && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Stat
+            title="Citas Hoy"
+            value={estadisticas.citas.hoy}
+            icon={<Calendar />}
+            color="primary"
+            subtitle="Servicios programados"
+          />
+          <Stat
+            title="Citas Mes"
+            value={estadisticas.citas.mes}
+            icon={<Users />}
+            color="secondary"
+            subtitle={`${estadisticas.clientesUnicosMes} clientes únicos`}
+          />
+          <Stat
+            title="Ganancias Mes"
+            value={formatCurrency(balance?.total?.totalMontoBarbero || estadisticas.ingresos.mes)}
+            icon={<DollarSign />}
+            color="success"
+            trend="up"
+            change={`${estadisticas.tasaCancelacion}% cancelación`}
+          />
+          <Stat
+            title="Histórico"
+            value={estadisticas.citas.total}
+            icon={<TrendingUp />}
+            color="accent"
+            subtitle="Total de cortes realizados"
+          />
+        </div>
+      )}
+
+      {/* SECCIÓN PRINCIPAL: AGENDA */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2 space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-black text-white flex items-center gap-2">
+              <Clock className="text-indigo-400" size={24} />
+              Agenda de Hoy
+            </h2>
+            <Badge variant="outline" className="border-slate-800 text-slate-500">
+              {reservas.length} Citas
+            </Badge>
+          </div>
+
+          {reservas.length === 0 ? (
+            <Card className="p-12 text-center border-dashed border-slate-800 bg-transparent">
+              <Calendar className="text-slate-700 mx-auto mb-4" size={48} />
+              <p className="text-slate-500 text-lg font-bold">Sin actividad programada hoy</p>
+              <p className="text-slate-600 text-sm mt-1">Sigue trabajando así de bien 💪</p>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {reservas.map((r) => (
+                <Card
+                  key={r._id}
+                  className={`border-slate-800 hover:border-slate-700 transition-all group ${r.estado === 'COMPLETADA' ? 'opacity-80' : ''}`}
+                >
+                  <div className="p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center gap-5 w-full">
+                      <div className="w-14 h-14 bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-lg">
+                        <span className="text-lg font-black leading-none">{r.hora.split(':')[0]}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">{r.hora.split(':')[1]}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-black text-white text-lg">{r.servicioId?.nombre}</p>
+                          <Badge variant={r.estado === 'COMPLETADA' ? 'success' : 'primary'} className="text-[10px]">
+                            {r.estado}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-3 text-slate-500 text-sm mt-1 font-medium">
+                          <span className="flex items-center gap-1"><Users size={14} /> {r.nombreCliente}</span>
+                          <span className="text-slate-700">•</span>
+                          <span className="flex items-center gap-1"><DollarSign size={14} /> {formatCurrency(r.servicioId?.precio)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 w-full md:w-auto">
+                      {r.estado === "RESERVADA" && (
+                        <>
+                          <Button
+                            onClick={() => onCompletar(r._id)}
+                            className="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-xs font-black uppercase tracking-wider py-3 px-6 rounded-xl shadow-glow-success"
+                          >
+                            <CheckCircle size={16} className="mr-2" /> Completar
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() => onCancelar(r._id)}
+                            className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white flex-1 md:flex-none text-xs font-black uppercase tracking-wider py-3 px-6 rounded-xl border-none transition-all"
+                          >
+                            <XCircle size={16} />
+                          </Button>
+                        </>
+                      )}
+                      {r.estado === "COMPLETADA" && (
+                        <div className="flex items-center gap-2 text-emerald-500 font-black text-sm uppercase tracking-widest bg-emerald-500/10 px-4 py-2 rounded-xl">
+                          <CheckCircle size={18} /> Registrado
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* SIDEBAR DASHBOARD */}
+        <div className="space-y-6">
+          <Card className="bg-indigo-600 shadow-glow-primary border-none p-6 text-white relative overflow-hidden group">
+            <div className="relative z-10">
+              <h3 className="font-black text-xl mb-1">Mi Perfil Público</h3>
+              <p className="text-indigo-100 text-xs mb-6">Link para compartir con tus clientes</p>
+              <Button className="w-full bg-white text-indigo-600 hover:bg-indigo-50 font-black rounded-xl">
+                Copiar Enlace
+              </Button>
+            </div>
+            <Scissors className="absolute -right-4 -bottom-4 text-white/10 w-32 h-32 rotate-12 group-hover:scale-110 transition-transform duration-500" />
+          </Card>
+
+          <Card className="border-slate-800 bg-slate-900/50">
+            <div className="p-5 border-b border-slate-800">
+              <h4 className="font-black text-sm uppercase tracking-widest text-slate-500">🏆 Servicios Estrella</h4>
+            </div>
+            <div className="p-5 space-y-4">
+              {estadisticas?.serviciosPopulares.map((s, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-indigo-500 font-black">{idx + 1}.</span>
+                    <span className="text-white text-sm font-bold">{s.nombre}</span>
+                  </div>
+                  <Badge variant="outline" className="text-slate-500 border-slate-800 text-[10px]">
+                    {s.cantidad} veces
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

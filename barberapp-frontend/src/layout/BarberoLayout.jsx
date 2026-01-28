@@ -1,175 +1,118 @@
-import { useState } from "react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Calendar,
+  User,
+  LogOut,
+  DollarSign,
+  History,
+  ChevronRight
+} from "lucide-react";
 import { logout } from "../pages/auth/logout";
 
 export default function BarberoLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { slug } = useParams();
 
-  const isActive = (path) => location.pathname.includes(path);
+  const isActive = (path) => location.pathname === path;
 
-  const handleLogout = () => {
-    if (window.confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-      logout(navigate);
-    }
+  const NavItem = ({ to, icon: Icon, label }) => {
+    const active = isActive(to);
+    return (
+      <Link
+        to={to}
+        className={`flex items-center justify-between p-3 rounded-xl transition-all duration-200 group ${active
+            ? "bg-indigo-600 shadow-glow-primary text-white"
+            : "hover:bg-slate-800 text-slate-400 hover:text-white"
+          }`}
+      >
+        <div className="flex items-center gap-3">
+          <Icon size={20} className={active ? "text-white" : "group-hover:text-indigo-400"} />
+          <span className="font-semibold text-sm">{label}</span>
+        </div>
+        {active && <ChevronRight size={14} />}
+      </Link>
+    );
   };
 
-  // Obtener nombre del barbero del localStorage
-  const userName = JSON.parse(localStorage.getItem("user") || "{}")?.nombre || "Barbero";
-
-  const menuItems = [
-    { path: "agenda", icon: "📅", label: "Mi Agenda", color: "from-blue-500 to-blue-600" },
-    { path: "citas", icon: "📁", label: "Historial", color: "from-purple-500 to-purple-600" },
-    { path: "perfil", icon: "👤", label: "Mi Perfil", color: "from-amber-500 to-yellow-600" }
-  ];
-
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      
-      {/* Sidebar */}
-      <aside 
-        className={`${
-          sidebarOpen ? "w-72" : "w-20"
-        } bg-gray-900/80 backdrop-blur-sm border-r border-gray-700/50 transition-all duration-300 flex flex-col`}
-      >
-        {/* Header del Sidebar */}
-        <div className="p-6 border-b border-gray-700/50">
-          <div className="flex items-center justify-between mb-4">
-            {sidebarOpen ? (
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-2xl shadow-lg">
-                  ✂️
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">
-                    Barbería Pro
-                  </h2>
-                  <p className="text-xs text-gray-400">Panel Barbero</p>
-                </div>
-              </div>
-            ) : (
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-xl mx-auto">
-                ✂️
-              </div>
-            )}
-            
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-gray-400 hover:text-white transition p-2 hover:bg-gray-800 rounded-lg"
-            >
-              {sidebarOpen ? "◀" : "▶"}
-            </button>
-          </div>
-
-          {/* Info del usuario */}
-          {sidebarOpen && (
-            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg p-3 border border-gray-600/30">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-lg">
-                  👨‍💼
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white truncate">{userName}</p>
-                  <p className="text-xs text-amber-400">Barbero Profesional</p>
-                </div>
-              </div>
-            </div>
-          )}
+    <div className="flex min-h-screen bg-slate-950 text-white font-sans selection:bg-indigo-500/30">
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-slate-900 p-6 border-r border-slate-800 flex flex-col fixed h-full z-20">
+        <div className="mb-10 px-2">
+          <h2 className="text-2xl font-black tracking-tighter text-gradient-primary">
+            ✂️ BARBERO
+          </h2>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+            Panel de Profesional
+          </p>
         </div>
 
-        {/* Navegación */}
-        <nav className="flex-1 p-4 space-y-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`
-                flex items-center gap-3 p-3 rounded-xl transition-all duration-300
-                ${isActive(item.path)
-                  ? `bg-gradient-to-r ${item.color} shadow-lg transform scale-105`
-                  : "hover:bg-gray-800 hover:translate-x-1"
-                }
-                ${!sidebarOpen && "justify-center"}
-              `}
-            >
-              <span className="text-2xl">{item.icon}</span>
-              {sidebarOpen && (
-                <span className="font-semibold">{item.label}</span>
-              )}
-              {sidebarOpen && isActive(item.path) && (
-                <span className="ml-auto text-xl">→</span>
-              )}
-            </Link>
-          ))}
+        <nav className="flex-1 space-y-8 overflow-y-auto custom-scrollbar pr-2">
+          {/* SECCIÓN GENERAL */}
+          <div>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest px-3 mb-4">
+              General
+            </p>
+            <div className="space-y-1">
+              <NavItem
+                to={`/${slug}/barbero/dashboard`}
+                icon={LayoutDashboard}
+                label="Dashboard"
+              />
+              <NavItem
+                to={`/${slug}/barbero/citas`}
+                icon={Calendar}
+                label="Agenda & Citas"
+              />
+              <NavItem
+                to={`/${slug}/barbero/perfil`}
+                icon={User}
+                label="Mi Perfil"
+              />
+            </div>
+          </div>
+
+          {/* SECCIÓN FINANZAS */}
+          <div>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest px-3 mb-4">
+              Finanzas
+            </p>
+            <div className="space-y-1">
+              <NavItem
+                to={`/${slug}/barbero/finanzas`}
+                icon={DollarSign}
+                label="Mis Ganancias"
+              />
+              <NavItem
+                to={`/${slug}/barbero/finanzas/transacciones`}
+                icon={History}
+                label="Historial"
+              />
+            </div>
+          </div>
         </nav>
 
-        {/* Footer del Sidebar */}
-        <div className="p-4 border-t border-gray-700/50">
+        {/* FOOTER SIDEBAR */}
+        <div className="pt-6 border-t border-slate-800 mt-6">
           <button
-            onClick={handleLogout}
-            className={`
-              w-full flex items-center gap-3 p-3 rounded-xl
-              bg-gradient-to-r from-red-600 to-pink-700
-              hover:from-red-700 hover:to-pink-800
-              transition-all duration-300 shadow-lg
-              hover:shadow-red-500/50 hover:scale-105
-              ${!sidebarOpen && "justify-center"}
-            `}
+            onClick={() => logout(navigate, slug)}
+            className="flex items-center gap-3 w-full p-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all font-bold text-sm"
           >
-            <span className="text-xl">🚪</span>
-            {sidebarOpen && <span className="font-semibold">Cerrar Sesión</span>}
+            <LogOut size={20} />
+            <span>Cerrar Sesión</span>
           </button>
-
-          {sidebarOpen && (
-            <p className="text-center text-xs text-gray-500 mt-4">
-              © 2026 Barbería Pro
-            </p>
-          )}
         </div>
       </aside>
 
-      {/* Contenido Principal */}
-      <main className="flex-1 overflow-auto">
-        {/* Top Bar */}
-        <div className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700/50 px-8 py-4 sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                {menuItems.find(item => isActive(item.path))?.label || "Dashboard"}
-              </h1>
-              <p className="text-sm text-gray-400">
-                {new Date().toLocaleDateString("es-ES", { 
-                  weekday: "long", 
-                  year: "numeric", 
-                  month: "long", 
-                  day: "numeric" 
-                })}
-              </p>
-            </div>
+      {/* MAIN CONTENT */}
+      <main className="flex-1 ml-72 p-8 min-h-screen relative overflow-x-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full -z-10" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-sky-600/5 blur-[100px] rounded-full -z-10" />
 
-            <div className="flex items-center gap-4">
-              {/* Notificaciones */}
-              <button className="relative p-2 hover:bg-gray-800 rounded-lg transition">
-                <span className="text-2xl">🔔</span>
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
-              {/* Avatar del usuario */}
-              <div className="flex items-center gap-2 bg-gray-800 rounded-full px-3 py-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-sm">
-                  👨‍💼
-                </div>
-                <span className="font-semibold text-sm hidden md:block">{userName}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Contenido de las páginas */}
-        <div className="p-8">
-          <Outlet />
-        </div>
+        <Outlet />
       </main>
     </div>
   );

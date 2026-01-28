@@ -1,307 +1,207 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import "dayjs/locale/es";
 import { getCitasBarbero } from "../../services/barberoDashboardService";
-
-dayjs.locale("es");
+import {
+  Card,
+  Badge,
+  Skeleton,
+  Button,
+  Input
+} from "../../components/ui";
+import {
+  Search,
+  Filter,
+  Calendar,
+  User,
+  Scissors,
+  Clock,
+  Download,
+  ChevronRight,
+  History
+} from "lucide-react";
 
 export default function Citas() {
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtro, setFiltro] = useState("TODAS"); // TODAS, COMPLETADA, CANCELADA
-  const [busqueda, setBusqueda] = useState("");
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("TODOS");
 
   useEffect(() => {
-    cargarCitas();
+    cargar();
   }, []);
 
-  const cargarCitas = async () => {
+  const cargar = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getCitasBarbero();
       setCitas(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error cargando citas:", error);
-      setCitas([]);
+    } catch (err) {
+      console.error("Error al cargar citas:", err);
+      setError(err.response?.data?.message || err.message || "Error al cargar citas");
     } finally {
       setLoading(false);
     }
   };
 
-  // Filtrar citas
-  const citasFiltradas = citas.filter(cita => {
-    const cumpleFiltro = filtro === "TODAS" || cita.estado === filtro;
-    const cumpleBusqueda = 
-      (cita.clienteNombre || cita.clienteId?.nombre || "").toLowerCase().includes(busqueda.toLowerCase()) ||
-      (cita.servicioId?.nombre || "").toLowerCase().includes(busqueda.toLowerCase());
-    return cumpleFiltro && cumpleBusqueda;
+  const citasFiltradas = citas.filter(c => {
+    const matchesSearch =
+      c.nombreCliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.servicioId?.nombre?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = filterStatus === "TODOS" || c.estado === filterStatus;
+
+    return matchesSearch && matchesStatus;
   });
 
-  // Agrupar por fecha
-  const citasAgrupadas = citasFiltradas.reduce((grupos, cita) => {
-    const fecha = cita.fecha;
-    if (!grupos[fecha]) {
-      grupos[fecha] = [];
-    }
-    grupos[fecha].push(cita);
-    return grupos;
-  }, {});
-
-  // Ordenar fechas de más reciente a más antigua
-  const fechasOrdenadas = Object.keys(citasAgrupadas).sort((a, b) => 
-    new Date(b) - new Date(a)
-  );
-
-  // Estadísticas
-  const stats = {
-    total: citas.length,
-    completadas: citas.filter(c => c.estado === "COMPLETADA").length,
-    canceladas: citas.filter(c => c.estado === "CANCELADA").length,
-    ingresos: citas
-      .filter(c => c.estado === "COMPLETADA")
-      .reduce((acc, c) => acc + (c.servicioId?.precio || c.precio || 0), 0)
-  };
-
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl">📁</div>
+      <div className="p-12 text-center bg-red-500/10 border border-red-500/20 rounded-3xl">
+        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <History size={32} className="text-red-500" />
         </div>
-        <p className="text-purple-400 mt-6 font-semibold">Cargando historial...</p>
+        <h3 className="text-xl font-bold text-white mb-2">¡Ups! Algo salió mal</h3>
+        <p className="text-red-300/80 mb-6">{error}</p>
+        <Button onClick={cargar} variant="secondary">Reintentar</Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header con estadísticas */}
-      <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-2">
-              📁 Historial de Citas
-            </h1>
-            <p className="text-gray-400">Registro completo de todas tus atenciones</p>
-          </div>
-          <button 
-            onClick={cargarCitas}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-purple-500/50"
-          >
-            🔄 Actualizar
-          </button>
-        </div>
-
-        {/* Estadísticas rápidas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MiniStatCard 
-            icon="📊" 
-            label="Total Citas" 
-            value={stats.total}
-            color="text-blue-400"
-          />
-          <MiniStatCard 
-            icon="✅" 
-            label="Completadas" 
-            value={stats.completadas}
-            color="text-green-400"
-          />
-          <MiniStatCard 
-            icon="❌" 
-            label="Canceladas" 
-            value={stats.canceladas}
-            color="text-red-400"
-          />
-          <MiniStatCard 
-            icon="💰" 
-            label="Ingresos Totales" 
-            value={`$${stats.ingresos.toLocaleString()}`}
-            color="text-purple-400"
-          />
-        </div>
-      </div>
-
-      {/* Filtros y búsqueda */}
-      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Búsqueda */}
-          <div className="flex-1">
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-xl">🔍</span>
-              <input
-                type="text"
-                placeholder="Buscar por cliente o servicio..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="w-full bg-gray-900/50 border border-gray-600 rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-          </div>
-
-          {/* Filtros de estado */}
-          <div className="flex gap-2">
-            {["TODAS", "COMPLETADA", "CANCELADA"].map((estado) => (
-              <button
-                key={estado}
-                onClick={() => setFiltro(estado)}
-                className={`px-4 py-3 rounded-lg font-semibold transition-all ${
-                  filtro === estado
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
-                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                }`}
-              >
-                {estado === "TODAS" ? "📋 Todas" : 
-                 estado === "COMPLETADA" ? "✅ Completadas" : 
-                 "❌ Canceladas"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Lista de citas agrupadas por fecha */}
-      {citasFiltradas.length === 0 ? (
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border-2 border-dashed border-gray-700 p-12 text-center">
-          <div className="text-6xl mb-4">📭</div>
-          <p className="text-xl font-semibold text-gray-400 mb-2">No se encontraron citas</p>
-          <p className="text-gray-500">
-            {busqueda ? "Intenta con otra búsqueda" : "Aún no tienes citas registradas"}
+    <div className="space-y-8 animate-slide-in">
+      {/* HEADER */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-white flex items-center gap-3">
+            <span className="text-indigo-500"><History size={36} /></span>
+            Historial de Citas
+          </h1>
+          <p className="text-slate-400 mt-2 text-lg">
+            Consulta y gestiona todos tus servicios realizados
           </p>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {fechasOrdenadas.map((fecha) => (
-            <div key={fecha} className="space-y-3">
-              {/* Separador de fecha */}
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
-                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 rounded-full">
-                  <span className="font-semibold text-sm capitalize">
-                    {dayjs(fecha).format("dddd, DD [de] MMMM YYYY")}
-                  </span>
+      </header>
+
+      {/* FILTROS Y BÚSQUEDA */}
+      <Card className="p-4 border-slate-800 bg-slate-900/50">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <Input
+            placeholder="Buscar por cliente o servicio..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            icon={<Search />}
+          />
+
+          <div className="flex gap-2 shrink-0">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="bg-slate-950 border border-slate-800 rounded-2xl px-6 py-3 text-slate-300 font-bold focus:border-indigo-500 outline-none cursor-pointer"
+            >
+              <option value="TODOS">Todos los estados</option>
+              <option value="COMPLETADA">Completadas</option>
+              <option value="CANCELADA">Canceladas</option>
+              <option value="RESERVADA">Próximas</option>
+            </select>
+
+            <Button variant="outline" className="border-slate-800 px-6 py-3 rounded-2xl">
+              <Download size={20} className="mr-2" /> Exportar
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* LISTA DE CITAS */}
+      <div className="space-y-4">
+        {loading ? (
+          [1, 2, 3, 4].map(i => <Skeleton key={i} variant="rectangular" height="h-24" />)
+        ) : citasFiltradas.length === 0 ? (
+          <Card className="p-20 text-center border-dashed border-slate-800 bg-transparent">
+            <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-700">
+              <Scissors size={40} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-400">No se encontraron citas</h3>
+            <p className="text-slate-500 mt-2">Prueba ajustando los filtros o términos de búsqueda.</p>
+            {searchTerm || filterStatus !== "TODOS" ? (
+              <Button
+                variant="ghost"
+                onClick={() => { setSearchTerm(""); setFilterStatus("TODOS"); }}
+                className="mt-4 text-indigo-400 hover:text-indigo-300"
+              >
+                Limpiar filtros
+              </Button>
+            ) : null}
+          </Card>
+        ) : (
+          citasFiltradas.map((c) => (
+            <Card
+              key={c._id}
+              className="border-slate-800 hover:border-slate-700 transition-all group overflow-hidden"
+            >
+              <div className="flex flex-col md:flex-row md:items-center">
+                {/* Lateral Indicator */}
+                <div className={`w-1.5 h-full absolute left-0 top-0 ${c.estado === "COMPLETADA" ? "bg-emerald-500" :
+                  c.estado === "CANCELADA" ? "bg-red-500" : "bg-indigo-500"
+                  }`}></div>
+
+                <div className="p-6 flex-1 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex items-center gap-6 w-full">
+                    <div className="w-14 h-14 bg-slate-800/50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-all">
+                      <Scissors size={24} />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-xl font-black text-white">
+                          {c.servicioId?.nombre || "Servicio"}
+                        </h3>
+                        <Badge
+                          variant={
+                            c.estado === "COMPLETADA" ? "success" :
+                              c.estado === "CANCELADA" ? "error" : "primary"
+                          }
+                          className="text-[10px] uppercase font-black px-2 py-0.5"
+                        >
+                          {c.estado}
+                        </Badge>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 font-medium">
+                        <span className="flex items-center gap-1.5">
+                          <User size={14} className="text-indigo-400/70" /> {c.nombreCliente || "Cliente"}
+                        </span>
+                        <span className="text-slate-800 hidden md:block">•</span>
+                        <span className="flex items-center gap-1.5">
+                          <Calendar size={14} /> {dayjs(c.fecha).format("DD MMM, YYYY")}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={14} /> {c.hora}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-8 pt-4 md:pt-0 border-t border-slate-800 md:border-t-0">
+                    <div className="text-right">
+                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Monto</p>
+                      <p className="text-white font-black text-xl">
+                        ${c.servicioId?.precio || 0}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="w-10 h-10 p-0 rounded-full hover:bg-slate-800 text-slate-500 hover:text-white"
+                    >
+                      <ChevronRight size={20} />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
               </div>
-
-              {/* Citas de ese día */}
-              <div className="space-y-3">
-                {citasAgrupadas[fecha].map((cita, index) => (
-                  <CitaCard key={cita._id} cita={cita} index={index} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Mini tarjeta de estadística
-function MiniStatCard({ icon, label, value, color }) {
-  return (
-    <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-2xl">{icon}</span>
-        <p className="text-xs text-gray-400">{label}</p>
-      </div>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-    </div>
-  );
-}
-
-// Tarjeta de cita individual
-function CitaCard({ cita, index }) {
-  const estadoConfig = {
-    COMPLETADA: {
-      bg: "from-green-600/20 to-emerald-600/20",
-      border: "border-green-500/30",
-      badge: "bg-gradient-to-r from-green-500 to-emerald-600",
-      icon: "✅"
-    },
-    CANCELADA: {
-      bg: "from-red-600/20 to-pink-600/20",
-      border: "border-red-500/30",
-      badge: "bg-gradient-to-r from-red-500 to-pink-600",
-      icon: "❌"
-    },
-    RESERVADA: {
-      bg: "from-amber-600/20 to-yellow-600/20",
-      border: "border-amber-500/30",
-      badge: "bg-gradient-to-r from-amber-500 to-yellow-600",
-      icon: "⏳"
-    }
-  };
-
-  const config = estadoConfig[cita.estado] || estadoConfig.RESERVADA;
-
-  return (
-    <div 
-      className={`
-        bg-gradient-to-r ${config.bg} backdrop-blur-sm 
-        rounded-xl p-5 border ${config.border}
-        hover:shadow-xl hover:shadow-purple-500/10 transition-all
-      `}
-      style={{ 
-        animation: `slideIn 0.4s ease-out ${index * 0.05}s both` 
-      }}
-    >
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        {/* Info principal */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          {/* Hora */}
-          <div className="bg-gray-900/50 rounded-lg p-3 text-center min-w-[70px]">
-            <p className="text-xs text-gray-400 mb-1">Hora</p>
-            <p className="text-lg font-bold text-white">{cita.hora}</p>
-          </div>
-
-          {/* Detalles */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <h3 className="text-lg font-bold text-white truncate">
-                {cita.servicioId?.nombre || "Servicio"}
-              </h3>
-              <span className={`${config.badge} text-white text-xs px-2 py-1 rounded-full font-semibold inline-flex items-center gap-1`}>
-                <span>{config.icon}</span>
-                {cita.estado}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
-              <span className="flex items-center gap-1">
-                <span>👤</span>
-                { cita.nombreCliente || "Sin nombre"}
-              </span>
-              <span className="flex items-center gap-1">
-                <span>💰</span>
-                ${(cita.servicioId?.precio || cita.precio || 0).toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );
-}
-
-// Agregar animación al final del archivo
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-  `;
-  if (!document.querySelector('style[data-slide-in]')) {
-    style.setAttribute('data-slide-in', 'true');
-    document.head.appendChild(style);
-  }
 }

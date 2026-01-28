@@ -24,21 +24,21 @@ export default function Login() {
       localStorage.clear();
       sessionStorage.clear();
       console.log("🧹 localStorage limpiado completamente");
-      
+
       // 🔥 PASO 2: Extraer userId y rol
       const userId = data.user.id || data.user._id;
       const userRole = data.user.rol;
-      
+
       console.log("🆔 userId:", userId);
       console.log("🎭 rol:", userRole);
-      
+
       // 🔥 PASO 3: Guardar datos básicos SIEMPRE
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify({
         ...data.user,
         id: userId  // Asegurar que tenga 'id'
       }));
-      
+
       // 🔥 PASO 4: Guardar ID específico según el rol
       switch (userRole) {
         case "BARBERO":
@@ -50,17 +50,17 @@ export default function Login() {
           }));
           console.log("✅ BARBERO - barberoId guardado:", userId);
           break;
-          
+
         case "BARBERIA_ADMIN":
           localStorage.setItem("adminId", userId);
           console.log("✅ ADMIN - adminId guardado:", userId);
           break;
-          
-        case "SUPERADMIN":
+
+        case "SUPER_ADMIN":
           localStorage.setItem("superadminId", userId);
-          console.log("✅ SUPERADMIN - superadminId guardado:", userId);
+          console.log("✅ SUPER_ADMIN - superadminId guardado:", userId);
           break;
-          
+
         default:
           console.warn("⚠️ Rol desconocido:", userRole);
       }
@@ -69,7 +69,7 @@ export default function Login() {
       const finalBarberoId = localStorage.getItem("barberoId");
       const finalAdminId = localStorage.getItem("adminId");
       const finalAuth = localStorage.getItem("auth");
-      
+
       console.log("📦 Estado final localStorage:");
       console.log("  - token:", localStorage.getItem("token") ? "✓" : "✗");
       console.log("  - user:", localStorage.getItem("user") ? "✓" : "✗");
@@ -77,7 +77,7 @@ export default function Login() {
       console.log("  - barberoId:", finalBarberoId || "❌");
       console.log("  - adminId:", finalAdminId || "❌");
       console.log("  - rol guardado:", userRole);
-      
+
       // 🔥 PASO 6: Verificación de seguridad - Limpiar IDs que no corresponden
       if (userRole === "BARBERIA_ADMIN") {
         if (finalBarberoId) {
@@ -89,7 +89,7 @@ export default function Login() {
           localStorage.removeItem("auth");
         }
       }
-      
+
       if (userRole === "BARBERO") {
         if (finalAdminId) {
           console.error("🚨 CRÍTICO: Barbero tiene adminId, eliminando...");
@@ -99,21 +99,36 @@ export default function Login() {
 
       // 🔥 PASO 7: Redirigir según el rol
       console.log("🔄 Redirigiendo...");
-      
+
+      // Obtener el slug de la barbería del usuario
+      const barberiaSlug = data.user.barberiaSlug || data.user.barberia?.slug;
+
       switch (userRole) {
         case "BARBERIA_ADMIN":
-          navigate("/role/admin/dashboard", { replace: true });
+          if (barberiaSlug) {
+            console.log("📍 Redirigiendo a:", `/${barberiaSlug}/admin/dashboard`);
+            navigate(`/${barberiaSlug}/admin/dashboard`, { replace: true });
+          } else {
+            console.error("❌ ADMIN sin slug de barbería");
+            setError("Error: Usuario admin sin barbería asignada");
+          }
           break;
-        case "SUPERADMIN":
-          navigate("/role/superadmin", { replace: true });
+        case "SUPER_ADMIN":
+          navigate("/superadmin", { replace: true });
           break;
         case "BARBERO":
-          navigate("/role/barbero", { replace: true });
+          if (barberiaSlug) {
+            console.log("📍 Redirigiendo a:", `/${barberiaSlug}/barbero/dashboard`);
+            navigate(`/${barberiaSlug}/barbero/dashboard`, { replace: true });
+          } else {
+            console.error("❌ BARBERO sin slug de barbería");
+            setError("Error: Usuario barbero sin barbería asignada");
+          }
           break;
         default:
           navigate("/", { replace: true });
       }
-      
+
     } catch (err) {
       console.error("❌ Error en login:", err);
       setError(err.message || "Error al iniciar sesión");

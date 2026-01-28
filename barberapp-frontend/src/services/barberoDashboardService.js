@@ -1,56 +1,109 @@
+/**
+ * @file barberoDashboardService.js
+ * @description Servicio para Dashboard del BARBERO (rol: BARBERO)
+ * 
+ * Este servicio maneja todas las operaciones del dashboard del barbero:
+ * - Ver agenda del día
+ * - Historial de citas
+ * - Perfil del barbero
+ * - Completar/Cancelar reservas
+ * 
+ * 🔐 Autenticación: Requiere token JWT con rol BARBERO
+ * 🏢 Multi-tenant: Todas las rutas están bajo /api/barberias/:slug/barbero/*
+ * 📍 Slug: Se obtiene automáticamente de la URL actual (window.location)
+ */
+
 import api from "./api";
 
-// =========================================================
-// GESTIÓN DE RESERVAS
-// =========================================================
+/**
+ * Obtiene el slug de la barbería actual desde la URL del navegador
+ * @returns {string} slug de la barbería (ej: "barberia-central")
+ * @example
+ * // URL: http://localhost:5173/barberia-central/barbero/dashboard
+ * // Returns: "barberia-central"
+ */
+function getSlugActual() {
+  return window.location.pathname.split("/")[1];
+}
 
-// Obtener reservas del día del barbero
-export async function getReservasBarberoDia(barberoId, fecha) {
+/**
+ * Obtiene la agenda del barbero para una fecha específica
+ * @param {string} fecha - Fecha en formato YYYY-MM-DD
+ * @returns {Promise<Array>} Lista de reservas del día
+ * @endpoint GET /api/barberias/:slug/barbero/agenda?fecha=YYYY-MM-DD
+ */
+export async function getAgendaBarbero(fecha) {
+  const slug = getSlugActual();
   const res = await api.get(
-    `/reservas/barberos/${barberoId}?fecha=${fecha}`
+    `/barberias/${slug}/barbero/agenda?fecha=${fecha}`
   );
-  return res.data.reservas || [];
+  return res.data || [];
 }
 
+/**
+ * Obtiene el historial completo de citas del barbero
+ * @returns {Promise<Array>} Lista de todas las citas (pasadas y futuras)
+ * @endpoint GET /api/barberias/:slug/barbero/mis-citas
+ */
+export async function getCitasBarbero() {
+  const slug = getSlugActual();
+  const res = await api.get(
+    `/barberias/${slug}/barbero/mis-citas`
+  );
+  return res.data || [];
+}
 
-// =========================================================
-// PERFIL Y DATOS DEL BARBERO
-// =========================================================
-
-// Obtener perfil del barbero autenticado
-export const getPerfilBarbero = async () => {
-  const res = await api.get("/barberos/mi-perfil"); // ✅ Ruta correcta
-  return res.data;
-};
-
-// Obtener todas las citas del barbero
-export const getCitasBarbero = async () => {
-  const res = await api.get("/barberos/mis-citas"); // ✅ Ruta correcta
-  return res.data; // El backend ya retorna el array directamente
-};
-
-// Obtener agenda del barbero (requiere fecha)
-export const getAgendaBarbero = async (fecha) => {
-  const res = await api.get(`/barberos/agenda?fecha=${fecha}`); // ✅ Ruta correcta con parámetro
-  return res.data; // El backend ya retorna el array directamente
-};
-
-// =========================================================
-// HORARIOS
-// =========================================================
-
-// Obtener horarios del barbero
-export async function getHorarios(barberoId) {
-  const res = await api.get(`/horarios/barberos/${barberoId}`);
+/**
+ * Obtiene el perfil del barbero autenticado
+ * @returns {Promise<Object>} Datos del perfil (nombre, email, especialidades, experiencia, etc.)
+ * @endpoint GET /api/barberias/:slug/barbero/mi-perfil
+ */
+export async function getPerfilBarbero() {
+  const slug = getSlugActual();
+  const res = await api.get(
+    `/barberias/${slug}/barbero/mi-perfil`
+  );
   return res.data;
 }
 
-export const completarReserva = async (id) => {
-  const response = await api.patch(`/reservas/${id}/completar`);
-  return response.data;
-};
+/**
+ * Marca una reserva como completada
+ * @param {string} reservaId - ID de la reserva a completar
+ * @returns {Promise<Object>} Respuesta del servidor
+ * @endpoint PATCH /api/barberias/:slug/barbero/reservas/:id/completar
+ */
+export async function completarReserva(reservaId) {
+  const slug = getSlugActual();
+  const res = await api.patch(
+    `/barberias/${slug}/barbero/reservas/${reservaId}/completar`
+  );
+  return res.data;
+}
 
-export const cancelarReserva = async (id) => {
-  const response = await api.patch(`/reservas/${id}/cancelar`);
-  return response.data;
-};
+/**
+ * Cancela una reserva
+ * @param {string} reservaId - ID de la reserva a cancelar
+ * @returns {Promise<Object>} Respuesta del servidor
+ * @endpoint PATCH /api/barberias/:slug/barbero/reservas/:id/cancelar
+ */
+export async function cancelarReserva(reservaId) {
+  const slug = getSlugActual();
+  const res = await api.patch(
+    `/barberias/${slug}/barbero/reservas/${reservaId}/cancelar`
+  );
+  return res.data;
+}
+
+/**
+ * Obtiene las estadísticas y métricas del barbero
+ * @returns {Promise<Object>} Métricas de rendimiento (citas, ingresos, tasa cancelación, etc.)
+ * @endpoint GET /api/barberias/:slug/barbero/estadisticas
+ */
+export async function getEstadisticasBarbero() {
+  const slug = getSlugActual();
+  const res = await api.get(
+    `/barberias/${slug}/barbero/estadisticas`
+  );
+  return res.data;
+}
+

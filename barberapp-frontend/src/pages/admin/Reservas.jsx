@@ -1,8 +1,12 @@
-// src/pages/admin/Reservas.jsx
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
+import 'dayjs/locale/es';
 import { getBarberos } from "../../services/barberosService";
-import { getTurnosDia, completarReserva, cancelarReserva } from "../../services/turnosService";
+import { getReservasPorBarberoDia, completarReserva, cancelarReserva } from "../../services/reservasService";
+import { Card, Stat, Badge, Button, Skeleton, Avatar } from "../../components/ui";
+import { Calendar, Users, Clock, DollarSign, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+
+dayjs.locale('es');
 
 export default function ReservasAdmin() {
   const [barberos, setBarberos] = useState([]);
@@ -13,12 +17,10 @@ export default function ReservasAdmin() {
   const [resumen, setResumen] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Cargar barberos para elegir
   useEffect(() => {
     getBarberos().then(data => setBarberos(data));
   }, []);
 
-  // Cuando cambie barbero o fecha, traer turnos
   useEffect(() => {
     if (!selectedBarbero) return;
     fetchTurnos();
@@ -27,54 +29,84 @@ export default function ReservasAdmin() {
   async function fetchTurnos() {
     setLoading(true);
     try {
-      const data = await getTurnosDia(selectedBarbero._id, fecha);
-      setResumen(data.resumen);
-      setTurnos(data.turnos);
+      const reservas = await getReservasPorBarberoDia(selectedBarbero._id, fecha);
+
+      // Calcular resumen desde las reservas
+      const resumenCalculado = {
+        totalTurnos: reservas.length,
+        completados: reservas.filter(r => r.estado === 'COMPLETADA').length,
+        cancelados: reservas.filter(r => r.estado === 'CANCELADA').length,
+        ingresosGenerados: reservas
+          .filter(r => r.estado === 'COMPLETADA')
+          .reduce((sum, r) => sum + (r.precioTotal || 0), 0),
+        horasTrabajadas: "00:00" // Placeholder
+      };
+
+      setResumen(resumenCalculado);
+      setTurnos(reservas);
     } catch (err) {
       console.log("Error cargando reservas:", err);
+      setResumen({});
+      setTurnos([]);
     }
     setLoading(false);
   }
 
-  // Acciones
   async function handleCompletar(id) {
+    if (!window.confirm("¿Marcar esta reserva como completada?")) return;
     await completarReserva(id);
     fetchTurnos();
   }
 
   async function handleCancelar(id) {
+    if (!window.confirm("¿Cancelar esta reserva?")) return;
     await cancelarReserva(id);
     fetchTurnos();
   }
 
-  const getEstadoColor = (estado) => {
-    switch(estado) {
-      case "RESERVADA": return "bg-blue-500/20 text-blue-300 border border-blue-500/50";
-      case "COMPLETADA": return "bg-green-500/20 text-green-300 border border-green-500/50";
-      case "CANCELADA": return "bg-red-500/20 text-red-300 border border-red-500/50";
-      case "DISPONIBLE": return "bg-gray-500/20 text-gray-300 border border-gray-500/50";
-      default: return "bg-gray-500/20 text-gray-300 border border-gray-500/50";
-    }
+  const getEstadoBadge = (estado) => {
+    const estados = {
+      RESERVADA: { variant: "info", label: "Reservada" },
+      CONFIRMADA: { variant: "success", label: "Confirmada" },
+      COMPLETADA: { variant: "success", label: "Completada" },
+      CANCELADA: { variant: "error", label: "Cancelada" },
+      DISPONIBLE: { variant: "neutral", label: "Disponible" },
+      NO_ASISTIO: { variant: "warning", label: "No asistió" }
+    };
+    return estados[estado] || { variant: "neutral", label: estado };
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      minimumFractionDigits: 0
+    }).format(value || 0);
   };
 
   return (
-    <div className="p-6 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">📅 Agenda del Día</h1>
-        <p className="text-gray-400">Gestiona las reservas y turnos de tus barberos</p>
-      </div>
+    <div className="space-y-8 animate-slide-in">
+      {/* HEADER */}
+      <header className="space-y-2">
+        <h1 className="text-4xl font-black text-gradient-primary">
+          📅 Agenda del Día
+        </h1>
+        <p className="text-neutral-400 text-lg">
+          Gestiona las reservas y turnos de tus barberos
+        </p>
+      </header>
 
-      {/* Controles de selección */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-xl shadow-2xl mb-8 border border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* CONTROLES DE SELECCIÓN */}
+      <Card variant="glass">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
           {/* Selector de barbero */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              👤 Seleccionar Barbero
+            <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-3">
+              <Users size={16} className="text-primary-500" />
+              Seleccionar Barbero
             </label>
             <select
-              className="w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all"
+              className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
               value={selectedBarbero?._id || ""}
               onChange={e => {
                 const b = barberos.find(x => x._id === e.target.value);
@@ -90,162 +122,205 @@ export default function ReservasAdmin() {
 
           {/* Selector de fecha */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              📆 Seleccionar Fecha
+            <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-3">
+              <Calendar size={16} className="text-primary-500" />
+              Seleccionar Fecha
             </label>
             <input
               type="date"
-              className="w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all"
+              className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
               value={fecha}
               onChange={e => setFecha(e.target.value)}
             />
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Resumen del día - Cards mejoradas */}
+      {/* RESUMEN DEL DÍA */}
       {selectedBarbero && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">📊 Resumen del Día</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            {/* Total Reservas */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-xl shadow-xl transform hover:scale-105 transition-transform">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-3xl">📋</span>
-                <span className="text-blue-200 text-sm font-medium">TOTAL</span>
-              </div>
-              <p className="text-4xl font-bold text-white mb-1">{resumen.totalTurnos || 0}</p>
-              <p className="text-blue-200 text-sm">Reservas totales</p>
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <Avatar name={selectedBarbero.nombre} size="lg" />
+            <div>
+              <h2 className="text-2xl font-bold text-white">
+                {selectedBarbero.nombre}
+              </h2>
+              <p className="text-neutral-400">
+                {dayjs(fecha).format('dddd, D [de] MMMM [de] YYYY')}
+              </p>
             </div>
+          </div>
 
-            {/* Completadas vs Canceladas */}
-            <div className="bg-gradient-to-br from-green-600 to-green-800 p-6 rounded-xl shadow-xl transform hover:scale-105 transition-transform">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-3xl">✅</span>
-                <span className="text-green-200 text-sm font-medium">ESTADO</span>
-              </div>
-              <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-4xl font-bold text-white">{resumen.completados || 0}</p>
-                <span className="text-green-200">/ {resumen.cancelados || 0}</span>
-              </div>
-              <p className="text-green-200 text-sm">Completadas / Canceladas</p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Stat
+              title="Total Reservas"
+              value={resumen.totalTurnos || 0}
+              icon="📋"
+              color="primary"
+            />
 
-            {/* Ingresos */}
-            <div className="bg-gradient-to-br from-yellow-600 to-yellow-800 p-6 rounded-xl shadow-xl transform hover:scale-105 transition-transform">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-3xl">💰</span>
-                <span className="text-yellow-200 text-sm font-medium">INGRESOS</span>
-              </div>
-              <p className="text-4xl font-bold text-white mb-1">${resumen.ingresosGenerados || 0}</p>
-              <p className="text-yellow-200 text-sm">Generados hoy</p>
-            </div>
+            <Stat
+              title="Completadas"
+              value={resumen.completados || 0}
+              icon="✅"
+              color="success"
+            />
 
-            {/* Horas trabajadas */}
-            <div className="bg-gradient-to-br from-purple-600 to-purple-800 p-6 rounded-xl shadow-xl transform hover:scale-105 transition-transform">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-3xl">⏰</span>
-                <span className="text-purple-200 text-sm font-medium">TIEMPO</span>
-              </div>
-              <p className="text-4xl font-bold text-white mb-1">{resumen.horasTrabajadas || "00:00"}</p>
-              <p className="text-purple-200 text-sm">Horas trabajadas</p>
-            </div>
+            <Stat
+              title="Ingresos Generados"
+              value={formatCurrency(resumen.ingresosGenerados)}
+              icon="💰"
+              color="accent"
+            />
 
+            <Stat
+              title="Horas Trabajadas"
+              value={resumen.horasTrabajadas || "00:00"}
+              icon="⏰"
+              color="warning"
+            />
           </div>
         </div>
       )}
 
-      {/* Lista de turnos - Tabla mejorada */}
+      {/* LISTA DE TURNOS */}
       {selectedBarbero && (
-        <div className="bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
-          <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-4 border-b border-gray-700">
-            <h2 className="text-xl font-bold text-white">🕐 Turnos del Día</h2>
+        <Card>
+          <div className="flex items-center justify-between p-6 border-b border-neutral-800">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary-500 bg-opacity-20 rounded-xl">
+                <Clock className="text-primary-500" size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  Turnos del Día
+                </h3>
+                <p className="text-neutral-400 text-sm">
+                  {turnos.length} {turnos.length === 1 ? 'turno' : 'turnos'} registrados
+                </p>
+              </div>
+            </div>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-              <p className="text-gray-400 mt-4">Cargando turnos...</p>
+            <div className="p-12 space-y-4">
+              {[1, 2, 3].map(i => (
+                <Skeleton key={i} variant="rectangular" height="h-20" />
+              ))}
             </div>
           ) : turnos.length === 0 ? (
-            <div className="p-12 text-center">
-              <span className="text-6xl mb-4 block">📭</span>
-              <p className="text-gray-400 text-lg">No hay reservas para esta fecha</p>
+            <div className="py-16 text-center">
+              <div className="w-20 h-20 bg-neutral-800 bg-opacity-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="text-neutral-600" size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                No hay reservas
+              </h3>
+              <p className="text-neutral-400">
+                No hay turnos programados para esta fecha
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-900">
-                  <tr>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-300">🕐 Hora</th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-300">👤 Cliente</th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-300">✂️ Servicio</th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-300">📊 Estado</th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-300">⚙️ Acciones</th>
+                <thead>
+                  <tr className="border-b border-neutral-800">
+                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Hora</th>
+                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Cliente</th>
+                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Servicio</th>
+                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Estado</th>
+                    <th className="text-right p-4 text-xs font-bold text-neutral-500 uppercase">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {turnos.map((t, idx) => (
-                    <tr 
-                      key={t.hora} 
-                      className={`border-b border-gray-700 hover:bg-gray-700/50 transition-colors ${
-                        idx % 2 === 0 ? 'bg-gray-800/50' : 'bg-gray-800/30'
-                      }`}
-                    >
-                      <td className="p-4">
-                        <span className="text-white font-semibold text-lg">{t.hora}</span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-gray-200">{t.cliente || "—"}</span>
-                      </td>
-                      <td className="p-4">
-                        <div>
-                          <p className="text-white font-medium">{t.servicio}</p>
-                          <p className="text-gray-400 text-sm">⏱️ {t.duracion} min</p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getEstadoColor(t.estado)}`}>
-                          {t.estado}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          {t.estado === "RESERVADA" && (
-                            <>
-                              <button
-                                onClick={() => handleCompletar(t._id)}
-                                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
-                              >
-                                ✓ Completar
-                              </button>
-                              <button
-                                onClick={() => handleCancelar(t._id)}
-                                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg"
-                              >
-                                ✗ Cancelar
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {turnos.map((t, idx) => {
+                    const estadoBadge = getEstadoBadge(t.estado);
+                    return (
+                      <tr
+                        key={t._id || idx}
+                        className="border-b border-neutral-800 hover:bg-neutral-800 hover:bg-opacity-30 transition-all"
+                      >
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Clock size={16} className="text-neutral-500" />
+                            <span className="text-white font-bold text-lg">{t.hora}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            {t.clienteNombre ? (
+                              <>
+                                <Avatar name={t.clienteNombre} size="sm" />
+                                <span className="text-white font-semibold">{t.clienteNombre}</span>
+                              </>
+                            ) : (
+                              <span className="text-neutral-500 italic">Sin cliente</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div>
+                            <p className="text-white font-medium">{t.servicioId?.nombre || "—"}</p>
+                            {t.servicioId?.duracion && (
+                              <p className="text-neutral-400 text-sm flex items-center gap-1">
+                                <Clock size={12} />
+                                {t.servicioId.duracion} min
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant={estadoBadge.variant} size="sm">
+                            {estadoBadge.label}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center justify-end gap-2">
+                            {(t.estado === "RESERVADA" || t.estado === "CONFIRMADA") && (
+                              <>
+                                <button
+                                  onClick={() => handleCompletar(t._id)}
+                                  className="p-2 bg-success-500 bg-opacity-20 text-success-500 rounded-lg hover:bg-opacity-30 transition-all"
+                                  title="Completar"
+                                >
+                                  <CheckCircle size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleCancelar(t._id)}
+                                  className="p-2 bg-error-500 bg-opacity-20 text-error-500 rounded-lg hover:bg-opacity-30 transition-all"
+                                  title="Cancelar"
+                                >
+                                  <XCircle size={16} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
+        </Card>
       )}
 
-      {/* Mensaje inicial cuando no hay barbero seleccionado */}
+      {/* MENSAJE INICIAL */}
       {!selectedBarbero && (
-        <div className="bg-gray-800 rounded-xl shadow-xl p-12 text-center border border-gray-700">
-          <span className="text-6xl mb-4 block">👨‍💼</span>
-          <h3 className="text-2xl font-bold text-white mb-2">Selecciona un barbero</h3>
-          <p className="text-gray-400">Elige un barbero arriba para ver su agenda del día</p>
-        </div>
+        <Card className="border-neutral-700">
+          <div className="py-16 text-center">
+            <div className="w-20 h-20 bg-primary-500 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="text-primary-500" size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              Selecciona un barbero
+            </h3>
+            <p className="text-neutral-400">
+              Elige un barbero arriba para ver su agenda del día
+            </p>
+          </div>
+        </Card>
       )}
     </div>
   );

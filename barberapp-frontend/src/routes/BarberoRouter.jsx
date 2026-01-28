@@ -1,31 +1,39 @@
-import { Routes, Route } from "react-router-dom";
-import BarberoLayout from "../layout/BarberoLayout.jsx";
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../guards/ProtectedRoute";
+
+import BarberoLayout from "../layout/BarberoLayout";
 
 import Dashboard from "../pages/barbero/Dashboard";
-import Agenda from "../pages/barbero/Agenda"; // ✅ Componente de Agenda con selector de fecha
-import Citas from "../pages/barbero/Citas"; // ✅ Historial de citas
+import Citas from "../pages/barbero/Citas";
 import Perfil from "../pages/barbero/Perfil";
-import Error404 from "../pages/errors/Error404";
+
+import MisFinanzas from "../pages/barbero/MisFinanzas";
+import MisTransacciones from "../pages/barbero/MisTransacciones";
 
 export default function BarberoRouter() {
   return (
-    <Routes>
-      <Route element={<BarberoLayout />}>
-        {/* Dashboard principal */}
-        <Route index element={<Dashboard />} />
-        
-        {/* Agenda del día con selector de fecha */}
-        <Route path="agenda" element={<Agenda />} />
-        
-        {/* Historial completo de citas */}
-        <Route path="citas" element={<Citas />} />
-        
-        {/* Perfil del barbero */}
-        <Route path="perfil" element={<Perfil />} />
-      </Route>
+    <ProtectedRoute requiredRole="BARBERO">
+      <Routes>
+        <Route element={<BarberoLayout />}>
+          {/* /:slug/barbero */}
+          <Route index element={<Navigate to="dashboard" replace />} />
 
-      {/* 404 */}
-      <Route path="*" element={<Error404 />} />
-    </Routes>
+          {/* /:slug/barbero/dashboard */}
+          <Route path="dashboard" element={<Dashboard />} />
+
+          {/* /:slug/barbero/citas */}
+          <Route path="citas" element={<Citas />} />
+
+          {/* /:slug/barbero/perfil */}
+          <Route path="perfil" element={<Perfil />} />
+
+          {/* /:slug/barbero/finanzas */}
+          <Route path="finanzas">
+            <Route index element={<MisFinanzas />} />
+            <Route path="transacciones" element={<MisTransacciones />} />
+          </Route>
+        </Route>
+      </Routes>
+    </ProtectedRoute>
   );
 }
