@@ -1,27 +1,28 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import SlugRouter from "./SlugRouter";
 import SuperAdminRouter from "./SuperAdminRouter";
 
-// pages públicas fuera de slug (opcional)
 import Login from "../pages/auth/Login";
 import Error404 from "../pages/errors/Error404";
 
 export default function AppRouter() {
   return (
-    
-      <Routes>
-        {/* SuperAdmin sin slug */}
-        <Route path="/superadmin/*" element={<SuperAdminRouter />} />
+    <Routes>
+      {/* ROOT: redirección a una barbería */}
+      <Route path="/" element={<Navigate to="/barberialamejor" replace />} />
 
-        {/* Todo lo de la barbería vive bajo /:slug */}
-        <Route path="/:slug/*" element={<SlugRouter />} />
+      {/* SuperAdmin sin slug */}
+      <Route path="/superadmin/*" element={<SuperAdminRouter />} />
 
-        {/* Auth genérica si la usas */}
-        <Route path="/login" element={<Login />} />
+      {/* Todo lo de la barbería vive bajo /:slug */}
+      <Route path="/:slug/*" element={<SlugRouter />} />
 
-        <Route path="*" element={<Error404 />} />
-      </Routes>
-    
+      {/* Auth */}
+      <Route path="/login" element={<Login />} />
+
+      {/* 404 real */}
+      <Route path="*" element={<Error404 />} />
+    </Routes>
   );
 }
