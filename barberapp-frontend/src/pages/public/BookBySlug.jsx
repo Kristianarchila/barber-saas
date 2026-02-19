@@ -160,38 +160,37 @@ export default function BookBySlug() {
         <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900">
             {/* HEADER COMPACTO */}
             <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/5">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-                    <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
-                        <ChevronLeft size={24} />
+                <div className="max-w-7xl mx-auto px-3 md:px-6 py-3 flex items-center justify-between gap-2">
+                    <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0">
+                        <ChevronLeft size={22} />
                     </button>
-                    <h1 className="font-black uppercase tracking-tighter text-xl md:text-2xl">{barberia?.nombre}</h1>
-                    <div className="w-10" />
+                    <h1 className="font-black uppercase tracking-tighter text-base md:text-2xl truncate text-center">{barberia?.nombre}</h1>
+                    {/* Indicador de paso */}
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex-shrink-0">{step}/4</span>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <main className="max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-12">
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.section key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                            {/* TÍTULO ESTILO IMAGEN */}
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
-                                <div>
-                                    <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none mb-2">
-                                        Servicios<span className="text-transparent" style={{ WebkitTextStroke: '1px #000' }}>.</span>
-                                    </h2>
-                                    <p className="text-neutral-400 font-bold text-[10px] md:text-xs uppercase tracking-widest">
-                                        {serviciosFiltrados.length} servicios disponibles
-                                    </p>
-                                </div>
-                                <div className="relative w-full md:max-w-xs">
+                            {/* TÍTULO */}
+                            <div className="mb-6 md:mb-10">
+                                <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase leading-none mb-2">
+                                    Servicios<span className="text-transparent" style={{ WebkitTextStroke: '1px #000' }}>.</span>
+                                </h2>
+                                <p className="text-neutral-400 font-bold text-[10px] uppercase tracking-widest mb-4">
+                                    {serviciosFiltrados.length} servicios disponibles
+                                </p>
+                                <div className="relative">
                                     <input
                                         type="text"
                                         placeholder="BUSCAR..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-black/10 py-3 text-xs font-black tracking-widest outline-none focus:border-black transition-all"
+                                        className="w-full bg-transparent border-b-2 border-black/10 py-2.5 text-xs font-black tracking-widest outline-none focus:border-black transition-all"
                                     />
-                                    <Search className="absolute right-0 top-1/2 -translate-y-1/2 text-black/20" size={16} />
+                                    <Search className="absolute right-0 top-1/2 -translate-y-1/2 text-black/20" size={15} />
                                 </div>
                             </div>
 
@@ -210,7 +209,7 @@ export default function BookBySlug() {
                             </div>
 
                             {/* GRID OPTIMIZADO */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                 <AnimatePresence mode='popLayout'>
                                     {serviciosFiltrados.map((s) => (
                                         <ServiceGridCard
@@ -226,7 +225,7 @@ export default function BookBySlug() {
 
                     {step === 2 && (
                         <motion.section key="step2" className="max-w-4xl mx-auto">
-                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-10">Elige tu barbero</h2>
+                            <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mb-8">Elige tu barbero</h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
                                 {barberos.map(b => (
                                     <BarberCard key={b._id} barber={b} isSelected={formData.barberoId === b._id} onSelect={() => { handleSelect('barberoId', b._id); setStep(3); }} />
@@ -237,7 +236,7 @@ export default function BookBySlug() {
 
                     {step === 3 && (
                         <motion.section key="step3" className="max-w-3xl mx-auto">
-                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-10 text-center md:text-left">Horario</h2>
+                            <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mb-6 md:mb-10">Horario</h2>
                             <DatePicker selectedDate={formData.fecha} onSelect={(d) => handleSelect('fecha', d)} />
                             <div className="mt-10">
                                 <TimeGrid turnos={turnosDisponibles} selectedTime={formData.hora} loading={loadingTurnos} onSelect={(t) => handleSelect('hora', t)} />
@@ -302,7 +301,7 @@ const ServiceGridCard = ({ service, onSelect }) => (
         onClick={onSelect}
         className="group bg-white rounded-[1.8rem] overflow-hidden border border-black/5 hover:shadow-2xl transition-all duration-500 cursor-pointer"
     >
-        <div className="relative h-48 md:h-64 bg-neutral-100 overflow-hidden">
+        <div className="relative h-40 sm:h-48 md:h-64 bg-neutral-100 overflow-hidden">
             {service.imagen ? (
                 <img src={service.imagen} alt={service.nombre} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
             ) : (
@@ -316,9 +315,9 @@ const ServiceGridCard = ({ service, onSelect }) => (
             </div>
         </div>
 
-        <div className="p-6 md:p-8">
-            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter mb-2 leading-none">{service.nombre}</h3>
-            <p className="text-neutral-400 text-xs md:text-sm font-medium mb-6 line-clamp-2">{service.descripcion || "Servicio especializado de alta gama."}</p>
+        <div className="p-4 md:p-8">
+            <h3 className="text-lg md:text-2xl font-black uppercase tracking-tighter mb-1.5 leading-none">{service.nombre}</h3>
+            <p className="text-neutral-400 text-xs font-medium mb-4 line-clamp-2">{service.descripcion || "Servicio especializado de alta gama."}</p>
             <div className="flex items-center justify-between pt-5 border-t border-black/5">
                 <div className="flex items-center gap-2 text-black/30">
                     <Clock size={14} />
@@ -362,10 +361,10 @@ const DatePicker = ({ selectedDate, onSelect }) => {
 };
 
 const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => (
-    <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-        {loading ? Array(8).fill(0).map((_, i) => <div key={i} className="h-16 bg-neutral-100 animate-pulse rounded-2xl" />)
+    <div className="grid grid-cols-4 md:grid-cols-5 gap-2 md:gap-4">
+        {loading ? Array(8).fill(0).map((_, i) => <div key={i} className="h-12 bg-neutral-100 animate-pulse rounded-xl" />)
             : turnos.map(t => (
-                <button key={t} onClick={() => onSelect(t)} className={`py-4 md:py-6 rounded-2xl border-2 font-black transition-all ${selectedTime === t ? 'bg-black text-white border-black' : 'bg-white border-black/5 hover:border-black'}`}>
+                <button key={t} onClick={() => onSelect(t)} className={`py-3 md:py-5 rounded-xl md:rounded-2xl border-2 font-black text-xs md:text-sm transition-all ${selectedTime === t ? 'bg-black text-white border-black' : 'bg-white border-black/5 hover:border-black'}`}>
                     {t}
                 </button>
             ))}
@@ -374,7 +373,7 @@ const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => (
 
 const ConfirmStep = ({ formData, service, barber, onConfirm, loading, onChange, errorApi }) => {
     return (
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 md:gap-12">
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
             <div className="bg-white p-8 rounded-[2.5rem] border border-black/5 shadow-xl">
                 <h4 className="font-black uppercase text-[10px] tracking-widest text-neutral-400 mb-8">Resumen de Cita</h4>
                 <div className="space-y-6">
