@@ -1,28 +1,44 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
-import SlugRouter from "./SlugRouter";
-import SuperAdminRouter from "./SuperAdminRouter";
+// Lazy-loaded sub-routers
+const SlugRouter = lazy(() => import("./SlugRouter"));
+const SuperAdminRouter = lazy(() => import("./SuperAdminRouter"));
 
-import Login from "../pages/auth/Login";
-import Error404 from "../pages/errors/Error404";
+// Lazy-loaded pages
+const Login = lazy(() => import("../pages/auth/Login"));
+const Signup = lazy(() => import("../pages/auth/Signup"));
+const SignupBeta = lazy(() => import("../pages/auth/SignupBeta"));
+const PaymentSuccess = lazy(() => import("../pages/auth/PaymentSuccess"));
+const Pricing = lazy(() => import("../pages/public/Pricing"));
+const Error404 = lazy(() => import("../pages/errors/Error404"));
 
 export default function AppRouter() {
   return (
-    <Routes>
-      {/* ROOT: redirección a una barbería */}
-      <Route path="/" element={<Navigate to="/barberialamejor" replace />} />
+    <Suspense fallback={<LoadingSpinner fullScreen label="Cargando..." />}>
+      <Routes>
+        {/* ROOT: Redirección al login general para evitar colisión de tenants */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-      {/* SuperAdmin sin slug */}
-      <Route path="/superadmin/*" element={<SuperAdminRouter />} />
+        {/* Pricing Público */}
+        <Route path="/pricing" element={<Pricing />} />
 
-      {/* Todo lo de la barbería vive bajo /:slug */}
-      <Route path="/:slug/*" element={<SlugRouter />} />
+        {/* SuperAdmin sin slug */}
+        <Route path="/superadmin/*" element={<SuperAdminRouter />} />
 
-      {/* Auth */}
-      <Route path="/login" element={<Login />} />
+        {/* Todo lo de la barbería vive bajo /:slug */}
+        <Route path="/:slug/*" element={<SlugRouter />} />
 
-      {/* 404 real */}
-      <Route path="*" element={<Error404 />} />
-    </Routes>
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignupBeta />} />
+        <Route path="/auth/signup" element={<Signup />} />
+        <Route path="/auth/success" element={<PaymentSuccess />} />
+
+        {/* 404 real */}
+        <Route path="*" element={<Error404 />} />
+      </Routes>
+    </Suspense>
   );
 }

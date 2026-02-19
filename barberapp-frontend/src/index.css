@@ -1,96 +1,165 @@
 @import "tailwindcss";
 
-/* Base styles */
+:root {
+  /* Legend & Colors */
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-subtle: #334155;
+
+  /* Accent Colors */
+  --barber-red: #cc2b2b;
+  --barber-blue: #1d4ed8;
+  --barber-white: #ffffff;
+  --barber-black: #050505;
+
+  /* Theme Tokens */
+  --color-primary: #6366f1;
+  /* Indigo 500 */
+  --color-secondary: #0ea5e9;
+  /* Sky 500 */
+  --color-accent: #f43f5e;
+  /* Rose 500 */
+
+  /* Typography */
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+}
+
+
+
+/* --- ESTILOS BASE --- */
 @layer base {
+  html {
+    /* Smooth scroll optimizado para mejor rendimiento */
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+    /* Offset para navbar fijo */
+    background-color: var(--bg-dark);
+    /* Prevenir scroll bounce en móviles */
+    overscroll-behavior-y: none;
+  }
+
   body {
-    @apply bg-neutral-950 text-neutral-100 antialiased;
+    @apply antialiased;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    /* Optimización de scroll suave */
+    -webkit-overflow-scrolling: touch;
+    /* Mejora de rendimiento para animaciones */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+
+  /* Selección de texto personalizada */
+  ::selection {
+    background-color: var(--barber-red);
+    color: white;
   }
 }
 
-/* Custom utilities */
+/* --- UTILIDADES PREMIUM --- */
 @layer utilities {
-  .glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+
+  /* 💈 El icónico Barber Pole (Usado en bordes y decoraciones) */
+  .bg-barber-pole {
+    background: repeating-linear-gradient(-45deg,
+        var(--barber-red),
+        var(--barber-red) 15px,
+        var(--barber-white) 15px,
+        var(--barber-white) 30px,
+        var(--barber-blue) 30px,
+        var(--barber-blue) 45px,
+        var(--barber-white) 45px,
+        var(--barber-white) 60px);
+    background-size: 200% 200%;
+    animation: barber-slide 10s linear infinite;
   }
 
-  .gradient-primary {
-    background: linear-gradient(135deg, #A855F7 0%, #7E22CE 100%);
+  /* Efecto de Cristal para Cards sobre fondo oscuro */
+  .glass-card {
+    background: rgba(18, 18, 20, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
   }
 
-  .gradient-secondary {
-    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
   }
 
-  .gradient-accent {
-    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  .gradient-success {
-    background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
   }
 
-  .gradient-dark {
-    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  /* Ocultar Scrollbar pero mantener funcionalidad */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
-  .text-gradient-primary {
-    background: linear-gradient(135deg, #A855F7 0%, #7E22CE 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE y Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 
-  .shadow-glow-primary {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  /* Texto con trazo (Outline) para títulos tipo revista */
+  .text-stroke {
+    -webkit-text-stroke: 1px rgba(248, 250, 252, 0.3);
+    color: transparent;
   }
 
-  .shadow-glow-secondary {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  /* Gradiente de Rojo Barbería para botones */
+  .btn-gradient-red {
+    background: linear-gradient(135deg, #cc2b2b 0%, #8b1a1a 100%);
+    transition: all 0.3s ease;
   }
 
-  .shadow-glow-accent {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-  }
-
-  .shadow-glow-success {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  }
-
-  .animate-slide-in {
-    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .animate-shimmer {
-    animation: shimmer 2s infinite;
-    background: linear-gradient(90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0) 100%);
-    background-size: 200% 100%;
-  }
-}
-
-/* Animations */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-
-  100% {
-    background-position: 1000px 0;
+  .btn-gradient-red:hover {
+    box-shadow: 0 0 25px rgba(204, 43, 43, 0.4);
+    transform: translateY(-2px);
   }
 }
 
-@keyframes slideIn {
+/* --- ANIMACIONES --- */
+
+/* Movimiento infinito del Barber Pole */
+@keyframes barber-slide {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+/* Efecto de entrada suave para servicios */
+.reveal-up {
+  animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes reveal-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(30px);
   }
 
   to {
@@ -99,81 +168,69 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+/* --- FIXES PARA PARALLAX --- */
+
+/* Asegura que el contenedor sticky no tenga saltos en móviles */
+.sticky-container {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+/* Mejora de rendimiento para transformaciones de Framer Motion */
+.will-change-transform {
+  will-change: transform;
+  /* GPU acceleration para mejor rendimiento */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimización para elementos con parallax */
+.parallax-layer {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Optimización para animaciones de scroll */
+.scroll-optimized {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+/* Estilo para los inputs de búsqueda dinámicos */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px #121214 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* --- CONFIGURACIÓN MARQUEE (MAGIC UI) --- */
+@theme inline {
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
   }
 
-  to {
-    opacity: 1;
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
   }
 }
 
-
-/* --- BARBER PREMIUM UTILITIES --- */
-
-/* Gradiente Oro para detalles y botones */
-.gradient-gold {
-  background: linear-gradient(135deg, #D4AF37 0%, #996515 100%);
-}
-
-/* El secreto del Senior: Ocultar scrollbar pero permitir el movimiento */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  /* IE y Edge */
-  scrollbar-width: none;
-  /* Firefox */
-}
-
-/* Efecto de cristal oscuro para las Cards */
-.glass-dark {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-}
-
-/* Borde de lujo iluminado */
-.border-gold-glow {
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
-}
-
-/* Snap de scroll para móviles (Nativo) */
-.snap-x-mandatory {
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* --- SENIOR PRO UTILITIES --- */
-
-.text-gold {
-  background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.cinematic-mask {
-  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
-}
-
-.glass-premium {
-  @apply bg-black/40 backdrop-blur-2xl border border-white/10;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-}
-
-.glass-light {
-  @apply bg-white/70 backdrop-blur-xl border border-black/5;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
-}
-
-
-.shadow-gold-soft {
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+/* Variable de espacio para el Marquee */
+:root {
+  --gap: 1.5rem;
 }

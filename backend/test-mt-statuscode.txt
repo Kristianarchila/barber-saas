@@ -1,0 +1,865 @@
+﻿
+> backend@1.0.0 test
+> jest --runInBand --detectOpenHandles tests/multi-tenant-security.test.js
+
+  console.log
+    [dotenv@17.2.3] injecting env (13) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+node.exe : 
+(node:2512) 
+[MONGOOSE] Warning: 
+Duplicate schema 
+index on 
+{"reviewToken":1} 
+found. This is often 
+due to declaring an 
+index using both 
+"index: true" and 
+"schema.index()". 
+Please remove the 
+duplicate index 
+definition.
+En línea: 1 Carácter: 
+1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ((node:2512   
+ ) [MO...dex defin    
+ition.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+(Use `node 
+--trace-warnings ...` 
+to show where the 
+warning was created)
+(node:2512) 
+[MONGOOSE] Warning: 
+Duplicate schema 
+index on 
+{"numeroPedido":1} 
+found. This is often 
+due to declaring an 
+index using both 
+"index: true" and 
+"schema.index()". 
+Please remove the 
+duplicate index 
+definition.
+(node:2512) 
+[MONGOOSE] Warning: 
+Duplicate schema 
+index on 
+{"expiraEn":1} found. 
+This is often due to 
+declaring an index 
+using both "index: 
+true" and 
+"schema.index()". 
+Please remove the 
+duplicate index 
+definition.
+(node:2512) 
+[MONGOOSE] Warning: 
+Duplicate schema 
+index on 
+{"reviewToken":1} 
+found. This is often 
+due to declaring an 
+index using both 
+"index: true" and 
+"schema.index()". 
+Please remove the 
+duplicate index 
+definition.
+  console.log
+    ­ƒôí [PATCH] /api/reservas/698a8f22790adb680b988ea2/completar
+
+      at log (src/app.js:98:11)
+
+  console.log
+    [Transaction] Started: CompleteReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CompleteReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CompleteReservation {
+      error: 'Reserva no encontrada',
+      attempt: 1,
+      stack: 'Error: Reserva no encontrada\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CompleteReserva.js:30:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CompleteReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CompleteReserva.js:24:24)\n' +
+        '    at Object.<anonymous>.exports.completarReserva (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\controllers\\reservas.controller.js:87:25)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CompleteReserva.execute (src/application/use-cases/reservas/CompleteReserva.js:24:24)
+      at Object.<anonymous>.exports.completarReserva (src/controllers/reservas.controller.js:87:25)
+
+  console.error
+    ­ƒö┤ ERROR: TransactionError: Transaction failed for CompleteReservation: Reserva no encontrada
+        at Function.executeInTransaction (C:\Users\Kristian\Desktop\barber-saas\backend\src\utils\TransactionManager.js:88:42)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at CompleteReserva.execute (C:\Users\Kristian\Desktop\barber-saas\backend\src\application\use-cases\reservas\CompleteReserva.js:24:24)
+        at Object.<anonymous>.exports.completarReserva (C:\Users\Kristian\Desktop\barber-saas\backend\src\controllers\reservas.controller.js:87:25) {
+      isTransactionError: true,
+      originalError: Error: Reserva no encontrada
+          at TransactionManager.executeInTransaction.operationName (C:\Users\Kristian\Desktop\barber-saas\backend\src\application\use-cases\reservas\CompleteReserva.js:30:35)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Function.executeInTransaction (C:\Users\Kristian\Desktop\barber-saas\backend\src\utils\TransactionManager.js:57:32)
+          at CompleteReserva.execute (C:\Users\Kristian\Desktop\barber-saas\backend\src\application\use-cases\reservas\CompleteReserva.js:24:24)
+          at Object.<anonymous>.exports.completarReserva (C:\Users\Kristian\Desktop\barber-saas\backend\src\controllers\reservas.controller.js:87:25) {
+        statusCode: 404
+      },
+      context: { operationName: 'CompleteReservation', attempt: 1 },
+      timestamp: 2026-02-10T01:51:31.020Z,
+      originalStack: 'Error: Reserva no encontrada\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CompleteReserva.js:30:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CompleteReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CompleteReserva.js:24:24)\n' +
+        '    at Object.<anonymous>.exports.completarReserva (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\controllers\\reservas.controller.js:87:25)',
+      statusCode: 404
+    }
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m [36mconst[39m errorHandler [33m=[39m (err[33m,[39m req[33m,[39m res[33m,[39m next) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 6 |[39m   console[33m.[39merror([32m"­ƒö┤ ERROR:"[39m[33m,[39m err)[33m;[39m
+     [90m   |[39m           [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   [90m// ­ƒöÑ A├æADIR HEADERS CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   [36mconst[39m origin [33m=[39m req[33m.[39mheaders[33m.[39morigin[33m;[39m[0m
+
+      at error (src/config/middleware/errorHandler.js:6:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at next (src/controllers/reservas.controller.js:97:9)
+
+[0mPATCH /api/reservas/698a8f22790adb680b988ea2/completar [33m404[0m 33.665 ms - 736[0m
+  console.log
+    ­ƒôí [PATCH] /api/reservas/698a8f23790adb680b988ed0/cancelar
+
+      at log (src/app.js:98:11)
+
+  console.log
+    [Transaction] Started: CancelReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CancelReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CancelReservation {
+      error: 'Reserva no encontrada',
+      attempt: 1,
+      stack: 'Error: Reserva no encontrada\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CancelReserva.js:28:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CancelReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CancelReserva.js:22:25)\n' +
+        '    at Object.<anonymous>.exports.cancelarReserva (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\controllers\\reservas.controller.js:45:25)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CancelReserva.execute (src/application/use-cases/reservas/CancelReserva.js:22:25)
+      at Object.<anonymous>.exports.cancelarReserva (src/controllers/reservas.controller.js:45:25)
+
+  console.error
+    ­ƒö┤ ERROR: TransactionError: Transaction failed for CancelReservation: Reserva no encontrada
+        at Function.executeInTransaction (C:\Users\Kristian\Desktop\barber-saas\backend\src\utils\TransactionManager.js:88:42)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at CancelReserva.execute (C:\Users\Kristian\Desktop\barber-saas\backend\src\application\use-cases\reservas\CancelReserva.js:22:25)
+        at Object.<anonymous>.exports.cancelarReserva (C:\Users\Kristian\Desktop\barber-saas\backend\src\controllers\reservas.controller.js:45:25) {
+      isTransactionError: true,
+      originalError: Error: Reserva no encontrada
+          at TransactionManager.executeInTransaction.operationName (C:\Users\Kristian\Desktop\barber-saas\backend\src\application\use-cases\reservas\CancelReserva.js:28:35)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Function.executeInTransaction (C:\Users\Kristian\Desktop\barber-saas\backend\src\utils\TransactionManager.js:57:32)
+          at CancelReserva.execute (C:\Users\Kristian\Desktop\barber-saas\backend\src\application\use-cases\reservas\CancelReserva.js:22:25)
+          at Object.<anonymous>.exports.cancelarReserva (C:\Users\Kristian\Desktop\barber-saas\backend\src\controllers\reservas.controller.js:45:25) {
+        statusCode: 404
+      },
+      context: { operationName: 'CancelReservation', attempt: 1 },
+      timestamp: 2026-02-10T01:51:31.223Z,
+      originalStack: 'Error: Reserva no encontrada\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CancelReserva.js:28:35)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CancelReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CancelReserva.js:22:25)\n' +
+        '    at Object.<anonymous>.exports.cancelarReserva (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\controllers\\reservas.controller.js:45:25)',
+      statusCode: 404
+    }
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m [36mconst[39m errorHandler [33m=[39m (err[33m,[39m req[33m,[39m res[33m,[39m next) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 6 |[39m   console[33m.[39merror([32m"­ƒö┤ ERROR:"[39m[33m,[39m err)[33m;[39m
+     [90m   |[39m           [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   [90m// ­ƒöÑ A├æADIR HEADERS CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   [36mconst[39m origin [33m=[39m req[33m.[39mheaders[33m.[39morigin[33m;[39m[0m
+
+      at error (src/config/middleware/errorHandler.js:6:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at next (src/controllers/reservas.controller.js:57:9)
+
+[0mPATCH /api/reservas/698a8f23790adb680b988ed0/cancelar [33m404[0m 13.310 ms - 727[0m
+  console.log
+    ­ƒôí [GET] /api/reservas
+
+      at log (src/app.js:98:11)
+
+[0mGET /api/reservas [32m200[0m 18.616 ms - 243[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/test-barberia-b/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"GET","requestedBarberiaId":"698a8f23790adb680b988f1e","timestamp":"2026-02-10T01:51:31.612Z","url":"/api/barberias/test-barberia-b/admin/servicios","userBarberiaId":"698a8f23790adb680b988f1c","userId":"698a8f23790adb680b988f20"}
+[0mGET /api/barberias/test-barberia-b/admin/servicios [33m403[0m 10.587 ms - 74[0m
+  console.log
+    ­ƒôí [POST] /api/barberias/test-barberia-b/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"POST","requestedBarberiaId":"698a8f23790adb680b988f4c","timestamp":"2026-02-10T01:51:31.808Z","url":"/api/barberias/test-barberia-b/admin/servicios","userBarberiaId":"698a8f23790adb680b988f4a","userId":"698a8f23790adb680b988f4e"}
+[0mPOST /api/barberias/test-barberia-b/admin/servicios [33m403[0m 6.630 ms - 74[0m
+  console.log
+    ­ƒôí [PUT] /api/barberias/test-barberia-b/admin/servicios/698a8f23790adb680b988f86
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"PUT","requestedBarberiaId":"698a8f23790adb680b988f7a","timestamp":"2026-02-10T01:51:31.995Z","url":"/api/barberias/test-barberia-b/admin/servicios/698a8f23790adb680b988f86","userBarberiaId":"698a8f23790adb680b988f78","userId":"698a8f23790adb680b988f7c"}
+[0mPUT /api/barberias/test-barberia-b/admin/servicios/698a8f23790adb680b988f86 [33m403[0m 7.630 ms - 74[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/test-barberia-b/barbero
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"GET","requestedBarberiaId":"698a8f24790adb680b988fa8","timestamp":"2026-02-10T01:51:32.178Z","url":"/api/barberias/test-barberia-b/barbero","userBarberiaId":"698a8f24790adb680b988fa6","userId":"698a8f24790adb680b988faa"}
+[0mGET /api/barberias/test-barberia-b/barbero [33m403[0m 6.568 ms - 74[0m
+  console.log
+    ­ƒôí [POST] /api/barberias/test-barberia-b/barbero
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"POST","requestedBarberiaId":"698a8f24790adb680b988fd6","timestamp":"2026-02-10T01:51:32.366Z","url":"/api/barberias/test-barberia-b/barbero","userBarberiaId":"698a8f24790adb680b988fd4","userId":"698a8f24790adb680b988fd8"}
+[0mPOST /api/barberias/test-barberia-b/barbero [33m403[0m 6.440 ms - 74[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/test-barberia-b/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"GET","requestedBarberiaId":"698a8f24790adb680b989004","timestamp":"2026-02-10T01:51:32.552Z","url":"/api/barberias/test-barberia-b/admin/servicios","userBarberiaId":"698a8f24790adb680b989002","userId":"698a8f24790adb680b989006"}
+[0mGET /api/barberias/test-barberia-b/admin/servicios [33m403[0m 7.611 ms - 74[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/slug-inexistente/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[0mGET /api/barberias/slug-inexistente/admin/servicios [33m404[0m 5.692 ms - 37[0m
+  console.log
+    ­ƒôí [GET] /api/reservas?barberiaId=698a8f24790adb680b989060
+
+      at log (src/app.js:98:11)
+
+[0mGET /api/reservas?barberiaId=698a8f24790adb680b989060 [32m200[0m 12.764 ms - 243[0m
+  console.log
+    ­ƒôí [POST] /api/barberias/test-barberia-a/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[0mPOST /api/barberias/test-barberia-a/admin/servicios [33m400[0m 14.040 ms - 58[0m
+  console.log
+    ­ƒôí [GET] /api/reservas/698a8f25790adb680b9890ce
+
+      at log (src/app.js:98:11)
+
+[0mGET /api/reservas/698a8f25790adb680b9890ce [33m403[0m 19.878 ms - 45[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/test-barberia-a/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[0mGET /api/barberias/test-barberia-a/admin/servicios [32m200[0m 15.177 ms - 257[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/test-barberia-b/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[0mGET /api/barberias/test-barberia-b/admin/servicios [32m200[0m 13.473 ms - 257[0m
+  console.log
+    ­ƒôí [GET] /api/barberias/test-barberia-b/admin/servicios
+
+      at log (src/app.js:98:11)
+
+[33mwarn[39m: Intento de acceso cross-tenant bloqueado {"method":"GET","requestedBarberiaId":"698a8f25790adb680b989152","timestamp":"2026-02-10T01:51:33.946Z","url":"/api/barberias/test-barberia-b/admin/servicios","userBarberiaId":"698a8f25790adb680b989150","userId":"698a8f25790adb680b989154"}
+[0mGET /api/barberias/test-barberia-b/admin/servicios [33m403[0m 7.428 ms - 74[0m
+  console.warn
+    ÔÜá´©Å MongoDB desconectado
+
+    [0m [90m 89 |[39m   mongoose[33m.[39mconnection[33m.[39mon([32m'disconnected'[39m[33m,[39m () [33m=>[39m {
+     [90m 90 |[39m     isConnected [33m=[39m [36mfalse[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 91 |[39m     console[33m.[39mwarn([32m'ÔÜá´©Å MongoDB desconectado'[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 92 |[39m   })[33m;[39m
+     [90m 93 |[39m
+     [90m 94 |[39m   mongoose[33m.[39mconnection[33m.[39mon([32m'error'[39m[33m,[39m (err) [33m=>[39m {[0m
+
+      at NativeConnection.warn (src/config/db.js:91:13)
+      at NativeConnection.set (node_modules/mongoose/lib/connection.js:149:12)
+      at NativeConnection.onClose (node_modules/mongoose/lib/connection.js:1319:19)
+      at NativeConnection._close (node_modules/mongoose/lib/connection.js:1268:12)
+      at closeDB (tests/setup.js:29:5)
+      at Object.<anonymous> (tests/multi-tenant-security.test.js:24:9)
+
+FAIL tests/multi-tenan
+t-security.test.js 
+(5.826 s)
+  ƒöÉ Multi-Tenant 
+Security Tests
+    ƒÜ½ Reservas - 
+Cross-Tenant Access 
+Prevention
+      ├ù Admin A NO 
+puede ver reserva de 
+Barber├¡a B (129 ms)
+      ÔêÜ Admin A NO 
+puede editar reserva 
+de Barber├¡a B (387 
+ms)
+      ÔêÜ Admin A NO 
+puede cancelar 
+reserva de Barber├¡a 
+B (194 ms)
+      ├ù Admin A solo 
+ve sus propias 
+reservas al listar 
+(200 ms)
+    ƒÜ½ Servicios - 
+Cross-Tenant Access 
+Prevention
+      ÔêÜ Admin A NO 
+puede acceder a 
+servicios de 
+Barber├¡a B v├¡a slug 
+(190 ms)
+      ÔêÜ Admin A NO 
+puede crear servicio 
+en Barber├¡a B (193 
+ms)
+      ÔêÜ Admin A NO 
+puede editar servicio 
+de Barber├¡a B (188 
+ms)
+    ƒÜ½ Barberos - 
+Cross-Tenant Access 
+Prevention
+      ÔêÜ Admin A NO 
+puede ver barberos de 
+Barber├¡a B (183 ms)
+      ÔêÜ Admin A NO 
+puede crear barbero 
+en Barber├¡a B (186 
+ms)
+    ƒöÆ URL Slug 
+Manipulation Attempts
+      ÔêÜ Rechaza 
+intento de acceder 
+con slug incorrecto 
+(187 ms)
+      ÔêÜ Rechaza 
+slug inexistente (186 
+ms)
+    ƒöÆ Query 
+Parameter Injection 
+Prevention
+      ├ù Ignora 
+barberiaId inyectado 
+en query params (196 
+ms)
+      ├ù Ignora 
+barberiaId inyectado 
+en request body (194 
+ms)
+    Ô£à Legitimate 
+Access Allowed
+      ├ù Admin A 
+puede ver sus propias 
+reservas (211 ms)
+      ├ù Admin A 
+puede acceder a sus 
+servicios (214 ms)
+      ÔêÜ Admin B 
+puede acceder a sus 
+propios datos (203 ms)
+    ƒöì Logging and 
+Monitoring
+      ÔêÜ Loguea 
+intentos de acceso 
+cross-tenant (187 ms)
+    ƒææ SUPERADMIN 
+Access
+      ├ù SUPERADMIN 
+puede acceder a 
+cualquier barber├¡a 
+(187 ms)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ ƒÜ½ 
+Reservas - 
+Cross-Tenant Access 
+Prevention ÔÇ║ Admin 
+A NO puede ver 
+reserva de Barber├¡a B
+
+    MongoServerError: 
+BSON field 
+'delete.deletes.q' is 
+missing but a 
+required field
+
+      at Connection.se
+ndCommand (node_module
+s/mongodb/src/cmap/con
+nection.ts:557:17)
+      at 
+Connection.command (no
+de_modules/mongodb/src
+/cmap/connection.ts:62
+7:22)
+      at 
+Server.command (node_m
+odules/mongodb/src/sda
+m/server.ts:350:21)
+      at tryOperation 
+(node_modules/mongodb/
+src/operations/execute
+_operation.ts:293:24)
+      at 
+executeOperation (node
+_modules/mongodb/src/o
+perations/execute_oper
+ation.ts:123:12)
+      at 
+Collection.deleteMany 
+(node_modules/mongodb/
+src/collection.ts:482:
+12)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ ƒÜ½ 
+Reservas - 
+Cross-Tenant Access 
+Prevention ÔÇ║ Admin 
+A solo ve sus propias 
+reservas al listar
+
+    TypeError: 
+res.body.map is not a 
+function
+
+    [0m [90m 165 
+|[39m
+     [90m 166 |[39m 
+            expect(res
+[33m.[39mstatus)[33
+m.[39mtoBe([35m200[
+39m)[33m;[39m
+    [31m[1m>[22m[3
+9m[90m 167 |[39m    
+         
+[36mconst[39m ids 
+[33m=[39m res[33m.
+[39mbody[33m.[39mmap
+(r [33m=>[39m r[33m
+.[39m_id[33m.[39mto
+String())[33m;[39m
+     [90m     |[39m 
+                      
+           
+[31m[1m^[22m[39m
+     [90m 168 |[39m 
+            expect(ids
+)[33m.[39mtoContain(
+reservaA[33m.[39m_id
+[33m.[39mtoString())
+[33m;[39m
+     [90m 169 |[39m 
+            expect(ids
+)[33m.[39mnot[33m.
+[39mtoContain(reservaB
+[33m.[39m_id[33m.[
+39mtoString())[33m;[
+39m
+     [90m 170 |[39m 
+        
+})[33m;[39m[0m
+
+      at Object.map (t
+ests/multi-tenant-secu
+rity.test.js:167:34)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ ƒöÆ Query 
+Parameter Injection 
+Prevention ÔÇ║ Ignora 
+barberiaId inyectado 
+en query params
+
+    TypeError: 
+res.body.map is not a 
+function
+
+    [0m [90m 257 
+|[39m             exp
+ect(res[33m.[39mstat
+us)[33m.[39mtoBe([3
+5m200[39m)[33m;[39m
+     [90m 258 |[39m 
+            [90m// 
+Debe usar 
+req.user.barberiaId, 
+no el query param[39m
+    [31m[1m>[22m[3
+9m[90m 259 |[39m    
+         
+[36mconst[39m ids 
+[33m=[39m res[33m.
+[39mbody[33m.[39mmap
+(r [33m=>[39m r[33m
+.[39m_id[33m.[39mto
+String())[33m;[39m
+     [90m     |[39m 
+                      
+           
+[31m[1m^[22m[39m
+     [90m 260 |[39m 
+            expect(ids
+)[33m.[39mnot[33m.
+[39mtoContain(reservaB
+[33m.[39m_id[33m.[
+39mtoString())[33m;[
+39m
+     [90m 261 |[39m 
+        })[33m;[39m
+     [90m 262 
+|[39m[0m
+
+      at Object.map (t
+ests/multi-tenant-secu
+rity.test.js:259:34)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ ƒöÆ Query 
+Parameter Injection 
+Prevention ÔÇ║ Ignora 
+barberiaId inyectado 
+en request body
+
+    expect(received).t
+oBe(expected) // 
+Object.is equality
+
+    Expected: 201
+    Received: 400
+
+    [0m [90m 272 
+|[39m                
+ })[33m;[39m
+     [90m 273 |[39m
+    [31m[1m>[22m[3
+9m[90m 274 |[39m    
+         expect(res[3
+3m.[39mstatus)[33m.
+[39mtoBe([35m201[39m
+)[33m;[39m
+     [90m     |[39m 
+                      
+         
+[31m[1m^[22m[39m
+     [90m 275 |[39m
+     [90m 276 |[39m 
+            [90m// 
+Verificar que se 
+cre├│ con barberiaId 
+correcto[39m
+     [90m 277 |[39m 
+            
+[36mconst[39m 
+servicio [33m=[39m 
+[36mawait[39m [33mS
+ervicio[39m[33m.[39
+mfindById(res[33m.[3
+9mbody[33m.[39mservi
+cio[33m.[39m_id)[33
+m;[39m[0m
+
+      at Object.toBe (
+tests/multi-tenant-sec
+urity.test.js:274:32)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ Ô£à 
+Legitimate Access 
+Allowed ÔÇ║ Admin A 
+puede ver sus propias 
+reservas
+
+    expect(received).t
+oBe(expected) // 
+Object.is equality
+
+    Expected: 200
+    Received: 403
+
+    [0m [90m 287 
+|[39m                
+ [33m.[39m[36mset[
+39m([32m'Authorizatio
+n'[39m[33m,[39m 
+[32m`Bearer ${tokenAd
+minA}`[39m)[33m;[39
+m
+     [90m 288 |[39m
+    [31m[1m>[22m[3
+9m[90m 289 |[39m    
+         expect(res[3
+3m.[39mstatus)[33m.
+[39mtoBe([35m200[39m
+)[33m;[39m
+     [90m     |[39m 
+                      
+         
+[31m[1m^[22m[39m
+     [90m 290 |[39m 
+            expect(res
+[33m.[39mbody[33m.
+[39m_id)[33m.[39mtoB
+e(reservaA[33m.[39m_
+id[33m.[39mtoString(
+))[33m;[39m
+     [90m 291 |[39m 
+        })[33m;[39m
+     [90m 292 
+|[39m[0m
+
+      at Object.toBe (
+tests/multi-tenant-sec
+urity.test.js:289:32)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ Ô£à 
+Legitimate Access 
+Allowed ÔÇ║ Admin A 
+puede acceder a sus 
+servicios
+
+    expect(received).t
+oBe(expected) // 
+Object.is equality
+
+    Expected: true
+    Received: false
+
+    [0m [90m 297 
+|[39m
+     [90m 298 |[39m 
+            expect(res
+[33m.[39mstatus)[33
+m.[39mtoBe([35m200[
+39m)[33m;[39m
+    [31m[1m>[22m[3
+9m[90m 299 |[39m    
+         expect([33mA
+rray[39m[33m.[39mis
+Array(res[33m.[39mbo
+dy))[33m.[39mtoBe([
+36mtrue[39m)[33m;[3
+9m
+     [90m     |[39m 
+                      
+                      
+[31m[1m^[22m[39m
+     [90m 300 |[39m 
+        })[33m;[39m
+     [90m 301 |[39m
+     [90m 302 |[39m 
+        
+it([32m'Admin B 
+puede acceder a sus 
+propios datos'[39m[3
+3m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.toBe (
+tests/multi-tenant-sec
+urity.test.js:299:45)
+
+  ÔùÅ ƒöÉ 
+Multi-Tenant Security 
+Tests ÔÇ║ ƒææ 
+SUPERADMIN Access ÔÇ║ 
+SUPERADMIN puede 
+acceder a cualquier 
+barber├¡a
+
+    ValidationError: 
+User validation 
+failed: rol: 
+`SUPERADMIN` is not a 
+valid enum value for 
+path `rol`.
+
+    [0m [90m 326 
+|[39m
+     [90m 327 |[39m 
+        beforeEach([3
+6masync[39m () 
+[33m=>[39m {
+    [31m[1m>[22m[3
+9m[90m 328 |[39m    
+         superAdmin 
+[33m=[39m 
+[36mawait[39m [33mU
+ser[39m[33m.[39mcre
+ate({
+     [90m     |[39m 
+                      
+   
+[31m[1m^[22m[39m
+     [90m 329 |[39m 
+                
+nombre[33m:[39m 
+[32m'Super 
+Admin'[39m[33m,[39m
+     [90m 330 |[39m 
+                
+email[33m:[39m [32m
+'superadmin@barber.com
+'[39m[33m,[39m
+     [90m 331 |[39m 
+                
+password[33m:[39m [
+32m'password123'[39m
+[33m,[39m[0m
+
+      at model.Object.
+<anonymous>.Document.i
+nvalidate (node_module
+s/mongoose/lib/documen
+t.js:3370:32)
+      at validatePath 
+(node_modules/mongoose
+/lib/document.js:3145:
+13)
+          at async 
+Promise.all (index 3)
+      at 
+model.$__validate (nod
+e_modules/mongoose/lib
+/document.js:3086:3)
+      at 
+model.validate (node_m
+odules/mongoose/lib/do
+cument.js:2663:5)
+      at model.validat
+eBeforeSave (node_modu
+les/mongoose/lib/plugi
+ns/validateBeforeSave.
+js:34:7)
+      at 
+Kareem.execPre (node_m
+odules/kareem/index.js
+:65:24)
+      at 
+model.$__save (node_mo
+dules/mongoose/lib/mod
+el.js:369:5)
+      at model.save (n
+ode_modules/mongoose/l
+ib/model.js:609:5)
+      at node_modules/
+mongoose/lib/model.js:
+2722:9
+          at async 
+Promise.all (index 0)
+      at 
+Function.create (node_
+modules/mongoose/lib/m
+odel.js:2707:11)
+      at 
+Object.<anonymous> (te
+sts/multi-tenant-secur
+ity.test.js:328:26)
+
+Test Suites: 1 
+failed, 1 total
+Tests:       7 
+failed, 11 passed, 18 
+total
+Snapshots:   0 total
+Time:        5.886 s, 
+estimated 8 s
+Ran all test suites 
+matching /tests\\multi
+-tenant-security.test.
+js/i.

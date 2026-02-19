@@ -1,0 +1,636 @@
+﻿
+> backend@1.0.0 test
+> jest --runInBand --detectOpenHandles tests/unit/use-cases/CreateReserva.test.js --verbose
+
+node.exe : (node:14492) [MONGOOSE] Warning: Duplicate schema index on 
+{"reviewToken":1} found. This is often due to declaring an index using both 
+"index: true" and "schema.index()". Please remove the duplicate index definition.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:14492) [M...dex definition.:S 
+   tring) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: 'Servicio no encontrado o sin permisos de acceso',
+      attempt: 1,
+      stack: 'Error: Servicio no encontrado o sin permisos de acceso\n' +
+        '    at MongoServicioRepository.findById (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoServicioRepository.js:23:19)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:29:38)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:152:13)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:152:13)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: 'El servicio no est├í disponible',
+      attempt: 1,
+      stack: 'Error: El servicio no est├í disponible\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:35:31)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:169:13)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:169:13)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: `E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea077fdf'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea077fdd') }`,
+      attempt: 1,
+      stack: `MongoServerError: E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea077fdf'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea077fdd') }\n` +
+        '    at InsertOneOperation.handleOk (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n' +
+        '    at tryOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:294:26)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at executeOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:123:12)\n' +
+        '    at Collection.insertOne (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\collection.ts:294:12)\n' +
+        '    at model.$__save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:398:16)\n' +
+        '    at model.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:609:5)\n' +
+        '    at C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2722:9\n' +
+        '    at async Promise.all (index 0)\n' +
+        '    at Function.create (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2707:11)\n' +
+        '    at MongoReservaRepository.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoReservaRepository.js:15:16)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:72:42)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:198:13)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:198:13)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: `E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea077fef'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea077fed') }`,
+      attempt: 1,
+      stack: `MongoServerError: E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea077fef'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea077fed') }\n` +
+        '    at InsertOneOperation.handleOk (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n' +
+        '    at tryOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:294:26)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at executeOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:123:12)\n' +
+        '    at Collection.insertOne (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\collection.ts:294:12)\n' +
+        '    at model.$__save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:398:16)\n' +
+        '    at model.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:609:5)\n' +
+        '    at C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2722:9\n' +
+        '    at async Promise.all (index 0)\n' +
+        '    at Function.create (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2707:11)\n' +
+        '    at MongoReservaRepository.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoReservaRepository.js:15:16)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:72:42)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:216:13)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:216:13)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: `E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea078001'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea077fff') }`,
+      attempt: 1,
+      stack: `MongoServerError: E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea078001'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea077fff') }\n` +
+        '    at InsertOneOperation.handleOk (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n' +
+        '    at tryOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:294:26)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at executeOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:123:12)\n' +
+        '    at Collection.insertOne (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\collection.ts:294:12)\n' +
+        '    at model.$__save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:398:16)\n' +
+        '    at model.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:609:5)\n' +
+        '    at C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2722:9\n' +
+        '    at async Promise.all (index 0)\n' +
+        '    at Function.create (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2707:11)\n' +
+        '    at MongoReservaRepository.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoReservaRepository.js:15:16)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:72:42)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:235:17)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:235:17)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+          at async Promise.allSettled (index 1)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+          at async Promise.allSettled (index 2)
+
+  console.log
+    [Transaction] Committed: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:61:25)
+          at async Promise.allSettled (index 0)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+          at async Promise.allSettled (index 1)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: `E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea078013'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea078011') }`,
+      attempt: 1,
+      stack: `MongoServerError: E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea078013'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea078011') }\n` +
+        '    at InsertOneOperation.handleOk (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n' +
+        '    at tryOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:294:26)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at executeOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:123:12)\n' +
+        '    at Collection.insertOne (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\collection.ts:294:12)\n' +
+        '    at model.$__save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:398:16)\n' +
+        '    at model.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:609:5)\n' +
+        '    at C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2722:9\n' +
+        '    at async Promise.all (index 0)\n' +
+        '    at Function.create (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2707:11)\n' +
+        '    at MongoReservaRepository.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoReservaRepository.js:15:16)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:72:42)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at async Promise.allSettled (index 1)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:264:29)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+          at async Promise.allSettled (index 1)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:264:29)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+          at async Promise.allSettled (index 2)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: `E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea078013'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea078011') }`,
+      attempt: 1,
+      stack: `MongoServerError: E11000 duplicate key error collection: test.reservas index: unique_reservation_slot dup key: { barberoId: ObjectId('698c79ced3fc3352ea078013'), fecha: new Date(1771372800000), hora: "10:00", barberiaId: ObjectId('698c79ced3fc3352ea078011') }\n` +
+        '    at InsertOneOperation.handleOk (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n' +
+        '    at tryOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:294:26)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at executeOperation (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:123:12)\n' +
+        '    at Collection.insertOne (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongodb\\src\\collection.ts:294:12)\n' +
+        '    at model.$__save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:398:16)\n' +
+        '    at model.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:609:5)\n' +
+        '    at C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2722:9\n' +
+        '    at async Promise.all (index 0)\n' +
+        '    at Function.create (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\mongoose\\lib\\model.js:2707:11)\n' +
+        '    at MongoReservaRepository.save (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoReservaRepository.js:15:16)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:72:42)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at async Promise.allSettled (index 2)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:264:29)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+          at async Promise.allSettled (index 2)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:264:29)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: 'Database error',
+      attempt: 1,
+      stack: 'Error: Database error\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:288:66)\n' +
+        '    at Promise.then.completed (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\utils.js:298:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\utils.js:231:10)\n' +
+        '    at _callCircusTest (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\run.js:316:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\run.js:252:3)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\run.js:126:9)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\run.js:121:9)\n' +
+        '    at _runTestsForDescribeBlock (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\run.js:121:9)\n' +
+        '    at run (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\run.js:71:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\legacy-code-todo-rewrite\\jestAdapterInit.js:122:21)\n' +
+        '    at jestAdapter (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-circus\\build\\legacy-code-todo-rewrite\\jestAdapter.js:79:19)\n' +
+        '    at runTestInternal (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-runner\\build\\runTest.js:367:16)\n' +
+        '    at runTest (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\node_modules\\jest-runner\\build\\runTest.js:444:34)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:291:17)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: 'Servicio no encontrado o sin permisos de acceso',
+      attempt: 1,
+      stack: 'Error: Servicio no encontrado o sin permisos de acceso\n' +
+        '    at MongoServicioRepository.findById (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoServicioRepository.js:23:19)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:29:38)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:325:13)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:325:13)
+
+  console.log
+    [Transaction] Started: CreateReservation (attempt 1/3)
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:54:25)
+
+  console.log
+    [Transaction] Aborted: CreateReservation
+
+      at Function.log [as executeInTransaction] (src/utils/TransactionManager.js:69:29)
+
+  console.error
+    [Transaction] Failed: CreateReservation {
+      error: 'Servicio no encontrado o sin permisos de acceso',
+      attempt: 1,
+      stack: 'Error: Servicio no encontrado o sin permisos de acceso\n' +
+        '    at MongoServicioRepository.findById (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\infrastructure\\database\\mongodb\\repositories\\MongoServicioRepository.js:23:19)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at TransactionManager.executeInTransaction.operationName (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:29:38)\n' +
+        '    at Function.executeInTransaction (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\utils\\TransactionManager.js:57:32)\n' +
+        '    at CreateReserva.execute (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\src\\application\\use-cases\\reservas\\CreateReserva.js:26:34)\n' +
+        '    at Object.<anonymous> (C:\\Users\\Kristian\\Desktop\\barber-saas\\backend\\tests\\unit\\use-cases\\CreateReserva.test.js:344:13)'
+    }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m                 [90m// Non-transient error or max retries reached[39m
+    [31m[1m>[22m[39m[90m 82 |[39m                 console[33m.[39merror([32m`[Transaction] Failed: ${operationName}`[39m[33m,[39m {
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 83 |[39m                     error[33m:[39m error[33m.[39mmessage[33m,[39m
+     [90m 84 |[39m                     attempt[33m:[39m attempt [33m+[39m [35m1[39m[33m,[39m
+     [90m 85 |[39m                     stack[33m:[39m error[33m.[39mstack[0m
+
+      at Function.error [as executeInTransaction] (src/utils/TransactionManager.js:82:25)
+      at CreateReserva.execute (src/application/use-cases/reservas/CreateReserva.js:26:34)
+      at Object.<anonymous> (tests/unit/use-cases/CreateReserva.test.js:344:13)
+
+FAIL tests/unit/use-cases/CreateReserva.test.js
+  CreateReserva Use Case
+    Happy Path
+      ├ù should create reservation successfully with valid data (131 ms)
+      ÔêÜ should generate unique cancelToken for each reservation (54 ms)
+      ├ù should send confirmation email after transaction commits (145 ms)
+    Error Handling
+      ÔêÜ should throw error when service not found (35 ms)
+      ÔêÜ should throw error when service is inactive (32 ms)
+      ÔêÜ should throw error when time slot not available (50 ms)
+      ÔêÜ should throw ReservationConflictError on double booking attempt (49 ms)
+      ├ù should handle duplicate key errors gracefully (45 ms)
+    Transaction Integrity
+      ÔêÜ should prevent race conditions with concurrent bookings (55 ms)
+      ├ù should rollback on transaction failure (31 ms)
+    Multi-Tenant Security
+      ÔêÜ should validate barberiaId matches between service and reservation (35 
+ms)
+      ÔêÜ should prevent creating reservation for service from different 
+barberia (40 ms)
+
+  ÔùÅ CreateReserva Use Case ÔÇ║ Happy Path ÔÇ║ should create reservation 
+successfully with valid data
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "juan@test.com"
+    Received: {"_value": "juan@test.com"}
+
+    [0m [90m 83 |[39m             expect(result[33m.[39mservicioId[33m.[39
+mtoString())[33m.[39mtoBe(servicio[33m.[39m_id[33m.[39mtoString())[33m;[3
+9m
+     [90m 84 |[39m             
+expect(result[33m.[39mnombreCliente)[33m.[39mtoBe([32m'Juan 
+P├®rez'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 85 |[39m             expect(result[33m.[39memail
+Cliente)[33m.[39mtoBe([32m'juan@test.com'[39m)[33m;[39m
+     [90m    |[39m                                         [31m[1m^[22m[39m
+     [90m 86 |[39m             
+expect(result[33m.[39mprecio)[33m.[39mtoBe([35m100[39m)[33m;[39m
+     [90m 87 |[39m             
+expect(result[33m.[39mduracion)[33m.[39mtoBe([35m30[39m)[33m;[39m
+     [90m 88 |[39m             expect(result[33m.[39mestado)[33m.[39mtoBe(
+[32m'RESERVADA'[39m)[33m;[39m[0m
+
+      at Object.toBe (tests/unit/use-cases/CreateReserva.test.js:85:41)
+
+  ÔùÅ CreateReserva Use Case ÔÇ║ Happy Path ÔÇ║ should send confirmation email 
+after transaction commits
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"emailCliente": "test@test.com", 
+"nombreCliente": "Cliente Test"}
+    Received: {"barberiaId": "698c79ced3fc3352ea077fb8", "barberoId": 
+"698c79ced3fc3352ea077fba", "cancelToken": 
+"26bf836760a64373a2b77ab25167d429aebf0ce6925a225c60f35ce6c282557d", "clienteId": 
+undefined, "createdAt": 2026-02-11T12:45:02.503Z, "depositoPagado": false, 
+"emailCliente": {"_value": "test@test.com"}, "estado": "RESERVADA", "id": 
+"698c79ced3fc3352ea077fc0", "montoDeposito": {"amount": 0, "currency": "USD"}, 
+"nombreCliente": "Cliente Test", "precio": {"amount": 100, "currency": "USD"}, 
+"precioSnapshot": {"fechaSnapshot": 2026-02-11T12:45:02.502Z, "precioBase": 100, 
+"precioFinal": 100}, "reviewToken": undefined, "servicioId": 
+"698c79ced3fc3352ea077fbc", "timeSlot": {"date": "2026-02-17", 
+"durationMinutes": 30, "endTime": "10:30", "startTime": "10:00"}, "updatedAt": 
+2026-02-11T12:45:02.503Z}
+
+    Number of calls: 1
+
+    [0m [90m 129 |[39m
+     [90m 130 |[39m             expect(mockEmailService[33m.[39msendReservaCo
+nfirmation)[33m.[39mtoHaveBeenCalledTimes([35m1[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 131 |[39m             expect(mockEmailService[33m
+.[39msendReservaConfirmation)[33m.[39mtoHaveBeenCalledWith(
+     [90m     |[39m                                                            
+  [31m[1m^[22m[39m
+     [90m 132 |[39m                 expect[33m.[39mobjectContaining({
+     [90m 133 |[39m                     nombreCliente[33m:[39m [32m'Cliente 
+Test'[39m[33m,[39m
+     [90m 134 |[39m                     emailCliente[33m:[39m 
+[32m'test@test.com'[39m[0m
+
+      at Object.toHaveBeenCalledWith 
+(tests/unit/use-cases/CreateReserva.test.js:131:62)
+
+  ÔùÅ CreateReserva Use Case ÔÇ║ Error Handling ÔÇ║ should handle duplicate key 
+errors gracefully
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "E11000"
+    Received string:        "Transaction failed for CreateReservation: E11000 
+duplicate key error collection: test.reservas index: unique_reservation_slot dup 
+key: { barberoId: ObjectId('698c79ced3fc3352ea078001'), fecha: new 
+Date(1771372800000), hora: \"10:00\", barberiaId: 
+ObjectId('698c79ced3fc3352ea077fff') }"
+
+    [0m [90m 238 |[39m                 
+expect(error)[33m.[39mtoBeDefined()[33m;[39m
+     [90m 239 |[39m                 [90m// Error should be user-friendly, not 
+raw MongoDB error[39m
+    [31m[1m>[22m[39m[90m 240 |[39m                 expect(error[33m.[39mm
+essage)[33m.[39mnot[33m.[39mtoContain([32m'E11000'[39m)[33m;[39m
+     [90m     |[39m                                           
+[31m[1m^[22m[39m
+     [90m 241 |[39m             }
+     [90m 242 |[39m         })[33m;[39m
+     [90m 243 |[39m     })[33m;[39m[0m
+
+      at Object.toContain (tests/unit/use-cases/CreateReserva.test.js:240:43)
+
+  ÔùÅ CreateReserva Use Case ÔÇ║ Transaction Integrity ÔÇ║ should rollback on 
+transaction failure
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Database error"
+    Received: "Transaction failed for CreateReservation: Database error"
+
+    [0m [90m 292 |[39m                 fail([32m'Should have thrown 
+error'[39m)[33m;[39m
+     [90m 293 |[39m             } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 294 |[39m                 
+expect(error[33m.[39mmessage)[33m.[39mtoBe([32m'Database 
+error'[39m)[33m;[39m
+     [90m     |[39m                                       [31m[1m^[22m[39m
+     [90m 295 |[39m             }
+     [90m 296 |[39m
+     [90m 297 |[39m             [90m// Verify no reservation was 
+created[39m[0m
+
+      at Object.toBe (tests/unit/use-cases/CreateReserva.test.js:294:39)
+
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 8 passed, 12 total
+Snapshots:   0 total
+Time:        2.761 s, estimated 3 s
+Ran all test suites matching /tests\\unit\\use-cases\\CreateReserva.test.js/i.

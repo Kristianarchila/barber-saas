@@ -5,7 +5,8 @@ import {
     obtenerEstadisticas,
     aprobarResena,
     ocultarResena,
-    mostrarResena
+    mostrarResena,
+    responderResena
 } from "../../services/resenasService";
 import CalificacionEstrellas from "../../components/CalificacionEstrellas";
 import "./GestionResenas.css";
@@ -16,6 +17,7 @@ const GestionResenas = () => {
     const [estadisticas, setEstadisticas] = useState(null);
     const [loading, setLoading] = useState(true);
     const [procesando, setProcesando] = useState(null);
+    const [modalRespuesta, setModalRespuesta] = useState({ open: false, resenaId: null, texto: "" });
 
     useEffect(() => {
         cargarDatos();
@@ -81,6 +83,24 @@ const GestionResenas = () => {
             await cargarDatos();
         } catch (error) {
             alert("Error al mostrar reseña");
+        } finally {
+            setProcesando(null);
+        }
+    };
+
+    const handleResponder = async () => {
+        if (!modalRespuesta.texto.trim()) {
+            alert("Por favor escribe una respuesta");
+            return;
+        }
+        setProcesando(modalRespuesta.resenaId);
+        try {
+            await responderResena(modalRespuesta.resenaId, modalRespuesta.texto);
+            setModalRespuesta({ open: false, resenaId: null, texto: "" });
+            await cargarDatos();
+            alert("Respuesta agregada exitosamente");
+        } catch (error) {
+            alert("Error al responder reseña");
         } finally {
             setProcesando(null);
         }
@@ -234,6 +254,18 @@ const GestionResenas = () => {
                                 )}
                             </div>
 
+                            {resena.respuestaAdmin?.texto && (
+                                <div className="respuesta-admin">
+                                    <div className="respuesta-header">
+                                        <strong>💬 Respuesta del negocio:</strong>
+                                        <span className="respuesta-fecha">
+                                            {new Date(resena.respuestaAdmin.fecha).toLocaleDateString('es-ES')}
+                                        </span>
+                                    </div>
+                                    <p>{resena.respuestaAdmin.texto}</p>
+                                </div>
+                            )}
+
                             <div className="acciones">
                                 {activeTab === "pendientes" && (
                                     <button
@@ -245,13 +277,24 @@ const GestionResenas = () => {
                                     </button>
                                 )}
                                 {activeTab === "aprobadas" && (
-                                    <button
-                                        className="btn btn-ocultar"
-                                        onClick={() => handleOcultar(resena._id)}
-                                        disabled={procesando === resena._id}
-                                    >
-                                        👁️‍🗨️ Ocultar
-                                    </button>
+                                    <>
+                                        <button
+                                            className="btn btn-ocultar"
+                                            onClick={() => handleOcultar(resena._id)}
+                                            disabled={procesando === resena._id}
+                                        >
+                                            👁️‍🗨️ Ocultar
+                                        </button>
+                                        {!resena.respuestaAdmin?.texto && (
+                                            <button
+                                                className="btn btn-responder"
+                                                onClick={() => setModalRespuesta({ open: true, resenaId: resena._id, texto: "" })}
+                                                disabled={procesando === resena._id}
+                                            >
+                                                💬 Responder
+                                            </button>
+                                        )}
+                                    </>
                                 )}
                                 {activeTab === "ocultas" && (
                                     <button
@@ -267,6 +310,51 @@ const GestionResenas = () => {
                     ))
                 )}
             </div>
+
+            {/* Modal para responder reseña */}
+            {modalRespuesta.open && (
+                <div className="modal-overlay" onClick={() => setModalRespuesta({ open: false, resenaId: null, texto: "" })}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>💬 Responder a Reseña</h3>
+                            <button
+                                className="modal-close"
+                                onClick={() => setModalRespuesta({ open: false, resenaId: null, texto: "" })}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <textarea
+                                className="respuesta-textarea"
+                                placeholder="Escribe tu respuesta aquí (máx. 500 caracteres)..."
+                                value={modalRespuesta.texto}
+                                onChange={(e) => setModalRespuesta({ ...modalRespuesta, texto: e.target.value })}
+                                maxLength={500}
+                                rows={5}
+                            />
+                            <div className="char-count">
+                                {modalRespuesta.texto.length}/500
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setModalRespuesta({ open: false, resenaId: null, texto: "" })}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleResponder}
+                                disabled={procesando === modalRespuesta.resenaId || !modalRespuesta.texto.trim()}
+                            >
+                                {procesando === modalRespuesta.resenaId ? "Enviando..." : "Enviar Respuesta"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

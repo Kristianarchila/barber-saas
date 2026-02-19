@@ -1,31 +1,4 @@
-const mongoose = require("mongoose");
-
-const barberiaSchema = new mongoose.Schema(
-  {
-    nombre: {
-      type: String,
-      required: true,
-      trim: true
-    },
-
-    direccion: {
-      type: String,
-      trim: true
-    },
-
-    telefono: {
-      type: String,
-      trim: true
-    },
-
-    activa: {
-      type: Boolean,
-      default: true
-    }
-  },
-  {
-    timestamps: true
-  }
-);
-
-module.exports = mongoose.model("Barberia", barberiaSchema);
+/**
+ * PROXY FILE - Redirecting to new hexagonal structure
+ */
+module.exports = require('../infrastructure/database/mongodb/models/Barberia');

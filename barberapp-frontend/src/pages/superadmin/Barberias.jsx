@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
-  Plus, Search, Filter, Calendar,
-  History, UserPlus, ShieldAlert,
+  Plus, Search, Calendar, History, ShieldAlert,
   Eye, X, User, CreditCard, ExternalLink,
-  CheckCircle, MoreHorizontal, Sparkles
+  CheckCircle, ChevronDown, RefreshCw, Store
 } from "lucide-react";
 import {
   getBarberias,
@@ -12,398 +11,374 @@ import {
   extenderPlazoBarberia,
   getHistorialBarberia
 } from "../../services/superAdminService";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
+// ─── STATUS CONFIG ────────────────────────────────────────────────────────────
+const STATUS = {
+  activa: { dot: 'bg-green-500', bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: 'Activa' },
+  trial: { dot: 'bg-yellow-500', bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: 'Trial' },
+  suspendida: { dot: 'bg-red-500', bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Suspendida' },
+};
+
+function StatusBadge({ estado }) {
+  const s = STATUS[estado] || STATUS.suspendida;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${s.bg} ${s.text} ${s.border}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {s.label}
+    </span>
+  );
+}
+
+// ─── DETAIL DRAWER ────────────────────────────────────────────────────────────
+function DetailDrawer({ b, onClose, onCambiarEstado, onExtender }) {
+  const [extending, setExtending] = useState(false);
+  const url = `${import.meta.env.VITE_FRONTEND_URL || 'http://localhost'}/${b.slug}`;
+
+  const handleExtender = async (dias) => {
+    setExtending(true);
+    await onExtender(b._id, dias);
+    setExtending(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-lg bg-white shadow-2xl flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-100 bg-gray-50">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center text-white font-black text-2xl">{b.nombre.charAt(0)}</div>
+              <div>
+                <h2 className="text-xl font-black text-gray-900">{b.nombre}</h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <StatusBadge estado={b.estado} />
+                  <span className="text-xs text-gray-400 font-mono">{b.plan || 'trial'}</span>
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-xl transition-all">
+              <X size={18} className="text-gray-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Info */}
+          <Section title="Información">
+            <InfoRow label="Email" value={b.email || '—'} />
+            <InfoRow label="Slug" value={b.slug} mono />
+            <InfoRow label="Alta" value={b.createdAt ? format(new Date(b.createdAt), "dd MMM yyyy", { locale: es }) : '—'} />
+          </Section>
+
+          {/* Suscripción */}
+          <Section title="Suscripción">
+            <InfoRow label="Estado" value={b.estado} />
+            <InfoRow label="Plan" value={b.plan || 'trial'} />
+            <InfoRow label="Próximo Pago" value={b.proximoPago ? format(new Date(b.proximoPago), "dd MMM yyyy", { locale: es }) : 'Sin fecha'} />
+          </Section>
+
+          {/* URL Pública */}
+          <Section title="URL Pública">
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-2">
+              <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 font-mono hover:underline truncate">{url}</a>
+              <button onClick={() => navigator.clipboard.writeText(url)} className="text-xs text-gray-400 hover:text-gray-700 flex-shrink-0">📋</button>
+            </div>
+          </Section>
+
+          {/* Extender */}
+          <Section title="Extender Plazo">
+            <div className="flex gap-2">
+              {[7, 15, 30].map(d => (
+                <button key={d} onClick={() => handleExtender(d)} disabled={extending} className="flex-1 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all disabled:opacity-50">
+                  +{d}d
+                </button>
+              ))}
+            </div>
+          </Section>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-6 border-t border-gray-100 space-y-2">
+          {b.estado !== 'activa' ? (
+            <button onClick={() => onCambiarEstado(b._id, 'activa')} className="w-full flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-xl transition-all">
+              <CheckCircle size={16} /> Activar Barbería
+            </button>
+          ) : (
+            <button onClick={() => onCambiarEstado(b._id, 'suspendida')} className="w-full flex items-center justify-center gap-2 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition-all">
+              <ShieldAlert size={16} /> Suspender Barbería
+            </button>
+          )}
+          <a href={url} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 transition-all">
+            <ExternalLink size={16} /> Ver Página Pública
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div>
+      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">{title}</p>
+      <div className="space-y-2">{children}</div>
+    </div>
+  );
+}
+function InfoRow({ label, value, mono = false }) {
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-xs text-gray-400">{label}</span>
+      <span className={`text-sm font-semibold text-gray-900 ${mono ? 'font-mono text-xs bg-gray-50 px-2 py-0.5 rounded' : ''}`}>{value}</span>
+    </div>
+  );
+}
+
+// ─── HISTORIAL MODAL ──────────────────────────────────────────────────────────
+function HistorialModal({ historial, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div>
+            <h3 className="font-black text-gray-900">Historial</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{historial.nombre}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-all"><X size={18} className="text-gray-500" /></button>
+        </div>
+        <div className="p-6 max-h-96 overflow-y-auto space-y-3">
+          {historial.historial.length === 0 ? (
+            <p className="text-gray-400 text-sm text-center py-6">Sin historial registrado</p>
+          ) : historial.historial.map((h, i) => (
+            <div key={i} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-2 h-2 bg-gray-300 rounded-full mt-1.5 flex-shrink-0" />
+                {i < historial.historial.length - 1 && <div className="w-px flex-1 bg-gray-100 mt-1" />}
+              </div>
+              <div className="pb-3 flex-1">
+                <p className="text-sm font-bold text-gray-900">{h.accion}</p>
+                {h.notas && <p className="text-xs text-gray-500 mt-0.5">"{h.notas}"</p>}
+                <p className="text-xs text-gray-400 mt-1">{format(new Date(h.fecha), "dd MMM yyyy, HH:mm", { locale: es })}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="p-4 border-t border-gray-100">
+          <button onClick={onClose} className="w-full py-2.5 text-sm font-semibold text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function Barberias() {
   const [barberias, setBarberias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState("");
   const [busqueda, setBusqueda] = useState("");
-
-  // Estados para Modales/Paneles
   const [historial, setHistorial] = useState(null);
   const [barberiaSeleccionada, setBarberiaSeleccionada] = useState(null);
+  const debounce = useRef(null);
 
   const cargarBarberias = async () => {
     try {
       setLoading(true);
-      const data = await getBarberias({
-        estado: filtroEstado || undefined,
-        busqueda: busqueda || undefined
-      });
+      const data = await getBarberias({ estado: filtroEstado || undefined, busqueda: busqueda || undefined });
       setBarberias(data.barberias || []);
-    } catch (err) {
-      setError("No se pudieron cargar las barberías");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { setError("No se pudieron cargar las barberías"); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => {
-    cargarBarberias();
+    if (debounce.current) clearTimeout(debounce.current);
+    debounce.current = setTimeout(cargarBarberias, 300);
   }, [filtroEstado, busqueda]);
 
   const cambiarEstado = async (id, estado) => {
-    if (!confirm(`¿Cambiar estado a ${estado}?`)) return;
-    await cambiarEstadoBarberia(id, estado);
-    cargarBarberias();
-    if (barberiaSeleccionada?._id === id) setBarberiaSeleccionada(null);
+    if (!id || !confirm(`¿Cambiar estado a ${estado}?`)) return;
+    try {
+      await cambiarEstadoBarberia(id, estado);
+      cargarBarberias();
+      if (barberiaSeleccionada?._id === id) setBarberiaSeleccionada(null);
+    } catch (e) { console.error(e); }
   };
 
   const extender = async (id, dias) => {
-    await extenderPlazoBarberia(id, dias, `Extensión manual de ${dias} días`);
-    alert(`Se han añadido ${dias} días con éxito.`);
-    cargarBarberias();
+    if (!id) return;
+    try {
+      await extenderPlazoBarberia(id, dias, `Extensión manual de ${dias} días`);
+      cargarBarberias();
+    } catch (e) { console.error(e); }
   };
 
   const verHistorial = async (id) => {
-    const data = await getHistorialBarberia(id);
-    setHistorial(data);
+    if (!id) return;
+    try {
+      const data = await getHistorialBarberia(id);
+      setHistorial(data);
+    } catch (e) { console.error(e); }
   };
 
+  const stats = [
+    { label: 'Total', value: barberias.length, bg: 'bg-gray-50', color: 'text-gray-900', icon: <Store size={18} className="text-gray-500" /> },
+    { label: 'Activas', value: barberias.filter(b => b.estado === 'activa').length, bg: 'bg-green-50', color: 'text-green-700', icon: <CheckCircle size={18} className="text-green-500" /> },
+    { label: 'En Trial', value: barberias.filter(b => b.estado === 'trial').length, bg: 'bg-yellow-50', color: 'text-yellow-700', icon: <Calendar size={18} className="text-yellow-500" /> },
+    { label: 'Suspendidas', value: barberias.filter(b => b.estado === 'suspendida').length, bg: 'bg-red-50', color: 'text-red-700', icon: <ShieldAlert size={18} className="text-red-500" /> },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 p-8">
-      <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-
-        {/* --- HEADER --- */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <Sparkles className="text-white" size={24} />
-              </div>
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-                Sistemas <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Activos</span>
-              </h1>
-            </div>
-            <p className="text-gray-600 text-sm font-medium ml-15">Panel de control y monitoreo de licencias</p>
-          </div>
-
-          <Link
-            to="/superadmin/dashboard/barberias/crear"
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-2xl font-bold text-sm transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
-          >
-            <Plus size={20} /> Nueva Barbería
+    <div className="space-y-8 animate-slide-in">
+      {/* HEADER */}
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">SuperAdmin / Barberías</p>
+          <h1 className="text-3xl font-black text-gray-900">Barberías</h1>
+          <p className="text-gray-500 text-sm mt-1">Gestión de licencias y suscripciones</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={cargarBarberias} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          </button>
+          <Link to="/superadmin/dashboard/barberias/crear" className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-all">
+            <Plus size={16} /> Nueva Barbería
           </Link>
         </div>
+      </div>
 
-        {/* --- FILTROS --- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/80 backdrop-blur-xl p-6 rounded-3xl border border-purple-100 shadow-xl shadow-purple-100/50">
-          <div className="relative md:col-span-2">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-purple-400" size={20} />
-            <input
-              className="w-full bg-white border-2 border-purple-100 p-4 pl-14 rounded-2xl text-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition-all text-gray-900 placeholder:text-gray-400 font-medium"
-              placeholder="Buscar por nombre, slug o dueño..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
+      {/* STATS */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map(s => (
+          <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center gap-3">
+              <div className={`p-2.5 ${s.bg} rounded-xl`}>{s.icon}</div>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">{s.label}</p>
+                <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+              </div>
+            </div>
           </div>
+        ))}
+      </div>
+
+      {/* FILTERS */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre, slug o email..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            className="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-all"
+          />
+        </div>
+        <div className="relative">
           <select
-            className="bg-white border-2 border-purple-100 p-4 rounded-2xl text-sm text-gray-700 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 font-medium cursor-pointer"
             value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
+            onChange={e => setFiltroEstado(e.target.value)}
+            className="appearance-none pl-3 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:border-gray-400 transition-all cursor-pointer"
           >
-            <option value="">Todos los Estados</option>
+            <option value="">Todos los estados</option>
             <option value="activa">Activas</option>
-            <option value="trial">Periodo Trial</option>
+            <option value="trial">En Trial</option>
             <option value="suspendida">Suspendidas</option>
           </select>
+          <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
-
-        {/* --- TABLA PRINCIPAL --- */}
-        <div className="bg-white/90 backdrop-blur-xl border-2 border-purple-100 rounded-3xl overflow-hidden shadow-2xl shadow-purple-100/50">
-          {loading ? (
-            <div className="py-32 flex flex-col items-center justify-center">
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-purple-200 rounded-full"></div>
-                <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin absolute top-0"></div>
-              </div>
-              <p className="text-purple-600 font-bold animate-pulse text-sm uppercase tracking-widest mt-6">Cargando sistemas...</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gradient-to-r from-purple-50 to-purple-100/50 border-b-2 border-purple-100">
-                    <th className="px-8 py-6 text-left text-xs font-black text-purple-900 uppercase tracking-wider">Cliente</th>
-                    <th className="px-8 py-6 text-left text-xs font-black text-purple-900 uppercase tracking-wider">Suscripción</th>
-                    <th className="px-8 py-6 text-center text-xs font-black text-purple-900 uppercase tracking-wider">Vencimiento</th>
-                    <th className="px-8 py-6 text-right text-xs font-black text-purple-900 uppercase tracking-wider">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-purple-100">
-                  {barberias.map((b) => (
-                    <tr key={b._id} className="hover:bg-purple-50/50 transition-all duration-200 group">
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="h-14 w-14 bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 group-hover:scale-110 transition-all">
-                            {b.nombre.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-gray-900 group-hover:text-purple-700 transition-colors">{b.nombre}</p>
-                            <p className="text-xs text-gray-500 font-medium">ID: {b.slug}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase border-2 ${b.estado === 'activa' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          b.estado === 'trial' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                            'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}>
-                          <div className={`w-2 h-2 rounded-full ${b.estado === 'activa' ? 'bg-emerald-500' :
-                            b.estado === 'trial' ? 'bg-amber-500' :
-                              'bg-rose-500'
-                            }`} />
-                          {b.estado}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-sm font-bold text-gray-900">
-                            {b.proximoPago ? new Date(b.proximoPago).toLocaleDateString() : "INFINITO"}
-                          </span>
-                          <span className="text-xs text-gray-500 font-medium">Próximo pago</span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => setBarberiaSeleccionada(b)}
-                            className="p-3 bg-purple-100 hover:bg-purple-600 text-purple-600 hover:text-white rounded-xl transition-all border-2 border-purple-200 hover:border-purple-600 hover:shadow-lg hover:shadow-purple-500/30"
-                            title="Ver detalles"
-                          >
-                            <Eye size={18} />
-                          </button>
-                          <button
-                            onClick={() => verHistorial(b._id)}
-                            className="p-3 bg-purple-100 hover:bg-purple-600 text-purple-600 hover:text-white rounded-xl transition-all border-2 border-purple-200 hover:border-purple-600 hover:shadow-lg hover:shadow-purple-500/30"
-                            title="Ver historial"
-                          >
-                            <History size={18} />
-                          </button>
-                          <button
-                            onClick={() => extender(b._id, 30)}
-                            className="px-5 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-xs font-black uppercase transition-all shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
-                          >
-                            +30 Días
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* --- PANEL LATERAL DE INSPECCIÓN --- */}
-        {barberiaSeleccionada && (
-          <div className="fixed inset-0 z-50 overflow-hidden">
-            <div className="absolute inset-0 bg-purple-900/20 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setBarberiaSeleccionada(null)} />
-            <div className="absolute inset-y-0 right-0 w-full max-w-lg bg-white shadow-2xl border-l-4 border-purple-600 p-10 flex flex-col animate-in slide-in-from-right duration-500">
-
-              <div className="flex justify-between items-start mb-10">
-                <div className="h-24 w-24 bg-gradient-to-br from-purple-600 to-purple-800 rounded-3xl flex items-center justify-center text-5xl font-black text-white shadow-2xl shadow-purple-500/40 uppercase">
-                  {barberiaSeleccionada.nombre.charAt(0)}
-                </div>
-                <button onClick={() => setBarberiaSeleccionada(null)} className="p-3 bg-purple-100 hover:bg-rose-100 text-purple-600 hover:text-rose-600 rounded-2xl transition-all">
-                  <X size={24} />
-                </button>
-              </div>
-
-              <div className="flex-1 space-y-8 overflow-y-auto pr-2">
-                <section>
-                  <h2 className="text-3xl font-black text-gray-900 mb-2">{barberiaSeleccionada.nombre}</h2>
-                  <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 font-mono text-xs rounded-lg font-bold">ID_{barberiaSeleccionada.slug}</span>
-                    <span className="text-gray-400">•</span>
-                    <span className="text-gray-600 text-xs font-bold uppercase">{barberiaSeleccionada.plan || 'Plan Standard'}</span>
-                  </div>
-                </section>
-
-                {/* STATS */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl border-2 border-purple-200 shadow-lg">
-                    <p className="text-xs text-purple-600 uppercase font-black tracking-wide">Uso del Sistema</p>
-                    <p className="text-3xl font-black text-purple-900 mt-2">88%</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl border-2 border-purple-200 shadow-lg">
-                    <p className="text-xs text-purple-600 uppercase font-black tracking-wide">Staff Activo</p>
-                    <p className="text-3xl font-black text-purple-900 mt-2">{barberiaSeleccionada.barberosCount || 4}</p>
-                  </div>
-                </div>
-
-                {/* URL PÚBLICA */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-black text-purple-600 uppercase tracking-wide flex items-center gap-2">
-                    <ExternalLink size={16} className="text-purple-600" /> URL Pública
-                  </h3>
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border-2 border-blue-200 shadow-lg">
-                    <p className="text-xs text-blue-600 font-bold uppercase mb-2">Página de Reservas</p>
-                    <a
-                      href={`${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/${barberiaSeleccionada.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-700 font-mono font-bold hover:text-blue-900 hover:underline break-all flex items-center gap-2"
-                    >
-                      <span>{`${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/${barberiaSeleccionada.slug}`}</span>
-                      <ExternalLink size={14} className="flex-shrink-0" />
-                    </a>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(`${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/${barberiaSeleccionada.slug}`);
-                        alert('URL copiada al portapapeles');
-                      }}
-                      className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-xs font-bold transition-all"
-                    >
-                      📋 Copiar URL
-                    </button>
-                  </div>
-                </div>
-
-                {/* DUEÑO */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-black text-purple-600 uppercase tracking-wide flex items-center gap-2">
-                    <User size={16} className="text-purple-600" /> Titular de Licencia
-                  </h3>
-                  <div className="bg-purple-50/50 p-6 rounded-2xl border-2 border-purple-100 space-y-4">
-                    <div>
-                      <p className="text-xs text-purple-600 font-bold uppercase mb-1">Correo Electrónico</p>
-                      <p className="text-sm text-gray-900 font-semibold">{barberiaSeleccionada.email || 'contacto@barber.com'}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-purple-600 font-bold uppercase mb-1">Fecha de Alta</p>
-                      <p className="text-sm text-gray-900 font-semibold">
-                        {barberiaSeleccionada.createdAt
-                          ? new Date(barberiaSeleccionada.createdAt).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })
-                          : 'No disponible'
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* SUSCRIPCIÓN */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-black text-purple-600 uppercase tracking-wide flex items-center gap-2">
-                    <CreditCard size={16} className="text-purple-600" /> Salud de Suscripción
-                  </h3>
-                  <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border-2 border-purple-200 shadow-lg">
-                    <div className="flex justify-between items-end mb-4">
-                      <div>
-                        <p className="text-xs text-purple-600 font-bold uppercase mb-1">Estado Actual</p>
-                        <p className="text-2xl font-black text-purple-900 capitalize">{barberiaSeleccionada.estado}</p>
-                      </div>
-                      <span className={`px-4 py-2 text-xs font-black rounded-xl uppercase border-2 ${barberiaSeleccionada.estado === 'activa'
-                        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-                        : barberiaSeleccionada.estado === 'trial'
-                          ? 'bg-amber-100 text-amber-700 border-amber-200'
-                          : 'bg-rose-100 text-rose-700 border-rose-200'
-                        }`}>
-                        {barberiaSeleccionada.estado === 'activa' ? 'Al día' : barberiaSeleccionada.estado}
-                      </span>
-                    </div>
-                    {barberiaSeleccionada.proximoPago && (
-                      <div className="mt-3 pt-3 border-t border-purple-200">
-                        <p className="text-xs text-purple-600 font-bold uppercase mb-1">Próximo Pago</p>
-                        <p className="text-sm text-gray-900 font-semibold">
-                          {new Date(barberiaSeleccionada.proximoPago).toLocaleDateString('es-ES')}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* ACCIONES */}
-              <div className="mt-8 pt-8 border-t-2 border-purple-100 space-y-3">
-                {/* Botón principal de activar/suspender */}
-                {barberiaSeleccionada.estado !== 'activa' ? (
-                  <button
-                    onClick={() => cambiarEstado(barberiaSeleccionada._id, 'activa')}
-                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-wide transition-all shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105"
-                  >
-                    <CheckCircle size={20} /> Activar Barbería
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => cambiarEstado(barberiaSeleccionada._id, 'suspendida')}
-                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-wide transition-all shadow-xl shadow-rose-500/30 hover:shadow-rose-500/50 hover:scale-105"
-                  >
-                    <ShieldAlert size={20} /> Suspender Barbería
-                  </button>
-                )}
-
-                {/* Botones secundarios */}
-                <div className="grid grid-cols-2 gap-3">
-                  <a
-                    href={`${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/${barberiaSeleccionada.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 bg-purple-100 hover:bg-purple-600 text-purple-700 hover:text-white py-4 rounded-2xl font-bold text-xs uppercase border-2 border-purple-200 hover:border-purple-600 transition-all hover:shadow-lg"
-                  >
-                    <ExternalLink size={16} /> Ver Página
-                  </a>
-                  <button className="flex items-center justify-center gap-2 bg-purple-100 hover:bg-purple-600 text-purple-700 hover:text-white py-4 rounded-2xl font-bold text-xs uppercase border-2 border-purple-200 hover:border-purple-600 transition-all hover:shadow-lg">
-                    <MoreHorizontal size={16} /> Más
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- MODAL HISTORIAL --- */}
-        {historial && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-purple-900/30 backdrop-blur-xl animate-in fade-in" onClick={() => setHistorial(null)}></div>
-            <div className="relative bg-white border-4 border-purple-200 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-              <div className="p-8 border-b-2 border-purple-100 bg-gradient-to-r from-purple-50 to-purple-100 flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                    <History className="text-purple-600" size={28} />
-                    Logs del Sistema
-                  </h2>
-                  <p className="text-purple-600 text-sm font-bold mt-1">Historial de {historial.nombre}</p>
-                </div>
-                <button onClick={() => setHistorial(null)} className="p-3 bg-white hover:bg-purple-100 text-purple-600 rounded-2xl transition-all border-2 border-purple-200">
-                  <X size={24} />
-                </button>
-              </div>
-
-              <div className="p-8 max-h-[60vh] overflow-y-auto space-y-4">
-                {historial.historial.map((h, i) => (
-                  <div key={i} className="relative pl-10 border-l-4 border-purple-200 py-2">
-                    <div className="absolute -left-[13px] top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-4 border-purple-600 rounded-full shadow-lg" />
-                    <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all">
-                      <p className="text-sm font-black text-purple-700 uppercase tracking-wide">{h.accion}</p>
-                      <p className="text-sm text-gray-700 mt-2 font-medium">"{h.notas}"</p>
-                      <div className="flex items-center gap-2 mt-4 text-xs text-purple-600 font-bold">
-                        <Calendar size={14} /> {new Date(h.fecha).toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-8 bg-gradient-to-r from-purple-50 to-purple-100 border-t-2 border-purple-200">
-                <button
-                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-wide transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
-                  onClick={() => setHistorial(null)}
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
       </div>
+
+      {/* ERROR */}
+      {error && <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{error}</div>}
+
+      {/* TABLE */}
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-50 bg-gray-50">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{barberias.length} barbería{barberias.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-50">
+                {['Barbería', 'Estado', 'Plan', 'Próximo Pago', ''].map((h, i) => (
+                  <th key={i} className={`px-5 py-3 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest ${i === 4 ? 'text-right' : ''}`}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} className="border-b border-gray-50">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <td key={j} className="px-5 py-4"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td>
+                    ))}
+                  </tr>
+                ))
+              ) : barberias.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Store size={32} className="text-gray-200" />
+                      <p className="text-gray-400 text-sm">No se encontraron barberías</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : barberias.map(b => (
+                <tr key={b._id} className="border-b border-gray-50 hover:bg-gray-50 transition-all group">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center text-white font-black text-sm">{b.nombre.charAt(0)}</div>
+                      <div>
+                        <p className="font-bold text-gray-900 text-sm">{b.nombre}</p>
+                        <p className="text-xs text-gray-400 font-mono">{b.slug}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4"><StatusBadge estado={b.estado} /></td>
+                  <td className="px-5 py-4">
+                    <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-lg uppercase">{b.plan || 'trial'}</span>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-600">
+                    {b.proximoPago ? format(new Date(b.proximoPago), 'dd MMM yyyy', { locale: es }) : <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => verHistorial(b._id)} className="p-2 hover:bg-gray-100 rounded-lg transition-all" title="Historial">
+                        <History size={15} className="text-gray-500" />
+                      </button>
+                      <button onClick={() => setBarberiaSeleccionada(b)} className="p-2 hover:bg-gray-100 rounded-lg transition-all" title="Ver detalles">
+                        <Eye size={15} className="text-gray-500" />
+                      </button>
+                      <button onClick={() => extender(b._id, 30)} className="px-3 py-1.5 text-xs font-bold bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-all">
+                        +30d
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* DETAIL DRAWER */}
+      {barberiaSeleccionada && (
+        <DetailDrawer
+          b={barberiaSeleccionada}
+          onClose={() => setBarberiaSeleccionada(null)}
+          onCambiarEstado={cambiarEstado}
+          onExtender={extender}
+        />
+      )}
+
+      {/* HISTORIAL MODAL */}
+      {historial && <HistorialModal historial={historial} onClose={() => setHistorial(null)} />}
     </div>
   );
 }

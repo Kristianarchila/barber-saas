@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <title>Reserva confirmada</title>
 </head>
+
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 0;">
@@ -11,7 +13,8 @@
       <td align="center">
 
         <!-- CONTENEDOR -->
-        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <table width="600" cellpadding="0" cellspacing="0"
+          style="background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);">
 
           <!-- HEADER -->
           <tr>
@@ -27,7 +30,7 @@
           <tr>
             <td style="padding:28px;color:#111827;">
               <p style="font-size:16px;margin:0 0 16px;">
-                Hola 👋,<br>
+                Hola {{nombreCliente}} 👋,<br>
                 Tu turno fue registrado correctamente.
               </p>
 
@@ -43,8 +46,32 @@
                 </tr>
               </table>
 
+              <!-- BOTONES DE ACCIÓN -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+                <tr>
+                  <td align="center">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:0 8px;">
+                          <a href="{{reagendarUrl}}"
+                            style="display:inline-block;background:#3b82f6;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;">
+                            📅 Reagendar Cita
+                          </a>
+                        </td>
+                        <td style="padding:0 8px;">
+                          <a href="{{cancelUrl}}"
+                            style="display:inline-block;background:#ef4444;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;">
+                            ❌ Cancelar Cita
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
               <p style="font-size:14px;color:#6b7280;">
-                Si necesitas modificar o cancelar tu reserva, comunícate directamente con la barbería.
+                Si tienes alguna pregunta, comunícate directamente con la barbería.
               </p>
             </td>
           </tr>
@@ -64,4 +91,5 @@
   </table>
 
 </body>
+
 </html>

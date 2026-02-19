@@ -1,0 +1,146 @@
+/* Custom styles for react-big-calendar */
+
+.calendar-container {
+    background: transparent;
+}
+
+/* Override react-big-calendar default styles for dark theme */
+.rbc-calendar {
+    background: transparent;
+    color: #fff;
+}
+
+.rbc-header {
+    background: #1f2937;
+    border-bottom: 1px solid #374151;
+    color: #9ca3af;
+    font-weight: 600;
+    padding: 12px 6px;
+}
+
+.rbc-header+.rbc-header {
+    border-left: 1px solid #374151;
+}
+
+.rbc-month-view {
+    background: transparent;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.rbc-month-row {
+    border-top: 1px solid #374151;
+}
+
+.rbc-month-row:first-child {
+    border-top: none;
+}
+
+.rbc-day-bg {
+    background: #111827;
+    border-left: 1px solid #374151;
+}
+
+.rbc-day-bg:first-child {
+    border-left: none;
+}
+
+.rbc-off-range-bg {
+    background: #0f172a;
+}
+
+.rbc-today {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.rbc-date-cell {
+    padding: 6px;
+    text-align: right;
+}
+
+.rbc-date-cell a {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.rbc-now .rbc-date-cell a {
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+.rbc-off-range .rbc-date-cell a {
+    color: #4b5563;
+}
+
+.rbc-event {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rbc-event:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+.rbc-event-label {
+    font-size: 0.75rem;
+}
+
+.rbc-event-content {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.rbc-show-more {
+    background: #374151;
+    color: #9ca3af;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    margin: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rbc-show-more:hover {
+    background: #4b5563;
+    color: #fff;
+}
+
+.rbc-overlay {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    padding: 12px;
+}
+
+.rbc-overlay-header {
+    border-bottom: 1px solid #374151;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Toolbar (hidden as we use custom navigation) */
+.rbc-toolbar {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .rbc-header {
+        font-size: 0.75rem;
+        padding: 8px 4px;
+    }
+
+    .rbc-date-cell {
+        padding: 4px;
+    }
+
+    .rbc-event-content {
+        font-size: 0.75rem;
+    }
+}

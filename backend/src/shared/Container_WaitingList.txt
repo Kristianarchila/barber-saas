@@ -1,0 +1,61 @@
+    // ==========================================
+    // USE CASES - WAITING LIST
+    // ==========================================
+
+    get joinWaitingListUseCase() {
+        if (!this._instances.emailServiceWrapper) {
+            const EmailServiceWrapper = require('../infrastructure/external-services/email/EmailServiceWrapper');
+            this._instances.emailServiceWrapper = new EmailServiceWrapper(emailService);
+        }
+
+        return new JoinWaitingList(
+            this.waitingListRepository,
+            this.reservaRepository,
+            this._instances.emailServiceWrapper
+        );
+    }
+
+    get notifyWaitingListUseCase() {
+        if (!this._instances.emailServiceWrapper) {
+            const EmailServiceWrapper = require('../infrastructure/external-services/email/EmailServiceWrapper');
+            this._instances.emailServiceWrapper = new EmailServiceWrapper(emailService);
+        }
+
+        return new NotifyWaitingList(
+            this.waitingListRepository,
+            this._instances.emailServiceWrapper
+        );
+    }
+
+    get convertWaitingListToReservaUseCase() {
+        if (!this._instances.emailServiceWrapper) {
+            const EmailServiceWrapper = require('../infrastructure/external-services/email/EmailServiceWrapper');
+            this._instances.emailServiceWrapper = new EmailServiceWrapper(emailService);
+        }
+
+        return new ConvertWaitingListToReserva(
+            this.waitingListRepository,
+            this.reservaRepository,
+            this.createReservaUseCase,
+            this._instances.emailServiceWrapper
+        );
+    }
+
+    get getWaitingListByBarberiaUseCase() {
+        return new GetWaitingListByBarberia(this.waitingListRepository);
+    }
+
+    get cancelWaitingListEntryUseCase() {
+        if (!this._instances.emailServiceWrapper) {
+            const EmailServiceWrapper = require('../infrastructure/external-services/email/EmailServiceWrapper');
+            this._instances.emailServiceWrapper = new EmailServiceWrapper(emailService);
+        }
+
+        return new CancelWaitingListEntry(
+            this.waitingListRepository,
+            this._instances.emailServiceWrapper
+        );
+    }
+}
+
+module.exports = Container;

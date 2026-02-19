@@ -36,7 +36,7 @@ eventBus.on("resena:creada", async (data) => {
         const { resena, barberia } = data;
 
         // Buscar admin de la barbería
-        const User = require("../models/User");
+        const User = require("../infrastructure/database/mongodb/models/User");
         const admin = await User.findOne({
             barberiaId: barberia._id,
             rol: "BARBERIA_ADMIN"

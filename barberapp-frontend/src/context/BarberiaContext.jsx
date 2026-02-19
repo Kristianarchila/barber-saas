@@ -1,58 +1,77 @@
-import { createContext, useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
-import { getBarberiaBySlug, getServiciosBySlug, getBarberosBySlug } from "../services/publicService";
+import { createContext, useMemo, useContext } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getBarberiaBySlug, getServiciosBySlug, getBarberosBySlug, getResenasBySlug } from "../services/publicService";
 
 export const BarberiaContext = createContext();
 
 /**
- * BarberiaProvider - Provee el contexto de la barbería actual
+ * BarberiaProvider - Provee el contexto de la barbería actual con caché optimizado
  * 
  * Lee el slug de la URL y carga automáticamente los datos de la barbería.
- * Provee: slug, barberia, loading, error
+ * Usa React Query para caché automático (5 minutos de datos frescos).
+ * Provee: slug, barberia, servicios, barberos, resenas, loading, error
  */
 export const BarberiaProvider = ({ children }) => {
-    const { slug } = useParams();
-    const [barberia, setBarberia] = useState(null);
-    const [servicios, setServicios] = useState([]);
-    const [barberos, setBarberos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const params = useParams();
+    const location = useLocation();
 
-    useEffect(() => {
-        async function fetchData() {
-            if (!slug) {
-                setLoading(false);
-                return;
-            }
+    // Extraer el slug del pathname
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    let slug = params.slug || pathSegments[0];
 
-            try {
-                setLoading(true);
-                setError(null);
+    // Si el primer segmento es alguna ruta especial, no es un slug
+    const specialRoutes = ['superadmin', 'login'];
+    if (specialRoutes.includes(pathSegments[0])) {
+        slug = null;
+    }
 
-                // Usamos Promise.all para cargar todos en paralelo
-                const [barberiaData, serviciosData, barberosData] = await Promise.all([
-                    getBarberiaBySlug(slug),
-                    getServiciosBySlug(slug).catch(() => []),
-                    getBarberosBySlug(slug).catch(() => [])
-                ]);
+    // React Query: Barberia data con caché automático
+    const { data: barberia, isLoading: loadingBarberia, error: errorBarberia } = useQuery({
+        queryKey: ['barberia', slug],
+        queryFn: () => getBarberiaBySlug(slug),
+        enabled: !!slug, // Solo ejecutar si hay slug
+    });
 
-                setBarberia(barberiaData);
-                setServicios(Array.isArray(serviciosData) ? serviciosData : []);
-                setBarberos(Array.isArray(barberosData) ? barberosData : []);
-            } catch (err) {
-                console.error("Error cargando datos de la barbería:", err);
-                setError(err.response?.data?.message || "Error al cargar la plataforma");
-                setBarberia(null);
-            } finally {
-                setLoading(false);
-            }
-        }
+    // React Query: Servicios con caché
+    const { data: servicios = [] } = useQuery({
+        queryKey: ['servicios', slug],
+        queryFn: () => getServiciosBySlug(slug),
+        enabled: !!slug,
+    });
 
-        fetchData();
-    }, [slug]);
+    // React Query: Barberos con caché
+    const { data: barberos = [] } = useQuery({
+        queryKey: ['barberos', slug],
+        queryFn: () => getBarberosBySlug(slug),
+        enabled: !!slug,
+    });
+
+    // React Query: Reseñas con caché
+    const { data: resenasData } = useQuery({
+        queryKey: ['resenas', slug],
+        queryFn: () => getResenasBySlug(slug),
+        enabled: !!slug,
+    });
+
+    // Memoizar valores derivados para evitar re-renders
+    const resenas = useMemo(() => resenasData?.data?.resenas || [], [resenasData]);
+    const loading = loadingBarberia;
+    const error = errorBarberia?.response?.data?.message || errorBarberia?.message;
+
+    // Memoizar el valor del contexto
+    const contextValue = useMemo(() => ({
+        slug,
+        barberia,
+        servicios: Array.isArray(servicios) ? servicios : [],
+        barberos: Array.isArray(barberos) ? barberos : [],
+        resenas,
+        loading,
+        error,
+    }), [slug, barberia, servicios, barberos, resenas, loading, error]);
 
     return (
-        <BarberiaContext.Provider value={{ slug, barberia, servicios, barberos, loading, error, setBarberia }}>
+        <BarberiaContext.Provider value={contextValue}>
             {children}
         </BarberiaContext.Provider>
     );

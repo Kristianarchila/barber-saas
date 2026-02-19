@@ -8,21 +8,11 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
  * @param {string|number} value - Valor principal
  * @param {string} change - Cambio porcentual (ej: "+15%")
  * @param {string} trend - Tendencia: 'up' | 'down' | 'neutral'
- * @param {string} icon - Emoji o icono
- * @param {string} color - Color: 'primary' | 'secondary' | 'success' | 'warning'
- * @param {string} className - Clases adicionales
- */
-/**
- * Stat Component - Tarjeta de estadística con valor, cambio y tendencia
- * 
- * @param {string} title - Título de la métrica
- * @param {string|number} value - Valor principal
- * @param {string} change - Cambio porcentual (ej: "+15%")
- * @param {string} trend - Tendencia: 'up' | 'down' | 'neutral'
  * @param {React.ReactNode} icon - Emoji o icono (componente Lucide o string)
  * @param {string} subtitle - Texto secundario bajo el valor
  * @param {string} badge - Texto destacado en un badge
  * @param {string} color - Color: 'primary' | 'secondary' | 'success' | 'warning'
+ * @param {string} variant - Variante: 'default' | 'premium'
  * @param {string} className - Clases adicionales
  */
 export default function Stat({
@@ -34,8 +24,68 @@ export default function Stat({
     subtitle,
     badge,
     color = 'primary',
+    variant = 'default',
     className = '',
 }) {
+    // Premium variant
+    if (variant === 'premium') {
+        return (
+            <div className={`bg-white border border-black/5 rounded-[2rem] p-8 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${className}`}>
+                {/* Icon - Subtle background */}
+                {icon && (
+                    <div className="absolute top-6 right-6 text-black/5 group-hover:text-black/10 transition-colors duration-300">
+                        {typeof icon === 'string' ? (
+                            <span className="text-4xl">{icon}</span>
+                        ) : (
+                            <div className="[&>svg]:w-8 [&>svg]:h-8 [&>svg]:stroke-[1]">
+                                {icon}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Value - Giant number */}
+                <div className="relative z-10">
+                    <p className="text-[4rem] font-black text-black leading-none tracking-tighter mb-2">
+                        {value}
+                    </p>
+
+                    {/* Title - Small uppercase */}
+                    <p className="text-xs font-light text-black/40 uppercase tracking-[0.2em]">
+                        {title}
+                    </p>
+
+                    {/* Subtitle */}
+                    {subtitle && (
+                        <p className="text-sm text-black/60 mt-2 font-serif italic">
+                            {subtitle}
+                        </p>
+                    )}
+
+                    {/* Change indicator */}
+                    {change && (
+                        <div className={`flex items-center gap-1 text-xs font-medium mt-3 ${trend === 'up' ? 'text-green-600' :
+                                trend === 'down' ? 'text-red-600' :
+                                    'text-black/40'
+                            }`}>
+                            {trend === 'up' && <TrendingUp size={14} strokeWidth={2} />}
+                            {trend === 'down' && <TrendingDown size={14} strokeWidth={2} />}
+                            <span>{change}</span>
+                        </div>
+                    )}
+
+                    {/* Badge */}
+                    {badge && (
+                        <span className="inline-block mt-3 px-3 py-1 rounded-full border border-black/10 text-xs font-medium uppercase tracking-wide text-black/60">
+                            {badge}
+                        </span>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // Default variant (existing design)
     const colors = {
         primary: 'from-primary-600 to-primary-700',
         secondary: 'from-secondary-600 to-secondary-700',
@@ -99,5 +149,7 @@ Stat.propTypes = {
     subtitle: PropTypes.string,
     badge: PropTypes.string,
     color: PropTypes.oneOf(['primary', 'secondary', 'success', 'warning', 'accent']),
+    variant: PropTypes.oneOf(['default', 'premium']),
     className: PropTypes.string,
 };
+

@@ -14,8 +14,8 @@ export const useBarberia = (slug) => {
                 setLoading(true);
                 // Fetch both in parallel for better performance
                 const [barberiaRes, serviciosRes] = await Promise.all([
-                    api.get(`/public/${slug}`),
-                    api.get(`/public/${slug}/servicios`)
+                    api.get(`/public/barberias/${slug}`),
+                    api.get(`/public/barberias/${slug}/servicios`)
                 ]);
 
                 setBarberia(barberiaRes.data);

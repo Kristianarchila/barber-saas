@@ -1,0 +1,3731 @@
+﻿
+> backend@1.0.0 test
+> jest --runInBand --detectOpenHandles
+
+node.exe : (node:30436) 
+[MONGOOSE] Warning: 
+Duplicate schema index on 
+{"reviewToken":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+En línea: 1 Carácter: 1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ((node:3  
+  0436) [M...dex definitio   
+ n.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+(Use `node --trace-warnings 
+...` to show where the 
+warning was created)
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"numeroPedido":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+[0mPOST /api/auth/login [31m500[0m 11.497 ms - 373[0m
+[0mPOST /api/auth/register [31m500[0m 2.111 ms - 373[0m
+[0mPOST /api/auth/login [31m500[0m 10016.680 ms - 476[0m
+[0mPOST /api/reservas/barberos/invalid-id/reservar [31m500[0m 2.837 ms - 373[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [31m500[0m 1.591 ms - 373[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [31m500[0m 2.162 ms - 373[0m
+[0mPOST /api/barberias/test-slug/admin/servicios [33m401[0m 0.698 ms - 27[0m
+[0mPOST /api/barberias/test-slug/admin/servicios [33m401[0m 0.879 ms - 27[0m
+FAIL 
+tests/validation.test.js 
+(13.361 s)
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from .env 
+-- tip: ƒöÉ prevent 
+committing .env to code: 
+https://dotenvx.com/precommit
+
+      at _log (node_modules/d
+otenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/login
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at Immediate.next (node
+_modules/router/index.js:291:
+5)
+      at 
+Immediate._onImmediate (node_
+modules/router/index.js:688:1
+5)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/register
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+    console.log
+      ƒôí [POST] 
+/api/auth/login
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: 
+MongooseError: Operation 
+`users.findOne()` buffering 
+timed out after 10000ms
+          at 
+Timeout.<anonymous> (C:\Users
+\Kristian\Desktop\barber-saas
+\backend\node_modules\mongoos
+e\lib\drivers\node-mongodb-na
+tive\collection.js:187:23)
+          at listOnTimeout 
+(node:internal/timers:588:17)
+          at processTimers 
+(node:internal/timers:523:7)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at Immediate.next (node
+_modules/router/index.js:291:
+5)
+      at 
+Immediate._onImmediate (node_
+modules/router/index.js:688:1
+5)
+
+    console.log
+      ƒôí [POST] /api/reserva
+s/barberos/invalid-id/reserva
+r
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+    console.log
+      ƒôí [POST] /api/reserva
+s/barberos/507f1f77bcf86cd799
+439011/reservar
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+    console.log
+      ƒôí [POST] /api/reserva
+s/barberos/507f1f77bcf86cd799
+439011/reservar
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+    console.log
+      ƒôí [POST] /api/barberi
+as/test-slug/admin/servicios
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] /api/barberi
+as/test-slug/admin/servicios
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/reservas
+?barberoId%5B%24ne%5D
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/login
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at Immediate.next (node
+_modules/router/index.js:291:
+5)
+      at 
+Immediate._onImmediate (node_
+modules/router/index.js:688:1
+5)
+
+    console.log
+      ƒôí [POST] /api/reserva
+s/barberos/507f1f77bcf86cd799
+439011/reservar
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+    console.log
+      ƒôí [POST] /api/reserva
+s/barberos/507f1f77bcf86cd799
+439011/reservar
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+    console.log
+      ƒôí [POST] 
+/api/auth/register
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      ƒö┤ ERROR: TypeError: 
+Cannot read properties of 
+undefined (reading 'map')
+          at map (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\src\middleware\validati
+on.middleware.js:36:45)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m errorHandler 
+[33m=[39m (err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 6 
+|[39m   console[33m.[39mer
+ror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m          
+ [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR HEADERS 
+CORS SI NO EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mhea
+ders[33m.[39morigin[33m;[
+39m[0m
+
+      at error (src/config/mi
+ddleware/errorHandler.js:6:11
+)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:116:17)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at trimPrefix (node_mod
+ules/router/index.js:340:13)
+      at node_modules/router/
+index.js:297:9
+      at processParams (node_
+modules/router/index.js:582:1
+2)
+      at next (node_modules/r
+outer/index.js:291:5)
+      at node_modules/router/
+index.js:688:15
+      at next (node_modules/r
+outer/index.js:276:14)
+      at next (node_modules/r
+outer/lib/route.js:132:14)
+      at Layer.handleError (n
+ode_modules/router/lib/layer.
+js:111:12)
+      at next (node_modules/r
+outer/lib/route.js:155:13)
+      at node_modules/router/
+lib/layer.js:161:9
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Auth Validation ÔÇ║ 
+should reject invalid email 
+format
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 12 |[39m     
+            })[33m;[39m
+     [90m 13 |[39m
+    
+[31m[1m>[22m[39m[90m 14 
+|[39m             expect(res
+[33m.[39mstatus)[33m.[39m
+toBe([35m400[39m)[33m;[39
+m
+     [90m    |[39m         
+                       
+[31m[1m^[22m[39m
+     [90m 15 |[39m         
+    expect(res[33m.[39mbody
+[33m.[39msuccess)[33m.[39
+mtoBe([36mfalse[39m)[33m;
+[39m
+     [90m 16 |[39m         
+    expect(res[33m.[39mbody
+[33m.[39mmessage)[33m.[39
+mtoBe([32m'Validation 
+error'[39m)[33m;[39m
+     [90m 17 |[39m         
+    expect(res[33m.[39mbody
+[33m.[39merrors)[33m.[39m
+toEqual([0m
+
+      at Object.toBe (tests/v
+alidation.test.js:14:32)
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Auth Validation ÔÇ║ 
+should reject weak password 
+on registration
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 35 |[39m     
+            })[33m;[39m
+     [90m 36 |[39m
+    
+[31m[1m>[22m[39m[90m 37 
+|[39m             expect(res
+[33m.[39mstatus)[33m.[39m
+toBe([35m400[39m)[33m;[39
+m
+     [90m    |[39m         
+                       
+[31m[1m^[22m[39m
+     [90m 38 |[39m         
+    expect(res[33m.[39mbody
+[33m.[39merrors[33m.[39ml
+ength)[33m.[39mtoBeGreaterT
+han([35m0[39m)[33m;[39m
+     [90m 39 |[39m         
+})[33m;[39m
+     [90m 40 |[39m[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:37:32)
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Reserva Validation ÔÇ║ 
+should reject invalid 
+ObjectId format
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 65 |[39m     
+            })[33m;[39m
+     [90m 66 |[39m
+    
+[31m[1m>[22m[39m[90m 67 
+|[39m             expect(res
+[33m.[39mstatus)[33m.[39m
+toBe([35m400[39m)[33m;[39
+m
+     [90m    |[39m         
+                       
+[31m[1m^[22m[39m
+     [90m 68 |[39m         
+    expect(res[33m.[39mbody
+[33m.[39merrors)[33m.[39m
+toEqual(
+     [90m 69 |[39m         
+        expect[33m.[39marra
+yContaining([
+     [90m 70 |[39m         
+            expect[33m.[39m
+objectContaining({[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:67:32)
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Reserva Validation ÔÇ║ 
+should reject past dates
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 88 |[39m     
+            })[33m;[39m
+     [90m 89 |[39m
+    
+[31m[1m>[22m[39m[90m 90 
+|[39m             expect(res
+[33m.[39mstatus)[33m.[39m
+toBe([35m400[39m)[33m;[39
+m
+     [90m    |[39m         
+                       
+[31m[1m^[22m[39m
+     [90m 91 |[39m         
+    expect(res[33m.[39mbody
+[33m.[39merrors)[33m.[39m
+toEqual(
+     [90m 92 |[39m         
+        expect[33m.[39marra
+yContaining([
+     [90m 93 |[39m         
+            expect[33m.[39m
+objectContaining({[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:90:32)
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Reserva Validation ÔÇ║ 
+should reject invalid time 
+format
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 111 |[39m    
+             })[33m;[39m
+     [90m 112 |[39m
+    
+[31m[1m>[22m[39m[90m 
+113 |[39m             expect
+(res[33m.[39mstatus)[33m.
+[39mtoBe([35m400[39m)[33m;
+[39m
+     [90m     |[39m        
+                        
+[31m[1m^[22m[39m
+     [90m 114 |[39m        
+ })[33m;[39m
+     [90m 115 |[39m     
+})[33m;[39m
+     [90m 116 |[39m[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:113:32)
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Servicio Validation ÔÇ║ 
+should reject negative price
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 401
+
+    [0m [90m 125 |[39m    
+             })[33m;[39m
+     [90m 126 |[39m
+    
+[31m[1m>[22m[39m[90m 
+127 |[39m             expect
+(res[33m.[39mstatus)[33m.
+[39mtoBe([35m400[39m)[33m;
+[39m
+     [90m     |[39m        
+                        
+[31m[1m^[22m[39m
+     [90m 128 |[39m        
+     expect(res[33m.[39mbod
+y[33m.[39merrors)[33m.[39
+mtoEqual(
+     [90m 129 |[39m        
+         expect[33m.[39marr
+ayContaining([
+     [90m 130 |[39m        
+             expect[33m.[39
+mobjectContaining({[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:127:32)
+
+  ÔùÅ Input Validation Tests 
+ÔÇ║ Servicio Validation ÔÇ║ 
+should reject invalid 
+duration
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 401
+
+    [0m [90m 145 |[39m    
+             })[33m;[39m
+     [90m 146 |[39m
+    
+[31m[1m>[22m[39m[90m 
+147 |[39m             expect
+(res[33m.[39mstatus)[33m.
+[39mtoBe([35m400[39m)[33m;
+[39m
+     [90m     |[39m        
+                        
+[31m[1m^[22m[39m
+     [90m 148 |[39m        
+ })[33m;[39m
+     [90m 149 |[39m     
+})[33m;[39m
+     [90m 150 |[39m 
+})[33m;[39m[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:147:32)
+
+  ÔùÅ Sanitization Tests ÔÇ║ 
+NoSQL Injection Prevention 
+ÔÇ║ should sanitize MongoDB 
+operators in body
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 169 |[39m    
+             })[33m;[39m
+     [90m 170 |[39m
+    
+[31m[1m>[22m[39m[90m 
+171 |[39m             expect
+(res[33m.[39mstatus)[33m.
+[39mtoBe([35m400[39m)[33m;
+[39m
+     [90m     |[39m        
+                        
+[31m[1m^[22m[39m
+     [90m 172 |[39m        
+ })[33m;[39m
+     [90m 173 |[39m     
+})[33m;[39m
+     [90m 174 |[39m[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:171:32)
+
+  ÔùÅ Sanitization Tests ÔÇ║ 
+XSS Prevention ÔÇ║ should 
+sanitize script tags in input
+
+    expect(received).toBeLess
+Than(expected)
+
+    Expected: < 500
+    Received:   500
+
+    [0m [90m 188 |[39m    
+         [90m// Should 
+sanitize the input[39m
+     [90m 189 |[39m        
+     [90m// Verify in 
+database that script tags 
+are removed[39m
+    
+[31m[1m>[22m[39m[90m 
+190 |[39m             expect
+(res[33m.[39mstatus)[33m.
+[39mtoBeLessThan([35m500[39
+m)[33m;[39m
+     [90m     |[39m        
+                        
+[31m[1m^[22m[39m
+     [90m 191 |[39m        
+ })[33m;[39m
+     [90m 192 |[39m
+     [90m 193 |[39m        
+ it([32m'should sanitize 
+event 
+handlers'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.toBeLessThan 
+(tests/validation.test.js:190
+:32)
+
+  ÔùÅ Sanitization Tests ÔÇ║ 
+XSS Prevention ÔÇ║ should 
+sanitize event handlers
+
+    expect(received).toBeLess
+Than(expected)
+
+    Expected: < 500
+    Received:   500
+
+    [0m [90m 203 |[39m    
+             })[33m;[39m
+     [90m 204 |[39m
+    
+[31m[1m>[22m[39m[90m 
+205 |[39m             expect
+(res[33m.[39mstatus)[33m.
+[39mtoBeLessThan([35m500[39
+m)[33m;[39m
+     [90m     |[39m        
+                        
+[31m[1m^[22m[39m
+     [90m 206 |[39m        
+ })[33m;[39m
+     [90m 207 |[39m     
+})[33m;[39m
+     [90m 208 |[39m 
+})[33m;[39m[0m
+
+      at Object.toBeLessThan 
+(tests/validation.test.js:205
+:32)
+
+  ÔùÅ Error Message Quality 
+ÔÇ║ should provide clear 
+field-level errors
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 400
+    Received: 500
+
+    [0m [90m 219 |[39m    
+         })[33m;[39m
+     [90m 220 |[39m
+    
+[31m[1m>[22m[39m[90m 
+221 |[39m         expect(res
+[33m.[39mstatus)[33m.[39m
+toBe([35m400[39m)[33m;[39
+m
+     [90m     |[39m        
+                    
+[31m[1m^[22m[39m
+     [90m 222 |[39m        
+ expect(res[33m.[39mbody[3
+3m.[39merrors[33m.[39mleng
+th)[33m.[39mtoBeGreaterThan
+([35m0[39m)[33m;[39m
+     [90m 223 |[39m
+     [90m 224 |[39m        
+ [90m// Each error should 
+have field and 
+message[39m[0m
+
+      at Object.toBe (tests/v
+alidation.test.js:221:28)
+
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"numeroPedido":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+[0mGET /api/reservas?barberoId%5B%24ne%5D [33m401[0m 0.797 ms - 27[0m
+[0mPOST /api/auth/login [31m500[0m 3.070 ms - 373[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [31m500[0m 1.349 ms - 373[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [31m500[0m 2.925 ms - 373[0m
+[0mPOST /api/auth/register [31m500[0m 2.001 ms - 373[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=6548b2fd56a9566cf56e5601f6153c00b5c7aa7506c111b0e28e6d75056aadc3 [32m201[0m 28.386 ms - 646[0m
+[0mPOST /api/public/barberia-test/resenas [33m404[0m 6.611 ms - 51[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=invalid-token [33m404[0m 7.522 ms - 51[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=e4fdd2e2a93aee97ca37491c6bff39b18b04d0f6fb5d1f6e648c5367937aa974 [32m201[0m 18.303 ms - 536[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=e4fdd2e2a93aee97ca37491c6bff39b18b04d0f6fb5d1f6e648c5367937aa974 [31m500[0m 21.855 ms - 55[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=90566ad6299296ddbc9fb50bd69119646a76659107c52c22ab6070f39d0c8818 [31m500[0m 16.766 ms - 55[0m
+[0mGET /api/public/barberia-test/resenas/validar-token?reviewToken=45ad7a8d730b5e547de5a705489ce7c9aaa3d09d5f8260e6a3a7fec8acb802fe [32m200[0m 20.794 ms - 144[0m
+[0mGET /api/public/barberia-test/resenas/validar-token?reviewToken=invalid [33m404[0m 5.178 ms - 45[0m
+[0mGET /api/public/barberia-test/resenas [32m200[0m 21.848 ms - 849[0m
+[0mGET /api/public/barberia-test/resenas [32m200[0m 17.172 ms - 849[0m
+[0mGET /api/admin/resenas/pendientes [32m200[0m 13.099 ms - 424[0m
+[0mGET /api/admin/resenas/pendientes [33m401[0m 0.432 ms - 27[0m
+[0mPATCH /api/admin/resenas/698a7f39a61fcb7624ab9c81/aprobar [32m200[0m 10.149 ms - 448[0m
+[0mPATCH /api/admin/resenas/698a7f39a61fcb7624ab9c95/aprobar [33m401[0m 0.309 ms - 27[0m
+[0mGET /api/admin/resenas/estadisticas [32m200[0m 12.066 ms - 91[0m
+[0mGET /api/public/barberia-test/resenas [32m200[0m 10.273 ms - 464[0m
+FAIL tests/resenas.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from .env 
+-- tip: ƒæÑ sync secrets 
+across teammates & machines: 
+https://dotenvx.com/ops
+
+      at _log (node_modules/d
+otenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+barberia-test/resenas?reviewT
+oken=6548b2fd56a9566cf56e5601
+f6153c00b5c7aa7506c111b0e28e6
+d75056aadc3
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+barberia-test/resenas
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+barberia-test/resenas?reviewT
+oken=invalid-token
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+barberia-test/resenas?reviewT
+oken=e4fdd2e2a93aee97ca37491c
+6bff39b18b04d0f6fb5d1f6e648c5
+367937aa974
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+barberia-test/resenas?reviewT
+oken=e4fdd2e2a93aee97ca37491c
+6bff39b18b04d0f6fb5d1f6e648c5
+367937aa974
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      Error al crear 
+rese├▒a: MongoServerError: 
+E11000 duplicate key error 
+collection: 
+barber-saas-test.resenas 
+index: reservaId_1 dup key: 
+{ reservaId: ObjectId('698a7f
+38a61fcb7624ab9bcd') }
+          at 
+InsertOneOperation.handleOk (
+C:\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modules
+\mongodb\src\operations\inser
+t.ts:79:13)
+          at tryOperation (C:
+\Users\Kristian\Desktop\barbe
+r-saas\backend\node_modules\m
+ongodb\src\operations\execute
+_operation.ts:294:26)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+          at 
+executeOperation (C:\Users\Kr
+istian\Desktop\barber-saas\ba
+ckend\node_modules\mongodb\sr
+c\operations\execute_operatio
+n.ts:123:12)
+          at 
+Collection.insertOne (C:\User
+s\Kristian\Desktop\barber-saa
+s\backend\node_modules\mongod
+b\src\collection.ts:294:12)
+          at model.$__save (C
+:\Users\Kristian\Desktop\barb
+er-saas\backend\node_modules\
+mongoose\lib\model.js:398:16)
+          at model.save (C:\U
+sers\Kristian\Desktop\barber-
+saas\backend\node_modules\mon
+goose\lib\model.js:609:5)
+          at Object.<anonymou
+s>.exports.crearResena (C:\Us
+ers\Kristian\Desktop\barber-s
+aas\backend\src\controllers\r
+esenas.controller.js:96:9) {
+        errorLabelSet: 
+Set(0) {},
+        errorResponse: {
+          index: 0,
+          code: 11000,
+          errmsg: "E11000 
+duplicate key error 
+collection: 
+barber-saas-test.resenas 
+index: reservaId_1 dup key: 
+{ reservaId: ObjectId('698a7f
+38a61fcb7624ab9bcd') }",
+          keyPattern: { 
+reservaId: 1 },
+          keyValue: { 
+reservaId: new ObjectId('698a
+7f38a61fcb7624ab9bcd') }
+        },
+        index: 0,
+        code: 11000,
+        keyPattern: { 
+reservaId: 1 },
+        keyValue: { 
+reservaId: new ObjectId('698a
+7f38a61fcb7624ab9bcd') }
+      }
+
+    [0m [90m 106 |[39m    
+     })[33m;[39m
+     [90m 107 |[39m     } 
+[36mcatch[39m (error) {
+    
+[31m[1m>[22m[39m[90m 
+108 |[39m         console[3
+3m.[39merror([32m"Error al 
+crear 
+rese├▒a:"[39m[33m,[39m 
+error)[33m;[39m
+     [90m     |[39m        
+         [31m[1m^[22m[39m
+     [90m 109 |[39m        
+ res[33m.[39mstatus([35m50
+0[39m)[33m.[39mjson({ 
+success[33m:[39m 
+[36mfalse[39m[33m,[39m 
+message[33m:[39m 
+[32m"Error al crear la 
+rese├▒a"[39m })[33m;[39m
+     [90m 110 |[39m     }
+     [90m 111 |[39m 
+}[33m;[39m[0m
+
+      at error (src/controlle
+rs/resenas.controller.js:108:
+17)
+
+    console.log
+      ƒôí [POST] /api/public/
+barberia-test/resenas?reviewT
+oken=90566ad6299296ddbc9fb50b
+d69119646a76659107c52c22ab607
+0f39d0c8818
+
+      at log 
+(src/app.js:90:11)
+
+    console.error
+      Error al crear 
+rese├▒a: ValidationError: 
+Resena validation failed: 
+calificacionGeneral: Path 
+`calificacionGeneral` is 
+required.
+          at model.Object.<an
+onymous>.Document.invalidate 
+(C:\Users\Kristian\Desktop\ba
+rber-saas\backend\node_module
+s\mongoose\lib\document.js:33
+70:32)
+          at validatePath (C:
+\Users\Kristian\Desktop\barbe
+r-saas\backend\node_modules\m
+ongoose\lib\document.js:3145:
+13)
+          at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+          at async 
+Promise.all (index 5)
+          at 
+model.$__validate (C:\Users\K
+ristian\Desktop\barber-saas\b
+ackend\node_modules\mongoose\
+lib\document.js:3086:3)
+          at model.validate (
+C:\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modules
+\mongoose\lib\document.js:266
+3:5)
+          at 
+model.validateBeforeSave (C:\
+Users\Kristian\Desktop\barber
+-saas\backend\node_modules\mo
+ngoose\lib\plugins\validateBe
+foreSave.js:34:7)
+          at Kareem.execPre (
+C:\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modules
+\kareem\index.js:65:24)
+          at model.$__save (C
+:\Users\Kristian\Desktop\barb
+er-saas\backend\node_modules\
+mongoose\lib\model.js:369:5)
+          at model.save (C:\U
+sers\Kristian\Desktop\barber-
+saas\backend\node_modules\mon
+goose\lib\model.js:609:5)
+          at Object.<anonymou
+s>.exports.crearResena (C:\Us
+ers\Kristian\Desktop\barber-s
+aas\backend\src\controllers\r
+esenas.controller.js:96:9) {
+        errors: {
+          
+calificacionGeneral: 
+ValidatorError: Path 
+`calificacionGeneral` is 
+required.
+              at 
+SchemaNumber.doValidate (C:\U
+sers\Kristian\Desktop\barber-
+saas\backend\node_modules\mon
+goose\lib\schemaType.js:1425:
+13)
+              at 
+validatePath (C:\Users\Kristi
+an\Desktop\barber-saas\backen
+d\node_modules\mongoose\lib\d
+ocument.js:3137:24)
+              at 
+model.$__validate (C:\Users\K
+ristian\Desktop\barber-saas\b
+ackend\node_modules\mongoose\
+lib\document.js:3083:21)
+              at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)
+              at 
+model.validate (C:\Users\Kris
+tian\Desktop\barber-saas\back
+end\node_modules\mongoose\lib
+\document.js:2663:5)
+              at 
+model.validateBeforeSave (C:\
+Users\Kristian\Desktop\barber
+-saas\backend\node_modules\mo
+ngoose\lib\plugins\validateBe
+foreSave.js:34:7)
+              at 
+Kareem.execPre (C:\Users\Kris
+tian\Desktop\barber-saas\back
+end\node_modules\kareem\index
+.js:65:24)
+              at 
+model.$__save (C:\Users\Krist
+ian\Desktop\barber-saas\backe
+nd\node_modules\mongoose\lib\
+model.js:369:5)
+              at model.save (
+C:\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modules
+\mongoose\lib\model.js:609:5)
+              at Object.<anon
+ymous>.exports.crearResena (C
+:\Users\Kristian\Desktop\barb
+er-saas\backend\src\controlle
+rs\resenas.controller.js:96:9
+) {
+            properties: 
+[Object],
+            kind: 'required',
+            path: 
+'calificacionGeneral',
+            value: undefined,
+            reason: 
+undefined,
+            [Symbol(mongoose#
+validatorError)]: true
+          }
+        },
+        _message: 'Resena 
+validation failed'
+      }
+
+    [0m [90m 106 |[39m    
+     })[33m;[39m
+     [90m 107 |[39m     } 
+[36mcatch[39m (error) {
+    
+[31m[1m>[22m[39m[90m 
+108 |[39m         console[3
+3m.[39merror([32m"Error al 
+crear 
+rese├▒a:"[39m[33m,[39m 
+error)[33m;[39m
+     [90m     |[39m        
+         [31m[1m^[22m[39m
+     [90m 109 |[39m        
+ res[33m.[39mstatus([35m50
+0[39m)[33m.[39mjson({ 
+success[33m:[39m 
+[36mfalse[39m[33m,[39m 
+message[33m:[39m 
+[32m"Error al crear la 
+rese├▒a"[39m })[33m;[39m
+     [90m 110 |[39m     }
+     [90m 111 |[39m 
+}[33m;[39m[0m
+
+      at error (src/controlle
+rs/resenas.controller.js:108:
+17)
+
+    console.log
+      ƒôí [GET] /api/public/b
+arberia-test/resenas/validar-
+token?reviewToken=45ad7a8d730
+b5e547de5a705489ce7c9aaa3d09d
+5f8260e6a3a7fec8acb802fe
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/public/b
+arberia-test/resenas/validar-
+token?reviewToken=invalid
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/public/b
+arberia-test/resenas
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/public/b
+arberia-test/resenas
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] 
+/api/admin/resenas/pendientes
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] 
+/api/admin/resenas/pendientes
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [PATCH] /api/admin/
+resenas/698a7f39a61fcb7624ab9
+c81/aprobar
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [PATCH] /api/admin/
+resenas/698a7f39a61fcb7624ab9
+c95/aprobar
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/admin/re
+senas/estadisticas
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/public/b
+arberia-test/resenas
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [GET] /api/public/b
+arberia-2/resenas
+
+      at log 
+(src/app.js:90:11)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ POST 
+/api/public/:slug/resenas - 
+Crear Rese├▒a ÔÇ║ Debe crear 
+una rese├▒a con token v├ílido
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 200
+    Received: 201
+
+    [0m [90m 111 |[39m    
+             })[33m;[39m
+     [90m 112 |[39m
+    
+[31m[1m>[22m[39m[90m 
+113 |[39m             expect
+(response[33m.[39mstatus)[
+33m.[39mtoBe([35m200[39m)
+[33m;[39m
+     [90m     |[39m        
+                             
+[31m[1m^[22m[39m
+     [90m 114 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39msuccess)[33
+m.[39mtoBe([36mtrue[39m)[
+33m;[39m
+     [90m 115 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39mdata[33m.[
+39mcalificacionGeneral)[33m.
+[39mtoBe([35m5[39m)[33m;
+[39m
+     [90m 116 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39mdata[33m.[
+39maprobada)[33m.[39mtoBe(
+[36mfalse[39m)[33m;[39m 
+[90m// Requiere 
+moderaci├│n[39m[0m
+
+      at Object.toBe (tests/r
+esenas.test.js:113:37)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ POST 
+/api/public/:slug/resenas - 
+Crear Rese├▒a ÔÇ║ Debe 
+rechazar rese├▒a sin token
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+    [0m [90m 124 |[39m    
+             })[33m;[39m
+     [90m 125 |[39m
+    
+[31m[1m>[22m[39m[90m 
+126 |[39m             expect
+(response[33m.[39mstatus)[
+33m.[39mtoBe([35m200[39m)
+[33m;[39m
+     [90m     |[39m        
+                             
+[31m[1m^[22m[39m
+     [90m 127 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39mbarberia)[3
+3m.[39mtoBeDefined()[33m;[
+39m
+     [90m 128 |[39m        
+ })[33m;[39m
+     [90m 129 |[39m[0m
+
+      at Object.toBe (tests/r
+esenas.test.js:126:37)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ POST 
+/api/public/:slug/resenas - 
+Crear Rese├▒a ÔÇ║ Debe 
+rechazar rese├▒a con token 
+inv├ílido
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+    [0m [90m 135 |[39m    
+             })[33m;[39m
+     [90m 136 |[39m
+    
+[31m[1m>[22m[39m[90m 
+137 |[39m             expect
+(response[33m.[39mstatus)[
+33m.[39mtoBe([35m200[39m)
+[33m;[39m
+     [90m     |[39m        
+                             
+[31m[1m^[22m[39m
+     [90m 138 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39mbarberia)[3
+3m.[39mtoBeDefined()[33m;[
+39m
+     [90m 139 |[39m        
+ })[33m;[39m
+     [90m 140 |[39m[0m
+
+      at Object.toBe (tests/r
+esenas.test.js:137:37)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ POST 
+/api/public/:slug/resenas - 
+Crear Rese├▒a ÔÇ║ Debe 
+rechazar rese├▒a duplicada
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 154 |[39m    
+             })[33m;[39m
+     [90m 155 |[39m
+    
+[31m[1m>[22m[39m[90m 
+156 |[39m             expect
+(response[33m.[39mstatus)[
+33m.[39mtoBe([35m200[39m)
+[33m;[39m
+     [90m     |[39m        
+                             
+[31m[1m^[22m[39m
+     [90m 157 |[39m        
+ })[33m;[39m
+     [90m 158 |[39m
+     [90m 159 |[39m        
+ test([32m'Debe rechazar 
+rese├▒a sin calificaci├│n 
+general'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.toBe (tests/r
+esenas.test.js:156:37)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ POST 
+/api/public/:slug/resenas - 
+Crear Rese├▒a ÔÇ║ Debe 
+rechazar rese├▒a sin 
+calificaci├│n general
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 164 |[39m    
+             })[33m;[39m
+     [90m 165 |[39m
+    
+[31m[1m>[22m[39m[90m 
+166 |[39m             expect
+(response[33m.[39mstatus)[
+33m.[39mtoBe([35m200[39m)
+[33m;[39m
+     [90m     |[39m        
+                             
+[31m[1m^[22m[39m
+     [90m 167 |[39m        
+ })[33m;[39m
+     [90m 168 |[39m     
+})[33m;[39m
+     [90m 169 |[39m[0m
+
+      at Object.toBe (tests/r
+esenas.test.js:166:37)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ GET /api/public/:sl
+ug/resenas/validar-token - 
+Validar Token ÔÇ║ Debe 
+validar token correcto
+
+    expect(received).toBeDefi
+ned()
+
+    Received: undefined
+
+    [0m [90m 174 |[39m
+     [90m 175 |[39m        
+     expect(response[33m.[3
+9mstatus)[33m.[39mtoBe([35
+m200[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+176 |[39m             expect
+(response[33m.[39mbody[33m
+.[39mbarberia)[33m.[39mtoB
+eDefined()[33m;[39m
+     [90m     |[39m        
+                             
+       [31m[1m^[22m[39m
+     [90m 177 |[39m        
+ })[33m;[39m
+     [90m 178 |[39m
+     [90m 179 |[39m        
+ test([32m'Debe rechazar 
+token 
+inv├ílido'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.toBeDefined (
+tests/resenas.test.js:176:44)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ GET /api/public/:sl
+ug/resenas/validar-token - 
+Validar Token ÔÇ║ Debe 
+rechazar token inv├ílido
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+    [0m [90m 181 |[39m    
+             [33m.[39m[36m
+get[39m([32m`/api/public/${
+barberia.slug}/resenas/valida
+r-token?reviewToken=invalid`
+[39m)[33m;[39m
+     [90m 182 |[39m
+    
+[31m[1m>[22m[39m[90m 
+183 |[39m             expect
+(response[33m.[39mstatus)[
+33m.[39mtoBe([35m200[39m)
+[33m;[39m
+     [90m     |[39m        
+                             
+[31m[1m^[22m[39m
+     [90m 184 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39mbarberia)[3
+3m.[39mtoBeDefined()[33m;[
+39m
+     [90m 185 |[39m        
+ })[33m;[39m
+     [90m 186 |[39m     
+})[33m;[39m[0m
+
+      at Object.toBe (tests/r
+esenas.test.js:183:37)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ GET 
+/api/public/:slug/resenas - 
+Listar Rese├▒as P├║blicas 
+ÔÇ║ Debe listar solo 
+rese├▒as aprobadas
+
+    expect(received).toBeDefi
+ned()
+
+    Received: undefined
+
+    [0m [90m 228 |[39m
+     [90m 229 |[39m        
+     expect(response[33m.[3
+9mstatus)[33m.[39mtoBe([35
+m200[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+230 |[39m             expect
+(response[33m.[39mbody[33m
+.[39mbarberia)[33m.[39mtoB
+eDefined()[33m;[39m
+     [90m     |[39m        
+                             
+       [31m[1m^[22m[39m
+     [90m 231 |[39m        
+ })[33m;[39m
+     [90m 232 |[39m
+     [90m 233 |[39m        
+ test([32m'Debe calcular 
+promedio correctamente'[39m
+[33m,[39m [36masync[39m 
+() [33m=>[39m {[0m
+
+      at Object.toBeDefined (
+tests/resenas.test.js:230:44)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ GET 
+/api/public/:slug/resenas - 
+Listar Rese├▒as P├║blicas 
+ÔÇ║ Debe calcular promedio 
+correctamente
+
+    expect(received).toBeDefi
+ned()
+
+    Received: undefined
+
+    [0m [90m 235 |[39m    
+             [33m.[39m[36m
+get[39m([32m`/api/public/${
+barberia.slug}/resenas`[39m)
+[33m;[39m
+     [90m 236 |[39m
+    
+[31m[1m>[22m[39m[90m 
+237 |[39m             expect
+(response[33m.[39mbody[33m
+.[39mbarberia)[33m.[39mtoB
+eDefined()[33m;[39m
+     [90m     |[39m        
+                             
+       [31m[1m^[22m[39m
+     [90m 238 |[39m        
+ })[33m;[39m
+     [90m 239 |[39m     
+})[33m;[39m
+     [90m 240 |[39m[0m
+
+      at Object.toBeDefined (
+tests/resenas.test.js:237:44)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ GET /api/admin/rese
+nas/estadisticas - 
+Estad├¡sticas ÔÇ║ Debe 
+retornar estad├¡sticas 
+correctas
+
+    expect(received).toBeDefi
+ned()
+
+    Received: undefined
+
+    [0m [90m 342 |[39m    
+         expect(response[33m
+.[39mbody[33m.[39mdata[33
+m.[39mtotal)[33m.[39mtoBe(
+[35m2[39m)[33m;[39m
+     [90m 343 |[39m        
+     expect(response[33m.[3
+9mbody[33m.[39mdata[33m.[
+39mpromedio)[33m.[39mtoBe(
+[35m4.5[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+344 |[39m             expect
+(response[33m.[39mbody[33m
+.[39mdata[33m.[39mdistribu
+cion)[33m.[39mtoBeDefined()
+[33m;[39m
+     [90m     |[39m        
+                             
+                
+[31m[1m^[22m[39m
+     [90m 345 |[39m        
+ })[33m;[39m
+     [90m 346 |[39m     
+})[33m;[39m
+     [90m 347 |[39m[0m
+
+      at Object.toBeDefined (
+tests/resenas.test.js:344:53)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ Multitenancy - 
+Aislamiento de Datos ÔÇ║ 
+Barber├¡a 1 solo debe ver 
+sus propias rese├▒as
+
+    expect(received).toBeDefi
+ned()
+
+    Received: undefined
+
+    [0m [90m 414 |[39m
+     [90m 415 |[39m        
+     expect(response[33m.[3
+9mstatus)[33m.[39mtoBe([35
+m200[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+416 |[39m             expect
+(response[33m.[39mbody[33m
+.[39mbarberia)[33m.[39mtoB
+eDefined()[33m;[39m
+     [90m     |[39m        
+                             
+       [31m[1m^[22m[39m
+     [90m 417 |[39m        
+ })[33m;[39m
+     [90m 418 |[39m
+     [90m 419 |[39m        
+ test([32m'Barber├¡a 2 solo 
+debe ver sus propias 
+rese├▒as'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.toBeDefined (
+tests/resenas.test.js:416:44)
+
+  ÔùÅ Sistema de Rese├▒as - 
+Tests ÔÇ║ Multitenancy - 
+Aislamiento de Datos ÔÇ║ 
+Barber├¡a 2 solo debe ver 
+sus propias rese├▒as
+
+    expect(received).toBeDefi
+ned()
+
+    Received: undefined
+
+    [0m [90m 422 |[39m
+     [90m 423 |[39m        
+     expect(response[33m.[3
+9mstatus)[33m.[39mtoBe([35
+m200[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+424 |[39m             expect
+(response[33m.[39mbody[33m
+.[39mbarberia)[33m.[39mtoB
+eDefined()[33m;[39m
+     [90m     |[39m        
+                             
+       [31m[1m^[22m[39m
+     [90m 425 |[39m        
+ })[33m;[39m
+     [90m 426 |[39m     
+})[33m;[39m
+     [90m 427 |[39m 
+})[33m;[39m[0m
+
+      at Object.toBeDefined (
+tests/resenas.test.js:424:44)
+
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"numeroPedido":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+[0mGET /api/public/barberia-2/resenas [32m200[0m 12.081 ms - 461[0m
+[0mPOST /api/public/atomic-shop/barberos/698a7f3ada4523a298a3fe4d/reservar [33m404[0m 5.240 ms - 205[0m
+[0mPOST /api/public/atomic-shop/barberos/698a7f3ada4523a298a3fe4d/reservar [33m404[0m 5.236 ms - 205[0m
+FAIL tests/reservas_atomicas.
+test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from .env 
+-- tip: ÔÜÖ´©Å  enable debug 
+logging with { debug: true }
+
+      at _log (node_modules/d
+otenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+atomic-shop/barberos/698a7f3a
+da4523a298a3fe4d/reservar
+
+      at log 
+(src/app.js:90:11)
+
+    console.log
+      ƒôí [POST] /api/public/
+atomic-shop/barberos/698a7f3a
+da4523a298a3fe4d/reservar
+
+      at log 
+(src/app.js:90:11)
+
+  ÔùÅ Pruebas de Atomicidad 
+de Reservas 
+(Anti-Overbooking) ÔÇ║ No 
+debe permitir dos reservas 
+en el mismo horario 
+(Previene Overbooking)
+
+    expect(received).toBe(exp
+ected) // Object.is equality
+
+    Expected: 201
+    Received: 404
+
+    [0m [90m 63 |[39m     
+        [33m.[39msend(paylo
+ad)[33m;[39m
+     [90m 64 |[39m
+    
+[31m[1m>[22m[39m[90m 65 
+|[39m         expect(res1[3
+3m.[39mstatus)[33m.[39mtoB
+e([35m201[39m)[33m;[39m
+     [90m    |[39m         
+                    
+[31m[1m^[22m[39m
+     [90m 66 |[39m         
+expect(res1[33m.[39mbody[3
+3m.[39mmessage)[33m.[39mto
+Contain([32m'correctamente'
+[39m)[33m;[39m
+     [90m 67 |[39m
+     [90m 68 |[39m         
+[90m// 2. Intentar crear 
+exactamente la misma 
+reserva[39m[0m
+
+      at Object.toBe (tests/r
+eservas_atomicas.test.js:65:2
+9)
+
+  ÔùÅ Pruebas de Atomicidad 
+de Reservas 
+(Anti-Overbooking) ÔÇ║ Debe 
+permitir reservar si la cita 
+anterior fue CANCELADA
+
+    TypeError: Cannot read 
+properties of undefined 
+(reading '_id')
+
+    [0m [90m  99 |[39m    
+         [33m.[39msend(payl
+oad)[33m;[39m
+     [90m 100 |[39m
+    
+[31m[1m>[22m[39m[90m 
+101 |[39m         
+[36mconst[39m reservaId 
+[33m=[39m res1[33m.[39mbo
+dy[33m.[39mreserva[33m.[3
+9m_id[33m;[39m
+     [90m     |[39m        
+                             
+        [31m[1m^[22m[39m
+     [90m 102 |[39m
+     [90m 103 |[39m        
+ [90m// 2. Cancelar la 
+reserva[39m
+     [90m 104 |[39m        
+ [36mawait[39m [33mReserva
+[39m[33m.[39mfindByIdAndUp
+date(reservaId[33m,[39m { 
+estado[33m:[39m 
+[32m'CANCELADA'[39m 
+})[33m;[39m[0m
+
+      at Object._id (tests/re
+servas_atomicas.test.js:101:4
+5)
+
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"numeroPedido":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+FAIL tests/multi-tenant-secur
+ity.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from .env 
+-- tip: ƒôí add 
+observability to secrets: 
+https://dotenvx.com/ops
+
+      at _log (node_modules/d
+otenv/lib/main.js:142:11)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede ver reserva de 
+Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede editar reserva de 
+Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede cancelar reserva 
+de Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A solo ve sus propias 
+reservas al listar
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Servicios - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede acceder a 
+servicios de Barber├¡a B 
+v├¡a slug
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Servicios - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede crear servicio en 
+Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Servicios - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede editar servicio 
+de Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Barberos - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede ver barberos de 
+Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Barberos - Cross-Tenant 
+Access Prevention ÔÇ║ Admin 
+A NO puede crear barbero en 
+Barber├¡a B
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ URL 
+Slug Manipulation Attempts 
+ÔÇ║ Rechaza intento de 
+acceder con slug incorrecto
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ URL 
+Slug Manipulation Attempts 
+ÔÇ║ Rechaza slug inexistente
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ Query 
+Parameter Injection 
+Prevention ÔÇ║ Ignora 
+barberiaId inyectado en 
+query params
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ Query 
+Parameter Injection 
+Prevention ÔÇ║ Ignora 
+barberiaId inyectado en 
+request body
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ Ô£à 
+Legitimate Access Allowed 
+ÔÇ║ Admin A puede ver sus 
+propias reservas
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ Ô£à 
+Legitimate Access Allowed 
+ÔÇ║ Admin A puede acceder a 
+sus servicios
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ Ô£à 
+Legitimate Access Allowed 
+ÔÇ║ Admin B puede acceder a 
+sus propios datos
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöì 
+Logging and Monitoring ÔÇ║ 
+Loguea intentos de acceso 
+cross-tenant
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒææ 
+SUPERADMIN Access ÔÇ║ 
+SUPERADMIN puede acceder a 
+cualquier barber├¡a
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 18 |[39m
+     [90m 19 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 20 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 21 |[39m     
+})[33m;[39m
+     [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/multi-tenant-security.tes
+t.js:20:15)
+
+
+  ÔùÅ Test suite failed to 
+run
+
+    TypeError: closeDB is 
+not a function
+
+    [0m [90m 22 |[39m
+     [90m 23 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 24 
+|[39m         
+[36mawait[39m 
+closeDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 25 |[39m     
+})[33m;[39m
+     [90m 26 |[39m
+     [90m 27 |[39m     
+beforeEach([36masync[39m 
+() [33m=>[39m {[0m
+
+      at Object.closeDB (test
+s/multi-tenant-security.test.
+js:24:15)
+
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"numeroPedido":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+FAIL tests/race-condition-str
+ess.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from .env 
+-- tip: ÔÜÖ´©Å  override 
+existing env vars with { 
+override: true }
+
+      at _log (node_modules/d
+otenv/lib/main.js:142:11)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ 
+Concurrencia Extrema ÔÇ║ 10 
+requests simult├íneos al 
+mismo horario - solo 1 debe 
+tener ├®xito
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 16 |[39m
+     [90m 17 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 18 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 19 |[39m     
+})[33m;[39m
+     [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/race-condition-stress.tes
+t.js:18:15)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ 
+Concurrencia Extrema ÔÇ║ 50 
+requests simult├íneos - solo 
+1 debe tener ├®xito
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 16 |[39m
+     [90m 17 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 18 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 19 |[39m     
+})[33m;[39m
+     [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/race-condition-stress.tes
+t.js:18:15)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ ├ìndice 
+├Ünico - Validaci├│n Directa 
+ÔÇ║ ├ìndice ├║nico previene 
+duplicados en DB
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 16 |[39m
+     [90m 17 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 18 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 19 |[39m     
+})[33m;[39m
+     [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/race-condition-stress.tes
+t.js:18:15)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ ├ìndice 
+├Ünico - Validaci├│n Directa 
+ÔÇ║ Permite re-usar horario 
+si reserva anterior fue 
+cancelada
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 16 |[39m
+     [90m 17 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 18 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 19 |[39m     
+})[33m;[39m
+     [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/race-condition-stress.tes
+t.js:18:15)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ Validaci├│n 
+de Transacciones ÔÇ║ 
+Rollback autom├ítico si 
+falla despu├®s de crear 
+reserva
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 16 |[39m
+     [90m 17 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 18 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 19 |[39m     
+})[33m;[39m
+     [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/race-condition-stress.tes
+t.js:18:15)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ Performance 
+bajo carga ÔÇ║ Maneja 20 
+reservas diferentes 
+simult├íneas sin problemas
+
+    TypeError: connectDB is 
+not a function
+
+    [0m [90m 16 |[39m
+     [90m 17 |[39m     
+beforeAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 18 
+|[39m         
+[36mawait[39m 
+connectDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 19 |[39m     
+})[33m;[39m
+     [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.connectDB (te
+sts/race-condition-stress.tes
+t.js:18:15)
+
+
+  ÔùÅ Test suite failed to 
+run
+
+    TypeError: closeDB is 
+not a function
+
+    [0m [90m 20 |[39m
+     [90m 21 |[39m     
+afterAll([36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 22 
+|[39m         
+[36mawait[39m 
+closeDB()[33m;[39m
+     [90m    |[39m         
+      [31m[1m^[22m[39m
+     [90m 23 |[39m     
+})[33m;[39m
+     [90m 24 |[39m
+     [90m 25 |[39m     
+beforeEach([36masync[39m 
+() [33m=>[39m {[0m
+
+      at Object.closeDB (test
+s/race-condition-stress.test.
+js:22:15)
+
+(node:30436) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+FAIL tests/transaction-rollba
+ck.test.js
+  ÔùÅ Transaction Rollback 
+Integration Tests ÔÇ║ 
+CompleteReserva Transaction 
+Rollback ÔÇ║ should rollback 
+reservation update if client 
+update fails
+
+    ValidationError: User 
+validation failed: rol: Path 
+`rol` is required., 
+password: Path `password` is 
+required.
+
+    [0m [90m 59 |[39m
+     [90m 60 |[39m         
+    [90m// 2. Create test 
+client[39m
+    
+[31m[1m>[22m[39m[90m 61 
+|[39m             
+[36mconst[39m cliente 
+[33m=[39m [36mawait[39m 
+[33mUserModel[39m[33m.[39m
+create({
+     [90m    |[39m         
+                    
+[31m[1m^[22m[39m
+     [90m 62 |[39m         
+        nombre[33m:[39m 
+[32m'Test 
+Cliente'[39m[33m,[39m
+     [90m 63 |[39m         
+        email[33m:[39m [32
+m'test@example.com'[39m[33m
+,[39m
+     [90m 64 |[39m         
+        
+barberiaId[33m:[39m 
+testBarberiaId[33m,[39m[0m
+
+      at model.Object.<anonym
+ous>.Document.invalidate (nod
+e_modules/mongoose/lib/docume
+nt.js:3370:32)
+      at validatePath (node_m
+odules/mongoose/lib/document.
+js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate (n
+ode_modules/mongoose/lib/docu
+ment.js:3086:3)
+      at model.validate (node
+_modules/mongoose/lib/documen
+t.js:2663:5)
+      at 
+model.validateBeforeSave (nod
+e_modules/mongoose/lib/plugin
+s/validateBeforeSave.js:34:7)
+      at Kareem.execPre (node
+_modules/kareem/index.js:65:2
+4)
+      at model.$__save (node_
+modules/mongoose/lib/model.js
+:369:5)
+      at model.save (node_mod
+ules/mongoose/lib/model.js:60
+9:5)
+      at node_modules/mongoos
+e/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (nod
+e_modules/mongoose/lib/model.
+js:2707:11)
+      at Object.<anonymous> (
+tests/transaction-rollback.te
+st.js:61:29)
+
+  ÔùÅ Transaction Rollback 
+Integration Tests ÔÇ║ 
+CompleteReserva Transaction 
+Rollback ÔÇ║ should commit 
+both updates when successful
+
+    ValidationError: User 
+validation failed: rol: Path 
+`rol` is required., 
+password: Path `password` is 
+required.
+
+    [0m [90m 116 |[39m
+     [90m 117 |[39m        
+     [90m// 2. Create test 
+client[39m
+    
+[31m[1m>[22m[39m[90m 
+118 |[39m             
+[36mconst[39m cliente 
+[33m=[39m [36mawait[39m 
+[33mUserModel[39m[33m.[39m
+create({
+     [90m     |[39m        
+                     
+[31m[1m^[22m[39m
+     [90m 119 |[39m        
+         _id[33m:[39m reser
+va[33m.[39mclienteId[33m,
+[39m
+     [90m 120 |[39m        
+         nombre[33m:[39m 
+[32m'Test Cliente 
+Success'[39m[33m,[39m
+     [90m 121 |[39m        
+         email[33m:[39m [3
+2m'success@example.com'[39m
+[33m,[39m[0m
+
+      at model.Object.<anonym
+ous>.Document.invalidate (nod
+e_modules/mongoose/lib/docume
+nt.js:3370:32)
+      at validatePath (node_m
+odules/mongoose/lib/document.
+js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate (n
+ode_modules/mongoose/lib/docu
+ment.js:3086:3)
+      at model.validate (node
+_modules/mongoose/lib/documen
+t.js:2663:5)
+      at 
+model.validateBeforeSave (nod
+e_modules/mongoose/lib/plugin
+s/validateBeforeSave.js:34:7)
+      at Kareem.execPre (node
+_modules/kareem/index.js:65:2
+4)
+      at model.$__save (node_
+modules/mongoose/lib/model.js
+:369:5)
+      at model.save (node_mod
+ules/mongoose/lib/model.js:60
+9:5)
+      at node_modules/mongoos
+e/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (nod
+e_modules/mongoose/lib/model.
+js:2707:11)
+      at Object.<anonymous> (
+tests/transaction-rollback.te
+st.js:118:29)
+
+PASS 
+tests/transactions.test.js
+  ÔùÅ Console
+
+    console.log
+      [Transaction] Started: 
+TestSuccessfulTransaction 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:54:
+25)
+
+    console.log
+      [Transaction] 
+Committed: 
+TestSuccessfulTransaction
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:61:
+25)
+
+    console.log
+      [Transaction] Started: 
+TestRollback (attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:54:
+25)
+
+    console.log
+      [Transaction] Aborted: 
+TestRollback
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:69:
+29)
+
+    console.error
+      [Transaction] Failed: 
+TestRollback {
+        error: 'Simulated 
+error',
+        attempt: 1,
+        stack: 'Error: 
+Simulated error\n' +
+          '    at Transaction
+Manager.executeInTransaction.
+operationName (C:\\Users\\Kri
+stian\\Desktop\\barber-saas\\
+backend\\tests\\transactions.
+test.js:34:31)\n' +
+          '    at 
+Function.operation [as 
+executeInTransaction] (C:\\Us
+ers\\Kristian\\Desktop\\barbe
+r-saas\\backend\\src\\utils\\
+TransactionManager.js:57:38)\
+n' +
+          '    at 
+processTicksAndRejections (no
+de:internal/process/task_queu
+es:105:5)\n' +
+          '    at 
+Object.<anonymous> (C:\\Users
+\\Kristian\\Desktop\\barber-s
+aas\\backend\\tests\\transact
+ions.test.js:31:13)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m         
+        [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 82 
+|[39m                 consol
+e[33m.[39merror([32m`[Tran
+saction] Failed: ${operationN
+ame}`[39m[33m,[39m {
+     [90m    |[39m         
+                
+[31m[1m^[22m[39m
+     [90m 83 |[39m         
+            error[33m:[39m 
+error[33m.[39mmessage[33m,
+[39m
+     [90m 84 |[39m         
+            
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m         
+            stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:82:
+25)
+      at Object.<anonymous> (
+tests/transactions.test.js:31
+:13)
+
+    console.log
+      [Transaction] Started: 
+TestRetry (attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:54:
+25)
+
+    console.log
+      [Transaction] Aborted: 
+TestRetry
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:69:
+29)
+
+    console.warn
+      [Transaction] 
+Transient error, retrying in 
+200ms: WriteConflict
+
+    [0m [90m 74 |[39m     
+                attempt[33m+
++[39m[33m;[39m
+     [90m 75 |[39m         
+            [36mconst[39m 
+delay [33m=[39m retryDelay 
+[33m*[39m [33mMath[39m[3
+3m.[39mpow([35m2[39m[33m,
+[39m attempt)[33m;[39m 
+[90m// Exponential 
+backoff[39m
+    
+[31m[1m>[22m[39m[90m 76 
+|[39m                     co
+nsole[33m.[39mwarn([32m`[T
+ransaction] Transient error, 
+retrying in 
+${delay}ms:`[39m[33m,[39m 
+error[33m.[39mmessage)[33m
+;[39m
+     [90m    |[39m         
+                    
+[31m[1m^[22m[39m
+     [90m 77 |[39m         
+            [36mawait[39m 
+[36mthis[39m[33m.[39msleep
+(delay)[33m;[39m
+     [90m 78 |[39m         
+            
+[36mcontinue[39m[33m;[39m
+     [90m 79 |[39m         
+        }[0m
+
+      at Function.warn [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:76:
+29)
+      at Object.<anonymous> (
+tests/transactions.test.js:44
+:28)
+
+    console.log
+      [Transaction] Started: 
+TestRetry (attempt 2/3)
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:54:
+25)
+
+    console.log
+      [Transaction] 
+Committed: TestRetry
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:61:
+25)
+
+    console.log
+      [Transaction] Started: 
+TestNoRetry (attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:54:
+25)
+
+    console.log
+      [Transaction] Aborted: 
+TestNoRetry
+
+      at Function.log [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:69:
+29)
+
+    console.error
+      [Transaction] Failed: 
+TestNoRetry {
+        error: 'Reserva no 
+encontrada',
+        attempt: 1,
+        stack: 'Error: 
+Reserva no encontrada\n' +
+          '    at Transaction
+Manager.executeInTransaction.
+operationName (C:\\Users\\Kri
+stian\\Desktop\\barber-saas\\
+backend\\tests\\transactions.
+test.js:69:31)\n' +
+          '    at 
+Function.operation [as 
+executeInTransaction] (C:\\Us
+ers\\Kristian\\Desktop\\barbe
+r-saas\\backend\\src\\utils\\
+TransactionManager.js:57:38)\
+n' +
+          '    at 
+Object.<anonymous> (C:\\Users
+\\Kristian\\Desktop\\barber-s
+aas\\backend\\tests\\transact
+ions.test.js:65:13)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m         
+        [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 82 
+|[39m                 consol
+e[33m.[39merror([32m`[Tran
+saction] Failed: ${operationN
+ame}`[39m[33m,[39m {
+     [90m    |[39m         
+                
+[31m[1m^[22m[39m
+     [90m 83 |[39m         
+            error[33m:[39m 
+error[33m.[39mmessage[33m,
+[39m
+     [90m 84 |[39m         
+            
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m         
+            stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error [as 
+executeInTransaction] (src/ut
+ils/TransactionManager.js:82:
+25)
+      at Object.<anonymous> (
+tests/transactions.test.js:65
+:13)
+
+    console.log
+      Ô£à MongoDB 
+transactions are supported
+
+      at Function.log [as 
+validateTransactionSupport] (
+src/utils/TransactionManager.
+js:185:21)
+
+PASS tests/revenue.test.js
+
+Test Suites: 6 failed, 2 
+passed, 8 total
+Tests:       51 failed, 23 
+passed, 74 total
+Snapshots:   0 total
+Time:        20.991 s, 
+estimated 24 s
+Ran all test suites.

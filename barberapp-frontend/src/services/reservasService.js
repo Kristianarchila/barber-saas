@@ -32,7 +32,9 @@ export async function crearReserva(barberoId, reservaData) {
     `/barberias/${slug}/admin/reservas/barberos/${barberoId}/reservar`,
     reservaData
   );
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { message: string, reserva: Object }
+  return res.data.reserva || res.data;
 }
 
 /**
@@ -57,7 +59,9 @@ export async function getReservasPorBarberoDia(barberoId, fecha) {
 export async function completarReserva(id) {
   const slug = getSlugActual();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/completar`);
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { message: string, reserva: Object }
+  return res.data.reserva || res.data;
 }
 
 /**
@@ -69,7 +73,9 @@ export async function completarReserva(id) {
 export async function cancelarReserva(id) {
   const slug = getSlugActual();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/cancelar`);
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { message: string, reserva: Object }
+  return res.data.reserva || res.data;
 }
 
 /**

@@ -1,391 +1,264 @@
+/**
+ * Barbero Controller (Hexagonal Architecture Version)
+ * Acts as an adapter in the interfaces layer
+ */
+const container = require('../shared/Container');
 
-const Barbero = require("../models/Barbero");
-const User = require("../models/User"); // ⚠️ IMPORTANTE: Agregar esta líne
-const Reserva = require("../models/Reserva");
-
-// ===================================================
-// CREAR BARBERO CON USUARIO (BARBERIA_ADMIN)
-// ===================================================
+// ==========================================
+// 1) CREATE BARBERO CON USUARIO
+// ==========================================
 exports.createBarberoConUsuario = async (req, res, next) => {
-  try {
-    const {
-      nombre,
-      email,
-      password,
-      foto,
-      descripcion,
-      especialidades,
-      experiencia
-    } = req.body;
+    try {
+        if (req.user.rol !== 'BARBERIA_ADMIN' && req.user.rol !== 'SUPER_ADMIN') {
+            return res.status(403).json({ message: 'No autorizado' });
+        }
 
-    // 1️⃣ Validaciones básicas
-    if (!nombre || !email || !password) {
-      return res.status(400).json({
-        message: "Nombre, email y contraseña son obligatorios"
-      });
+        const barberiaId = req.user.barberiaId;
+        const useCase = container.createBarberoUseCase;
+
+        const barbero = await useCase.execute({
+            ...req.body,
+            barberiaId
+        });
+
+        res.status(201).json({
+            message: 'Barbero creado correctamente',
+            barbero: barbero.toObject()
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // 2️⃣ Solo BARBERIA_ADMIN puede crear barberos
-    if (req.user.rol !== "BARBERIA_ADMIN") {
-      return res.status(403).json({
-        message: "No autorizado"
-      });
-    }
-
-    const barberiaId = req.user.barberiaId;
-
-    if (!barberiaId) {
-      return res.status(400).json({
-        message: "No estás asociado a ninguna barbería"
-      });
-    }
-
-    // 3️⃣ Verificar email único
-    const existe = await User.findOne({ email });
-    if (existe) {
-      return res.status(400).json({
-        message: "El email ya está registrado"
-      });
-    }
-
-    // 4️⃣ Crear USER (para login)
-    const user = await User.create({
-      nombre,
-      email,
-      password, // El modelo User debe hashear esto automáticamente
-      rol: "BARBERO",
-      barberiaId
-    });
-
-    // 5️⃣ Crear BARBERO (para agenda y perfil)
-    const barbero = await Barbero.create({
-      usuario: user._id, // Referencia al usuario
-      nombre,
-      foto: foto || '',
-      descripcion: descripcion || '',
-      especialidades: especialidades || [],
-      experiencia: experiencia || 0,
-      barberiaId,
-      activo: true
-    });
-
-    res.status(201).json({
-      message: "Barbero creado correctamente",
-      barbero: {
-        id: barbero._id,
-        nombre: barbero.nombre,
-        email: user.email,
-        foto: barbero.foto,
-        descripcion: barbero.descripcion,
-        especialidades: barbero.especialidades,
-        experiencia: barbero.experiencia
-      }
-    });
-
-  } catch (error) {
-    console.error("Error al crear barbero:", error);
-    next(error);
-  }
 };
 
-// =========================================================
-// LISTAR BARBEROS POR BARBERÍA
-// =========================================================
+// ==========================================
+// 2) LISTAR BARBEROS (ADMIN / SUPER)
+// ==========================================
 exports.getBarberos = async (req, res, next) => {
-  try {
-    const barberiaId = req.user?.barberiaId || req.query.barberiaId;
+    try {
+        const barberiaId = req.user.barberiaId;
+        const useCase = container.listBarberosUseCase;
 
-    if (!barberiaId) {
-      return res.status(400).json({
-        message: "Barbería no especificada"
-      });
+        const barberos = await useCase.execute(barberiaId);
+
+        res.json({
+            total: barberos.length,
+            barberos: barberos.map(b => ({
+                ...b.toObject(),
+                usuario: b.usuario // Include populated user info
+            }))
+        });
+    } catch (error) {
+        next(error);
     }
-
-    const barberos = await Barbero.find({
-      barberiaId
-    })
-    .populate('usuario', 'nombre email') // Incluir datos del usuario
-    .sort({ createdAt: 1 });
-
-    res.json({
-      total: barberos.length,
-      barberos
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-// =========================================================
-// OBTENER UN BARBERO POR ID
-// =========================================================
+// ==========================================
+// 3) OBTENER BARBERO POR ID
+// ==========================================
 exports.getBarberoById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    try {
+        const useCase = container.getBarberoByIdUseCase;
+        const barbero = await useCase.execute(req.params.id, req.user.barberiaId);
 
-    const barbero = await Barbero.findById(id).populate('usuario', 'nombre email');
-    
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+        res.json({
+            ...barbero.toObject(),
+            usuario: barbero.usuario
+        });
+    } catch (error) {
+        next(error);
     }
-
-    res.json(barbero);
-  } catch (error) {
-    next(error);
-  }
 };
 
-// =========================================================
-// ACTUALIZAR BARBERO
-// =========================================================
+// ==========================================
+// 4) ACTUALIZAR BARBERO
+// ==========================================
 exports.updateBarbero = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { nombre, foto, descripcion, especialidades, experiencia } = req.body;
+    try {
+        const useCase = container.updateBarberoUseCase;
+        const barbero = await useCase.execute(req.params.id, req.body, req.user);
 
-    const barbero = await Barbero.findById(id);
-    
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+        res.json({
+            message: 'Barbero actualizado',
+            barbero: barbero.toObject()
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // Verificar que pertenece a la barbería del usuario
-    if (req.user.rol !== "SUPER_ADMIN" && 
-        barbero.barberiaId.toString() !== req.user.barberiaId.toString()) {
-      return res.status(403).json({ 
-        message: "No tienes permiso para editar este barbero" 
-      });
-    }
-
-    // Actualizar campos
-    if (nombre !== undefined) barbero.nombre = nombre;
-    if (foto !== undefined) barbero.foto = foto;
-    if (descripcion !== undefined) barbero.descripcion = descripcion;
-    if (especialidades !== undefined) barbero.especialidades = especialidades;
-    if (experiencia !== undefined) barbero.experiencia = experiencia;
-
-    await barbero.save();
-
-    res.json({
-      message: "Barbero actualizado exitosamente",
-      barbero
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-// =========================================================
-// ELIMINAR BARBERO
-// =========================================================
+// ==========================================
+// 5) ELIMINAR BARBERO
+// ==========================================
 exports.deleteBarbero = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    try {
+        const useCase = container.deleteBarberoUseCase;
 
-    const barbero = await Barbero.findById(id);
-    
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+        // 📝 Pasar userId y request para auditoría
+        await useCase.execute(
+            req.params.id,
+            req.user.barberiaId,
+            req.user._id,  // userId para auditoría
+            req            // request para IP/userAgent
+        );
+
+        res.json({ message: 'Barbero eliminado' });
+    } catch (error) {
+        next(error);
     }
-
-    // Verificar que pertenece a la barbería del usuario
-    if (req.user.rol !== "SUPER_ADMIN" && 
-        barbero.barberiaId.toString() !== req.user.barberiaId.toString()) {
-      return res.status(403).json({ 
-        message: "No tienes permiso para eliminar este barbero" 
-      });
-    }
-
-    // Eliminar también el usuario asociado
-    if (barbero.usuario) {
-      await User.findByIdAndDelete(barbero.usuario);
-    }
-
-    await Barbero.findByIdAndDelete(id);
-
-    res.json({
-      message: "Barbero eliminado correctamente"
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-// =========================================================
-// TOGGLE ESTADO ACTIVO/INACTIVO
-// =========================================================
+// ==========================================
+// 6) TOGGLE ACTIVO / INACTIVO
+// ==========================================
 exports.toggleEstado = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    try {
+        const useCase = container.toggleBarberoStatusUseCase;
+        const activo = await useCase.execute(req.params.id, req.user.barberiaId);
 
-    const barbero = await Barbero.findById(id);
-    
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+        res.json({
+            message: `Barbero ${activo ? 'activado' : 'desactivado'}`
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // Verificar que pertenece a la barbería del usuario
-    if (req.user.rol !== "SUPER_ADMIN" && 
-        barbero.barberiaId.toString() !== req.user.barberiaId.toString()) {
-      return res.status(403).json({ 
-        message: "No tienes permiso para modificar este barbero" 
-      });
-    }
-
-    // Cambiar el estado
-    barbero.activo = !barbero.activo;
-    await barbero.save();
-
-    // También cambiar el estado del usuario
-    if (barbero.usuario) {
-      await User.findByIdAndUpdate(barbero.usuario, { activo: barbero.activo });
-    }
-
-    res.json({
-      message: `Barbero ${barbero.activo ? 'activado' : 'desactivado'} correctamente`,
-      barbero
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-// =========================================================
-// LISTAR BARBEROS PÚBLICOS (para reservas)
-// =========================================================
+// ==========================================
+// 7) BARBEROS PÚBLICOS (PARA RESERVAS)
+// ==========================================
 exports.getBarberosPublicos = async (req, res, next) => {
-  try {
-    const { barberiaId } = req.query;
+    try {
+        const { barberiaId } = req.query;
+        if (!barberiaId) {
+            return res.status(400).json({ message: 'barberiaId requerido' });
+        }
 
-    if (!barberiaId) {
-      return res.status(400).json({
-        message: "Se requiere el ID de la barbería"
-      });
+        const useCase = container.listBarberosUseCase;
+        const barberos = await useCase.execute(barberiaId, { onlyActive: true });
+
+        res.json({
+            total: barberos.length,
+            barberos: barberos.map(b => b.getDetails())
+        });
+    } catch (error) {
+        next(error);
     }
-
-    const barberos = await Barbero.find({
-      barberiaId,
-      activo: true
-    })
-    .select('nombre foto descripcion especialidades experiencia')
-    .sort({ nombre: 1 });
-
-    res.json({
-      total: barberos.length,
-      barberos
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-exports.getMiPerfil = async (req, res) => {
-  const barbero = await Barbero.findOne({
-    usuario: req.user.id,
-    barberiaId: req.user.barberiaId
-  }).populate("usuario", "nombre email");
+// ==========================================
+// 8) MI PERFIL (BARBERO)
+// ==========================================
+exports.getMiPerfil = async (req, res, next) => {
+    try {
+        const useCase = container.getMiPerfilUseCase;
+        const barbero = await useCase.execute(req.user.id, req.barberiaId);
 
-  if (!barbero) {
-    return res.status(404).json({ message: "Barbero no encontrado" });
-  }
-
-  res.json(barbero);
+        res.json({
+            ...barbero.toObject(),
+            usuario: barbero.usuario
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
-/**
- * CITAS DEL BARBERO
- */
-exports.getMisCitas = async (req, res) => {
-  try {
-    const barbero = await Barbero.findOne({ usuario: req.user.id });
+// ==========================================
+// 9) MIS CITAS (HISTORIAL)
+// ==========================================
+exports.getMisCitas = async (req, res, next) => {
+    try {
+        const useCase = container.getMisCitasUseCase;
+        const citas = await useCase.execute(req.user.id, req.barberiaId);
 
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+        res.json(citas.map(c => c.toObject()));
+    } catch (error) {
+        next(error);
     }
-
-    const citas = await Reserva.find({
-      barberoId: barbero._id
-    })
-      .populate("clienteId", "nombre")
-      .populate("servicioId", "nombre precio")
-      .sort({ fecha: 1, hora: 1 });
-
-    res.json(citas);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error obteniendo citas" });
-  }
 };
 
+// ==========================================
+// 10) AGENDA DEL DÍA / SEMANA / MES (BARBERO)
+// ==========================================
+exports.getAgenda = async (req, res, next) => {
+    try {
+        const { fecha, fechaInicio, fechaFin } = req.query;
 
-/**
- * AGENDA DEL BARBERO
- */
-exports.getAgenda = async (req, res) => {
-  try {
-    const { fecha } = req.query;
+        // If date range is provided, use range use case (weekly/monthly views)
+        if (fechaInicio && fechaFin) {
+            const useCase = container.getAgendaBarberoRangeUseCase;
+            const reservas = await useCase.execute(req.user.id, fechaInicio, fechaFin, req.barberiaId);
+            return res.json(reservas.map(r => r.toObject()));
+        }
 
-    const barbero = await Barbero.findOne({ usuario: req.user.id });
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+        // Otherwise, use single date use case (daily view - backward compatible)
+        const useCase = container.getAgendaUseCase;
+        const reservas = await useCase.execute(req.user.id, fecha, req.barberiaId);
+        res.json(reservas.map(r => r.toObject()));
+    } catch (error) {
+        next(error);
     }
-
-    const reservas = await Reserva.find({
-      barberoId: barbero._id,
-      fecha: fecha  // ✅ Debe filtrar por la fecha exacta
-    })
-      .populate("clienteId", "nombre")
-      .populate("servicioId", "nombre precio")
-      .sort({ hora: 1 });
-
-    res.json(reservas);
-  } catch (error) {
-    res.status(500).json({ message: "Error obteniendo agenda" });
-  }
 };
 
-exports.completarReserva = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const barberoId = req.user._id;
+// ==========================================
+// 11) COMPLETAR RESERVA
+// ==========================================
+exports.completarReserva = async (req, res, next) => {
+    try {
+        // 1. Get barbero for security check
+        const barbero = await container.barberoRepository.findByUsuarioId(req.user.id);
+        if (!barbero) return res.status(404).json({ message: 'Barbero no encontrado' });
 
-    const reserva = await Reserva.findOne({
-      _id: id,
-      barberoId,
-    });
+        // 2. Get reserva and check ownership
+        const reserva = await container.reservaRepository.findById(req.params.id, req.barberiaId);
+        if (!reserva || reserva.barberoId.toString() !== barbero.id.toString()) {
+            return res.status(404).json({ message: 'Reserva no encontrada' });
+        }
 
-    if (!reserva) {
-      return res.status(404).json({ message: "Reserva no encontrada" });
+        // 3. Delegate to existing completeReservaUseCase
+        const useCase = container.completeReservaUseCase;
+        await useCase.execute(req.params.id);
+
+        res.json({ message: 'Reserva completada' });
+    } catch (error) {
+        next(error);
     }
-
-    reserva.estado = "COMPLETADA";
-    await reserva.save();
-
-    res.json({ message: "Reserva completada" });
-  } catch (error) {
-    res.status(500).json({ message: "Error al completar reserva" });
-  }
 };
 
-exports.cancelarReserva = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const barberoId = req.user._id;
+// ==========================================
+// 12) CANCELAR RESERVA
+// ==========================================
+exports.cancelarReserva = async (req, res, next) => {
+    try {
+        // 1. Get barbero for security check
+        const barbero = await container.barberoRepository.findByUsuarioId(req.user.id);
+        if (!barbero) return res.status(404).json({ message: 'Barbero no encontrado' });
 
-    const reserva = await Reserva.findOne({
-      _id: id,
-      barberoId,
-    });
+        // 2. Get reserva and check ownership
+        const reserva = await container.reservaRepository.findById(req.params.id, req.barberiaId);
+        if (!reserva || reserva.barberoId.toString() !== barbero.id.toString()) {
+            return res.status(404).json({ message: 'Reserva no encontrada' });
+        }
 
-    if (!reserva) {
-      return res.status(404).json({ message: "Reserva no encontrada" });
+        // 3. Delegate to existing cancelReservaUseCase
+        const useCase = container.cancelReservaUseCase;
+        await useCase.execute(req.params.id);
+
+        res.json({ message: 'Reserva cancelada' });
+    } catch (error) {
+        next(error);
     }
+};
 
-    reserva.estado = "CANCELADA";
-    await reserva.save();
+// ==========================================
+// 13) ESTADÍSTICAS DEL BARBERO
+// ==========================================
+exports.getEstadisticas = async (req, res, next) => {
+    try {
+        const useCase = container.getEstadisticasBarberoUseCase;
+        const stats = await useCase.execute(req.user.id, req.barberiaId);
 
-    res.json({ message: "Reserva cancelada" });
-  } catch (error) {
-    res.status(500).json({ message: "Error al cancelar reserva" });
-  }
+        res.json(stats);
+    } catch (error) {
+        next(error);
+    }
 };

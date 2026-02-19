@@ -6,12 +6,32 @@ const logger = require("./config/logger");
 // 🔥 REGISTRAR EVENT LISTENERS (UNA SOLA VEZ)
 require("./controllers/reservas.events");
 require("./events/resenas.events");
+require("./infrastructure/cache/cache.events"); // Cache invalidation events
 
 const PORT = process.env.PORT || 4000;
 
 async function bootstrap() {
   try {
     await connectDB();
+
+    // Inicializar cron jobs de notificaciones y mantenimiento
+    const { initCronJobs } = require("./utils/scheduledNotifications");
+    initCronJobs();
+    require("./services/maintenance.service");
+
+    // Inicializar scheduler de recordatorios automáticos
+    const { initializeReminderScheduler } = require("./infrastructure/jobs/reminderScheduler");
+    initializeReminderScheduler();
+
+    // 🔄 Cron jobs de mantenimiento del sistema
+    const { startResetMonthlyCancelacionesJob } = require('./jobs/resetMonthlyCancelaciones');
+    const { startDesbloqueoAutomaticoJob } = require('./jobs/desbloqueoAutomatico');
+    const { startSendRemindersJob } = require('./jobs/sendReminders');
+    startResetMonthlyCancelacionesJob();
+    startDesbloqueoAutomaticoJob();
+    startSendRemindersJob();
+    require('./jobs/expireWaitingList');
+
     app.listen(PORT, () => {
       logger.info(`API corriendo en puerto ${PORT}`);
       console.log(`🚀 SERVIDOR LISTO EN EL PUERTO ${PORT}`);

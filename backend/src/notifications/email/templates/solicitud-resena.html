@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cómo fue tu experiencia?</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: {
+                    {
+                    colorHeader
+                }
+            }
+
+            ;
+            padding: 30px 20px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .service-info {
+            background-color: #f8f9fa;
+
+            border-left: 4px solid {
+                    {
+                    colorHeader
+                }
+            }
+
+            ;
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+
+        .service-info p {
+            margin: 8px 0;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .service-info strong {
+            color: {
+                    {
+                    colorHeader
+                }
+            }
+
+            ;
+        }
+
+        .cta-button {
+            display: inline-block;
+
+            background-color: {
+                    {
+                    colorHeader
+                }
+            }
+
+            ;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: center;
+            transition: opacity 0.3s;
+        }
+
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+
+        .stars {
+            font-size: 32px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⭐ ¿Cómo fue tu experiencia?</h1>
+        </div>
+
+        <div class="content">
+            <p class="greeting">Hola <strong>{{nombreCliente}}</strong>,</p>
+
+            <p class="message">
+                ¡Gracias por confiar en <strong>{{nombreBarberia}}</strong>! Esperamos que hayas disfrutado tu visita.
+            </p>
+
+            <div class="service-info">
+                <p><strong>📅 Fecha:</strong> {{fecha}}</p>
+                <p><strong>✂️ Servicio:</strong> {{servicio}}</p>
+                <p><strong>👤 Atendido por:</strong> {{barbero}}</p>
+            </div>
+
+            <p class="message">
+                Tu opinión es muy importante para nosotros y nos ayuda a mejorar cada día.
+                ¿Podrías tomarte un momento para compartir tu experiencia?
+            </p>
+
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+
+            <center>
+                <a href="{{reviewUrl}}" class="cta-button">
+                    Dejar mi Reseña
+                </a>
+            </center>
+
+            <p class="message" style="font-size: 14px; color: #777; margin-top: 30px;">
+                <em>Este enlace estará disponible por 30 días después de tu visita.</em>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p><strong>{{nombreBarberia}}</strong></p>
+            <p>© {{year}} Todos los derechos reservados</p>
+        </div>
+    </div>
+</body>
+
+</html>

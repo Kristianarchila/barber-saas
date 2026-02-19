@@ -20,6 +20,8 @@ build
 # Env
 .env
 **/.env
+.env.production
+**/.env.production
 
 # Editor / OS
 .vscode/*
@@ -32,3 +34,16 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Docker
+mongo-data/
+
+# Backups MongoDB
+*.gz
+*.tar.gz
+backups/
+backend/backups/
+
+# Certificados SSL locales
+certbot-conf/
+certbot-www/

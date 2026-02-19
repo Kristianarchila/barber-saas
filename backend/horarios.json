@@ -1,0 +1,249 @@
+[
+  {
+    "nombre": "Carlos Soto",
+    "id": "6942c1fceb7da95b6598dd33",
+    "horarios": [
+      {
+        "dia": "Lunes",
+        "diaIndex": 1,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Martes",
+        "diaIndex": 2,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Miércoles",
+        "diaIndex": 3,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Jueves",
+        "diaIndex": 4,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Viernes",
+        "diaIndex": 5,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Sábado",
+        "diaIndex": 6,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      }
+    ]
+  },
+  {
+    "nombre": "valderrama",
+    "id": "69617fd0440f674c55fd15bc",
+    "horarios": [
+      {
+        "dia": "Lunes",
+        "diaIndex": 1,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Martes",
+        "diaIndex": 2,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Miércoles",
+        "diaIndex": 3,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Jueves",
+        "diaIndex": 4,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Viernes",
+        "diaIndex": 5,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      }
+    ]
+  },
+  {
+    "nombre": "pedro pe",
+    "id": "6962dadcd8ccfd012a64f899",
+    "horarios": [
+      {
+        "dia": "Lunes",
+        "diaIndex": 1,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Martes",
+        "diaIndex": 2,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Miércoles",
+        "diaIndex": 3,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      }
+    ]
+  },
+  {
+    "nombre": "pedro",
+    "id": "6962df7d516ae094d4ff4676",
+    "horarios": []
+  },
+  {
+    "nombre": "pedro",
+    "id": "6962e01d8861f5c3f6681788",
+    "horarios": []
+  },
+  {
+    "nombre": "javier",
+    "id": "6962e0a48861f5c3f6681798",
+    "horarios": []
+  },
+  {
+    "nombre": "kristian",
+    "id": "6962fc45b4402ceedac2aa4b",
+    "horarios": [
+      {
+        "dia": "Lunes",
+        "diaIndex": 1,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Martes",
+        "diaIndex": 2,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Miércoles",
+        "diaIndex": 3,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 50
+      },
+      {
+        "dia": "Jueves",
+        "diaIndex": 4,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 50
+      },
+      {
+        "dia": "Viernes",
+        "diaIndex": 5,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 50
+      },
+      {
+        "dia": "Sábado",
+        "diaIndex": 6,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 45
+      }
+    ]
+  },
+  {
+    "nombre": "pedro",
+    "id": "697559c377774c36ffac7a8c",
+    "horarios": [
+      {
+        "dia": "Lunes",
+        "diaIndex": 1,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Martes",
+        "diaIndex": 2,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Miércoles",
+        "diaIndex": 3,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Jueves",
+        "diaIndex": 4,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Viernes",
+        "diaIndex": 5,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      },
+      {
+        "dia": "Sábado",
+        "diaIndex": 6,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 30
+      }
+    ]
+  },
+  {
+    "nombre": "pedro",
+    "id": "6978142d7d4ad983cdd84b21",
+    "horarios": [
+      {
+        "dia": "Lunes",
+        "diaIndex": 1,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 40
+      },
+      {
+        "dia": "Martes",
+        "diaIndex": 2,
+        "horaInicio": "09:00",
+        "horaFin": "18:00",
+        "duracion": 40
+      }
+    ]
+  }
+]

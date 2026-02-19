@@ -9,6 +9,10 @@ const {
   getDisponibilidadBySlug,
   crearReservaBySlug
 } = require("../controllers/public.controller");
+const { publicApiLimiter } = require("../middleware/rateLimit.middleware");
+
+// Apply limiter to all public routes
+router.use(publicApiLimiter);
 
 // =========================================================
 // RUTAS NUEVAS (Sistema completo por SLUG)

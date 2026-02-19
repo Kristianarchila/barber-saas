@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 /**
  * Button Component - Botón reutilizable con múltiples variantes
  * 
- * @param {string} variant - Variante del botón: 'primary' | 'secondary' | 'ghost' | 'danger'
+ * @param {string} variant - Variante del botón: 'primary' | 'secondary' | 'ghost' | 'danger' | 'premium-primary' | 'premium-secondary' | 'premium-gold'
  * @param {string} size - Tamaño: 'sm' | 'md' | 'lg'
  * @param {boolean} loading - Estado de carga
  * @param {boolean} disabled - Estado deshabilitado
@@ -25,10 +25,13 @@ export default function Button({
         primary: 'gradient-primary text-white hover:shadow-glow-primary hover:scale-105 active:scale-95 focus:ring-primary-500/30',
         secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 hover:shadow-glow-secondary focus:ring-secondary-500/30',
         accent: 'gradient-accent text-white hover:shadow-glow-accent hover:scale-105 active:scale-95 focus:ring-accent-500/30',
-        ghost: 'bg-transparent text-neutral-300 hover:bg-neutral-800 hover:text-white focus:ring-neutral-700/30',
+        ghost: 'bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-200',
         danger: 'bg-error-500 text-white hover:bg-error-600 hover:shadow-lg focus:ring-error-500/30',
         success: 'gradient-success text-white hover:shadow-glow-success hover:scale-105 active:scale-95 focus:ring-success-500/30',
-        outline: 'bg-transparent text-slate-400 border border-slate-800 hover:border-indigo-500 hover:text-white hover:bg-slate-900 focus:ring-slate-700/30',
+        outline: 'bg-transparent text-gray-600 border border-gray-200 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 focus:ring-blue-100',
+        'premium-primary': 'bg-black text-white hover:bg-black/90 hover:scale-[1.02] active:scale-[0.98] focus:ring-black/20 font-black uppercase tracking-[0.2em] text-sm',
+        'premium-secondary': 'bg-transparent text-black border-2 border-black hover:bg-black hover:text-white focus:ring-black/20 font-black uppercase tracking-[0.2em] text-sm',
+        'premium-gold': 'bg-[#C9A961] text-black hover:bg-[#B89551] hover:scale-[1.02] active:scale-[0.98] focus:ring-[#C9A961]/20 font-black uppercase tracking-[0.2em] text-sm',
     };
 
     const sizes = {
@@ -52,10 +55,11 @@ export default function Button({
 }
 
 Button.propTypes = {
-    variant: PropTypes.oneOf(['primary', 'secondary', 'accent', 'ghost', 'danger', 'success', 'outline']),
+    variant: PropTypes.oneOf(['primary', 'secondary', 'accent', 'ghost', 'danger', 'success', 'outline', 'premium-primary', 'premium-secondary', 'premium-gold']),
     size: PropTypes.oneOf(['sm', 'md', 'lg']),
     loading: PropTypes.bool,
     disabled: PropTypes.bool,
     children: PropTypes.node.isRequired,
     className: PropTypes.string,
 };
+

@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { getDisponibilidad ,  getTurnosDia, getTurnosMes } = require("../controllers/turnos.controller");
+const { getDisponibilidad, getTurnosDia, getTurnosMes } = require("../controllers/turnos.controller");
 const { protect, authorize } = require("../config/middleware/auth.middleware");
-
-router.get(
-  "/barberos/:barberoId/disponibilidad",
-  getDisponibilidad
-);
 
 
 

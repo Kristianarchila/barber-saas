@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 export const validarToken = async (slug, token) => {
     try {
         const response = await axios.get(
-            `${API_URL}/public/${slug}/resenas/validar-token`,
+            `${API_URL}/public/barberias/${slug}/resenas/validar-token`,
             { params: { reviewToken: token } }
         );
         return response.data;
@@ -29,7 +29,7 @@ export const validarToken = async (slug, token) => {
 export const crearResena = async (slug, token, data) => {
     try {
         const response = await axios.post(
-            `${API_URL}/public/${slug}/resenas`,
+            `${API_URL}/public/barberias/${slug}/resenas`,
             data,
             { params: { reviewToken: token } }
         );
@@ -45,7 +45,7 @@ export const crearResena = async (slug, token, data) => {
 export const obtenerResenasPublicas = async (slug, params = {}) => {
     try {
         const response = await axios.get(
-            `${API_URL}/public/${slug}/resenas`,
+            `${API_URL}/public/barberias/${slug}/resenas`,
             { params }
         );
         return response.data;
@@ -60,7 +60,7 @@ export const obtenerResenasPublicas = async (slug, params = {}) => {
 export const obtenerEstadisticasPublicas = async (slug) => {
     try {
         const response = await axios.get(
-            `${API_URL}/public/${slug}/resenas/stats`
+            `${API_URL}/public/barberias/${slug}/resenas/stats`
         );
         return response.data;
     } catch (error) {
@@ -142,6 +142,18 @@ export const mostrarResena = (resenaId) => {
     );
 };
 
+/**
+ * ✅ NUEVO: Responder a reseña
+ */
+export const responderResena = (resenaId, texto) => {
+    const token = localStorage.getItem("token");
+    return axios.patch(
+        `${API_URL}/admin/resenas/${resenaId}/responder`,
+        { texto },
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+};
+
 export default {
     // Públicos
     validarToken,
@@ -154,5 +166,6 @@ export default {
     obtenerEstadisticas,
     aprobarResena,
     ocultarResena,
-    mostrarResena
+    mostrarResena,
+    responderResena
 };

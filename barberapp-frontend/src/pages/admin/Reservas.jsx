@@ -4,7 +4,12 @@ import 'dayjs/locale/es';
 import { getBarberos } from "../../services/barberosService";
 import { getReservasPorBarberoDia, completarReserva, cancelarReserva } from "../../services/reservasService";
 import { Card, Stat, Badge, Button, Skeleton, Avatar } from "../../components/ui";
-import { Calendar, Users, Clock, DollarSign, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Calendar, Users, Clock, DollarSign, CheckCircle, XCircle } from "lucide-react";
+import { useApiCall } from "../../hooks/useApiCall";
+import { useAsyncAction } from "../../hooks/useAsyncAction";
+import { ErrorAlert } from "../../components/ErrorComponents";
+import { ensureArray } from "../../utils/validateData";
+import WhatsAppButton from "../../components/WhatsAppButton";
 
 dayjs.locale('es');
 
@@ -12,57 +17,80 @@ export default function ReservasAdmin() {
   const [barberos, setBarberos] = useState([]);
   const [selectedBarbero, setSelectedBarbero] = useState(null);
   const [fecha, setFecha] = useState(dayjs().format("YYYY-MM-DD"));
-
   const [turnos, setTurnos] = useState([]);
   const [resumen, setResumen] = useState({});
-  const [loading, setLoading] = useState(false);
+
+  // Hook para cargar barberos
+  const { execute: loadBarberos, error: barberosError } = useApiCall(
+    getBarberos,
+    {
+      errorMessage: 'Error al cargar barberos',
+      onSuccess: (data) => setBarberos(ensureArray(data))
+    }
+  );
+
+  // Hook para cargar turnos
+  const { execute: fetchTurnos, loading, error: turnosError } = useApiCall(
+    async () => {
+      if (!selectedBarbero?._id) return [];
+      return await getReservasPorBarberoDia(selectedBarbero._id, fecha);
+    },
+    {
+      errorMessage: 'Error al cargar reservas',
+      onSuccess: (reservas) => {
+        const safeReservas = ensureArray(reservas);
+
+        // Calcular resumen desde las reservas
+        const resumenCalculado = {
+          totalTurnos: safeReservas.length,
+          completados: safeReservas.filter(r => r.estado === 'COMPLETADA').length,
+          cancelados: safeReservas.filter(r => r.estado === 'CANCELADA').length,
+          ingresosGenerados: safeReservas
+            .filter(r => r.estado === 'COMPLETADA')
+            .reduce((sum, r) => sum + (r.precioTotal || 0), 0),
+          horasTrabajadas: "00:00" // Placeholder
+        };
+
+        setResumen(resumenCalculado);
+        setTurnos(safeReservas);
+      },
+      onError: () => {
+        setResumen({});
+        setTurnos([]);
+      }
+    }
+  );
+
+  // Hook para completar reserva
+  const { execute: handleCompletar, loading: completando } = useAsyncAction(
+    completarReserva,
+    {
+      successMessage: 'Reserva completada exitosamente',
+      errorMessage: 'Error al completar reserva',
+      confirmMessage: '¿Marcar esta reserva como completada?',
+      onSuccess: () => fetchTurnos()
+    }
+  );
+
+  // Hook para cancelar reserva
+  const { execute: handleCancelar, loading: cancelando } = useAsyncAction(
+    cancelarReserva,
+    {
+      successMessage: 'Reserva cancelada',
+      errorMessage: 'Error al cancelar reserva',
+      confirmMessage: '¿Cancelar esta reserva?',
+      onSuccess: () => fetchTurnos()
+    }
+  );
 
   useEffect(() => {
-    getBarberos().then(data => setBarberos(data));
+    loadBarberos();
   }, []);
 
   useEffect(() => {
     if (!selectedBarbero) return;
     fetchTurnos();
   }, [selectedBarbero, fecha]);
-
-  async function fetchTurnos() {
-    setLoading(true);
-    try {
-      const reservas = await getReservasPorBarberoDia(selectedBarbero._id, fecha);
-
-      // Calcular resumen desde las reservas
-      const resumenCalculado = {
-        totalTurnos: reservas.length,
-        completados: reservas.filter(r => r.estado === 'COMPLETADA').length,
-        cancelados: reservas.filter(r => r.estado === 'CANCELADA').length,
-        ingresosGenerados: reservas
-          .filter(r => r.estado === 'COMPLETADA')
-          .reduce((sum, r) => sum + (r.precioTotal || 0), 0),
-        horasTrabajadas: "00:00" // Placeholder
-      };
-
-      setResumen(resumenCalculado);
-      setTurnos(reservas);
-    } catch (err) {
-      console.log("Error cargando reservas:", err);
-      setResumen({});
-      setTurnos([]);
-    }
-    setLoading(false);
-  }
-
-  async function handleCompletar(id) {
-    if (!window.confirm("¿Marcar esta reserva como completada?")) return;
-    await completarReserva(id);
-    fetchTurnos();
-  }
-
-  async function handleCancelar(id) {
-    if (!window.confirm("¿Cancelar esta reserva?")) return;
-    await cancelarReserva(id);
-    fetchTurnos();
-  }
 
   const getEstadoBadge = (estado) => {
     const estados = {
@@ -87,116 +115,121 @@ export default function ReservasAdmin() {
   return (
     <div className="space-y-8 animate-slide-in">
       {/* HEADER */}
-      <header className="space-y-2">
-        <h1 className="text-4xl font-black text-gradient-primary">
-          📅 Agenda del Día
-        </h1>
-        <p className="text-neutral-400 text-lg">
-          Gestiona las reservas y turnos de tus barberos
-        </p>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="heading-1 flex items-center gap-3">
+            <Calendar className="text-blue-600" size={32} />
+            Agenda del Día
+          </h1>
+          <p className="body-large text-gray-600 mt-2">
+            Control operativo de citas y disponibilidad de tus barberos
+          </p>
+        </div>
       </header>
 
+      {/* ERROR ALERTS */}
+      {barberosError && <ErrorAlert error={barberosError} />}
+      {turnosError && <ErrorAlert error={turnosError} />}
+
       {/* CONTROLES DE SELECCIÓN */}
-      <Card variant="glass">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+      <div className="card card-padding shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Selector de barbero */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-3">
-              <Users size={16} className="text-primary-500" />
-              Seleccionar Barbero
+          <div className="space-y-3">
+            <label className="label flex items-center gap-2">
+              <Users size={16} className="text-blue-600" />
+              Barbero en Sesión
             </label>
             <select
-              className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
+              className="input"
               value={selectedBarbero?._id || ""}
               onChange={e => {
                 const b = barberos.find(x => x._id === e.target.value);
                 setSelectedBarbero(b || null);
               }}
             >
-              <option value="">Seleccione un barbero</option>
-              {barberos.map(b => (
+              <option value="">Seleccione un profesional</option>
+              {ensureArray(barberos).map(b => (
                 <option key={b._id} value={b._id}>{b.nombre}</option>
               ))}
             </select>
           </div>
 
           {/* Selector de fecha */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-3">
-              <Calendar size={16} className="text-primary-500" />
-              Seleccionar Fecha
+          <div className="space-y-3">
+            <label className="label flex items-center gap-2">
+              <Calendar size={16} className="text-blue-600" />
+              Fecha de Trabajo
             </label>
             <input
               type="date"
-              className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
+              className="input"
               value={fecha}
               onChange={e => setFecha(e.target.value)}
             />
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* RESUMEN DEL DÍA */}
       {selectedBarbero && (
         <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Avatar name={selectedBarbero.nombre} size="lg" />
+          <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+            <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center border border-gray-100 overflow-hidden">
+              {selectedBarbero.foto ? (
+                <img src={selectedBarbero.foto} alt={selectedBarbero.nombre} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-2xl font-bold text-blue-600">{selectedBarbero.nombre.charAt(0)}</span>
+              )}
+            </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="heading-3 animate-slide-in">
                 {selectedBarbero.nombre}
               </h2>
-              <p className="text-neutral-400">
-                {dayjs(fecha).format('dddd, D [de] MMMM [de] YYYY')}
+              <p className="body-small text-gray-500">
+                Agenda para el {dayjs(fecha).format('dddd, D [de] MMMM')}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Stat
-              title="Total Reservas"
-              value={resumen.totalTurnos || 0}
-              icon="📋"
-              color="primary"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="card card-padding shadow-sm">
+              <p className="caption text-gray-400 font-bold uppercase tracking-widest mb-2">Reservas</p>
+              <p className="text-3xl font-black text-gray-900">{resumen.totalTurnos || 0}</p>
+            </div>
 
-            <Stat
-              title="Completadas"
-              value={resumen.completados || 0}
-              icon="✅"
-              color="success"
-            />
+            <div className="card card-padding shadow-sm">
+              <p className="caption text-gray-400 font-bold uppercase tracking-widest mb-2">Completadas</p>
+              <p className="text-3xl font-black text-green-600">{resumen.completados || 0}</p>
+            </div>
 
-            <Stat
-              title="Ingresos Generados"
-              value={formatCurrency(resumen.ingresosGenerados)}
-              icon="💰"
-              color="accent"
-            />
+            <div className="card card-padding bg-gray-900 text-white shadow-lg">
+              <p className="caption text-gray-500 font-bold uppercase tracking-widest mb-2">Ingresos Estimados</p>
+              <p className="text-2xl font-black text-white">{formatCurrency(resumen.ingresosGenerados)}</p>
+            </div>
 
-            <Stat
-              title="Horas Trabajadas"
-              value={resumen.horasTrabajadas || "00:00"}
-              icon="⏰"
-              color="warning"
-            />
+            <div className="card card-padding shadow-sm">
+              <p className="caption text-gray-400 font-bold uppercase tracking-widest mb-2">Productividad</p>
+              <p className="text-3xl font-black text-gray-900">
+                {resumen.totalTurnos > 0 ? Math.round((resumen.completados / resumen.totalTurnos) * 100) : 0}%
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       {/* LISTA DE TURNOS */}
       {selectedBarbero && (
-        <Card>
-          <div className="flex items-center justify-between p-6 border-b border-neutral-800">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary-500 bg-opacity-20 rounded-xl">
-                <Clock className="text-primary-500" size={24} />
+        <div className="card overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white rounded-xl shadow-sm border border-gray-100 text-blue-600">
+                <Clock size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">
-                  Turnos del Día
-                </h3>
-                <p className="text-neutral-400 text-sm">
-                  {turnos.length} {turnos.length === 1 ? 'turno' : 'turnos'} registrados
+                <h3 className="heading-4">Cronograma de Turnos</h3>
+                <p className="body-small text-gray-500">
+                  {turnos.length} servicios para hoy
                 </p>
               </div>
             </div>
@@ -208,89 +241,85 @@ export default function ReservasAdmin() {
                 <Skeleton key={i} variant="rectangular" height="h-20" />
               ))}
             </div>
-          ) : turnos.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="w-20 h-20 bg-neutral-800 bg-opacity-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="text-neutral-600" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                No hay reservas
-              </h3>
-              <p className="text-neutral-400">
-                No hay turnos programados para esta fecha
-              </p>
-            </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="table">
                 <thead>
-                  <tr className="border-b border-neutral-800">
-                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Hora</th>
-                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Cliente</th>
-                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Servicio</th>
-                    <th className="text-left p-4 text-xs font-bold text-neutral-500 uppercase">Estado</th>
-                    <th className="text-right p-4 text-xs font-bold text-neutral-500 uppercase">Acciones</th>
+                  <tr>
+                    <th>Hora de Cita</th>
+                    <th>Cliente</th>
+                    <th>Servicio Solicitado</th>
+                    <th>Estado</th>
+                    <th className="text-right">Gestión</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {turnos.map((t, idx) => {
+                  {ensureArray(turnos).map((t, idx) => {
                     const estadoBadge = getEstadoBadge(t.estado);
                     return (
-                      <tr
-                        key={t._id || idx}
-                        className="border-b border-neutral-800 hover:bg-neutral-800 hover:bg-opacity-30 transition-all"
-                      >
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <Clock size={16} className="text-neutral-500" />
-                            <span className="text-white font-bold text-lg">{t.hora}</span>
+                      <tr key={t._id || idx} className="group hover:bg-gray-50/50 transition-all">
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                              <Clock size={18} />
+                            </div>
+                            <span className="body font-bold text-gray-900">{t.hora}</span>
                           </div>
                         </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
+                        <td>
+                          <div className="flex items-center gap-3">
                             {t.clienteNombre ? (
                               <>
-                                <Avatar name={t.clienteNombre} size="sm" />
-                                <span className="text-white font-semibold">{t.clienteNombre}</span>
+                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold border border-gray-100">
+                                  {t.clienteNombre.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="body-small font-bold text-gray-900">{t.clienteNombre}</p>
+                                  {t.telefonoCliente && (
+                                    <WhatsAppButton
+                                      phoneNumber={t.telefonoCliente}
+                                      message={`Hola ${t.clienteNombre}, te contacto sobre tu reserva del ${dayjs(t.fecha).format('DD/MM/YYYY')} a las ${t.hora}`}
+                                      className="mt-1"
+                                      label={t.telefonoCliente}
+                                    />
+                                  )}
+                                </div>
                               </>
                             ) : (
-                              <span className="text-neutral-500 italic">Sin cliente</span>
+                              <span className="caption text-gray-400 italic">Sin asignar</span>
                             )}
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td>
                           <div>
-                            <p className="text-white font-medium">{t.servicioId?.nombre || "—"}</p>
-                            {t.servicioId?.duracion && (
-                              <p className="text-neutral-400 text-sm flex items-center gap-1">
-                                <Clock size={12} />
-                                {t.servicioId.duracion} min
-                              </p>
-                            )}
+                            <p className="body-small font-bold text-gray-900">{t.servicioId?.nombre || "—"}</p>
+                            <p className="caption text-gray-400 uppercase tracking-widest">{t.servicioId?.duracion} min</p>
                           </div>
                         </td>
-                        <td className="p-4">
-                          <Badge variant={estadoBadge.variant} size="sm">
+                        <td>
+                          <span className={`badge ${t.estado === 'COMPLETADA' ? 'badge-success' : t.estado === 'CANCELADA' ? 'badge-error' : 'badge-primary'}`}>
                             {estadoBadge.label}
-                          </Badge>
+                          </span>
                         </td>
-                        <td className="p-4">
+                        <td className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             {(t.estado === "RESERVADA" || t.estado === "CONFIRMADA") && (
                               <>
                                 <button
                                   onClick={() => handleCompletar(t._id)}
-                                  className="p-2 bg-success-500 bg-opacity-20 text-success-500 rounded-lg hover:bg-opacity-30 transition-all"
+                                  className="btn btn-ghost btn-sm text-green-600 hover:bg-green-50"
                                   title="Completar"
+                                  disabled={completando || cancelando}
                                 >
-                                  <CheckCircle size={16} />
+                                  {completando ? '...' : <CheckCircle size={18} />}
                                 </button>
                                 <button
                                   onClick={() => handleCancelar(t._id)}
-                                  className="p-2 bg-error-500 bg-opacity-20 text-error-500 rounded-lg hover:bg-opacity-30 transition-all"
+                                  className="btn btn-ghost btn-sm text-red-600 hover:bg-red-50"
                                   title="Cancelar"
+                                  disabled={completando || cancelando}
                                 >
-                                  <XCircle size={16} />
+                                  {cancelando ? '...' : <XCircle size={18} />}
                                 </button>
                               </>
                             )}
@@ -303,25 +332,24 @@ export default function ReservasAdmin() {
               </table>
             </div>
           )}
-        </Card>
-      )}
+        </div>
+      )
+      }
 
       {/* MENSAJE INICIAL */}
-      {!selectedBarbero && (
-        <Card className="border-neutral-700">
-          <div className="py-16 text-center">
-            <div className="w-20 h-20 bg-primary-500 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="text-primary-500" size={32} />
+      {
+        !selectedBarbero && (
+          <div className="card card-padding py-24 text-center shadow-sm">
+            <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
+              <Users size={40} />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              Selecciona un barbero
-            </h3>
-            <p className="text-neutral-400">
-              Elige un barbero arriba para ver su agenda del día
+            <h3 className="heading-2 mb-2">Selecciona un profesional</h3>
+            <p className="body-large text-gray-500 max-w-md mx-auto">
+              Elige un barbero del menú superior para visualizar y gestionar su hoja de servicios diaria.
             </p>
           </div>
-        </Card>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

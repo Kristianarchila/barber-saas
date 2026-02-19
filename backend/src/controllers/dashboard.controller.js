@@ -1,43 +1,24 @@
-const Reserva = require("../models/Reserva");
-const Barbero = require("../models/Barbero");
-const Servicio = require("../models/Servicio");
-const dayjs = require("dayjs");
+/**
+ * Dashboard Controller (Hexagonal Architecture Version)
+ */
+const container = require('../shared/Container');
 
 exports.getDashboardStats = async (req, res, next) => {
-  try {
-    const inicioMes = dayjs().startOf("month").format("YYYY-MM-DD");
-    const finMes = dayjs().endOf("month").format("YYYY-MM-DD");
+    try {
+        // Validate that user has barberiaId
+        if (!req.user || !req.user.barberiaId) {
+            return res.status(400).json({
+                message: 'Usuario no tiene una barbería asociada'
+            });
+        }
 
-    const totalBarberos = await Barbero.countDocuments({
-      barberiaId: req.user.barberiaId
-    });
+        const barberiaId = req.user.barberiaId.toString();
 
-    const totalServicios = await Servicio.countDocuments({
-      barberiaId: req.user.barberiaId
-    });
+        const useCase = container.getDashboardStatsUseCase;
+        const stats = await useCase.execute(barberiaId);
 
-    const turnosMes = await Reserva.countDocuments({
-      barberiaId: req.user.barberiaId,
-      fecha: { $gte: inicioMes, $lte: finMes }
-    });
-
- 
-    const ultimasReservas = await Reserva.find({
-      barberiaId: req.user.barberiaId
-    })
-      .populate("barberoId", "nombre")
-      .populate("servicioId", "nombre precio")
-      .sort({ createdAt: -1 })
-      .limit(5);
-
-    res.json({
-      totalBarberos,
-      totalServicios,
-      turnosMes,
-      ultimasReservas
-    });
-
-  } catch (error) {
-    next(error);
-  }
+        res.json(stats);
+    } catch (error) {
+        next(error);
+    }
 };

@@ -1,0 +1,5221 @@
+﻿
+> backend@1.0.0 test
+> jest --runInBand --detectOpenHandles
+
+node.exe : (node:5964) 
+[MONGOOSE] Warning: 
+Duplicate schema index on 
+{"reviewToken":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+En línea: 1 Carácter: 1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpeci    fied: 
+((node:5964    ) [MO...dex 
+defin    ition.:String) [] 
+   , RemoteException
+    + FullyQualifiedE    
+rrorId : NativeCo    
+mmandError
+ 
+(Use `node 
+--trace-warnings ...` to 
+show where the warning was 
+created)
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on 
+{"numeroPedido":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+[0mPOST /api/auth/login [33m400[0m 7.274 ms - 58[0m
+[0mPOST /api/auth/register [33m400[0m 2.685 ms - 58[0m
+[0mPOST /api/auth/login [33m401[0m 79.045 ms - 37[0m
+[0mPOST /api/reservas/barberos/invalid-id/reservar [33m400[0m 2.502 ms - 58[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [33m400[0m 1.426 ms - 58[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [33m400[0m 1.554 ms - 58[0m
+[0mPOST /api/barberias/test-slug/admin/servicios [33m401[0m 0.725 ms - 27[0m
+[0mPOST /api/barberias/test-slug/admin/servicios [33m401[0m 0.536 ms - 27[0m
+[0mGET /api/reservas?barberoId%5B%24ne%5D [33m401[0m 0.402 ms - 27[0m
+[0mPOST /api/auth/login [33m400[0m 1.018 ms - 58[0m
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [33m400[0m 0.765 ms - 58[0m
+FAIL 
+tests/validation.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from 
+.env -- tip: ÔÜÖ´©Å  
+suppress all logs with { 
+quiet: true }
+
+      at _log (node_modules
+/dotenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/login
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/register
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/login
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/reser
+vas/barberos/invalid-id/res
+ervar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/reser
+vas/barberos/507f1f77bcf86c
+d799439011/reservar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/reser
+vas/barberos/507f1f77bcf86c
+d799439011/reservar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/barbe
+rias/test-slug/admin/servic
+ios
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/barbe
+rias/test-slug/admin/servic
+ios
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/reserv
+as?barberoId%5B%24ne%5D
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/login
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/reser
+vas/barberos/507f1f77bcf86c
+d799439011/reservar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/reser
+vas/barberos/507f1f77bcf86c
+d799439011/reservar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] 
+/api/auth/register
+
+      at log 
+(src/app.js:98:11)
+
+  ÔùÅ Input Validation 
+Tests ÔÇ║ Auth Validation 
+ÔÇ║ should reject invalid 
+email format
+
+    expect(received).toEqua
+l(expected) // deep 
+equality
+
+    Expected: 
+ArrayContaining 
+[ObjectContaining 
+{"field": "email"}]
+    Received: []
+
+    [0m [90m 15 |[39m   
+          expect(res[33m.
+[39mbody[33m.[39msuccess)
+[33m.[39mtoBe([36mfalse
+[39m)[33m;[39m
+     [90m 16 |[39m       
+      expect(res[33m.[39m
+body[33m.[39mmessage)[33
+m.[39mtoBe([32m'Validatio
+n error'[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+17 |[39m             expec
+t(res[33m.[39mbody[33m.
+[39merrors)[33m.[39mtoEqu
+al(
+     [90m    |[39m       
+                           
+   [31m[1m^[22m[39m
+     [90m 18 |[39m       
+          expect[33m.[39m
+arrayContaining([
+     [90m 19 |[39m       
+              expect[33m.
+[39mobjectContaining({
+     [90m 20 |[39m       
+                  
+field[33m:[39m 
+[32m'email'[39m[0m
+
+      at Object.toEqual (te
+sts/validation.test.js:17:3
+7)
+
+  ÔùÅ Input Validation 
+Tests ÔÇ║ Auth Validation 
+ÔÇ║ should reject weak 
+password on registration
+
+    expect(received).toBeGr
+eaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    [0m [90m 35 |[39m
+     [90m 36 |[39m       
+      expect(res[33m.[39m
+status)[33m.[39mtoBe([35
+m400[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+37 |[39m             expec
+t(res[33m.[39mbody[33m.
+[39merrors[33m.[39mlength
+)[33m.[39mtoBeGreaterThan
+([35m0[39m)[33m;[39m
+     [90m    |[39m       
+                           
+          
+[31m[1m^[22m[39m
+     [90m 38 |[39m       
+  })[33m;[39m
+     [90m 39 |[39m
+     [90m 40 |[39m       
+  it([32m'should accept 
+valid login 
+data'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at 
+Object.toBeGreaterThan (tes
+ts/validation.test.js:37:44
+)
+
+  ÔùÅ Input Validation 
+Tests ÔÇ║ Reserva 
+Validation ÔÇ║ should 
+reject invalid ObjectId 
+format
+
+    expect(received).toEqua
+l(expected) // deep 
+equality
+
+    Expected: 
+ArrayContaining 
+[ObjectContaining 
+{"field": "barberoId", 
+"message": 
+StringContaining "Invalid 
+ObjectId"}]
+    Received: []
+
+    [0m [90m 65 |[39m
+     [90m 66 |[39m       
+      expect(res[33m.[39m
+status)[33m.[39mtoBe([35
+m400[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+67 |[39m             expec
+t(res[33m.[39mbody[33m.
+[39merrors)[33m.[39mtoEqu
+al(
+     [90m    |[39m       
+                           
+   [31m[1m^[22m[39m
+     [90m 68 |[39m       
+          expect[33m.[39m
+arrayContaining([
+     [90m 69 |[39m       
+              expect[33m.
+[39mobjectContaining({
+     [90m 70 |[39m       
+                  
+field[33m:[39m [32m'barb
+eroId'[39m[33m,[39m[0m
+
+      at Object.toEqual (te
+sts/validation.test.js:67:3
+7)
+
+  ÔùÅ Input Validation 
+Tests ÔÇ║ Reserva 
+Validation ÔÇ║ should 
+reject past dates
+
+    expect(received).toEqua
+l(expected) // deep 
+equality
+
+    Expected: 
+ArrayContaining 
+[ObjectContaining 
+{"field": "fecha"}]
+    Received: []
+
+    [0m [90m 87 |[39m
+     [90m 88 |[39m       
+      expect(res[33m.[39m
+status)[33m.[39mtoBe([35
+m400[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+89 |[39m             expec
+t(res[33m.[39mbody[33m.
+[39merrors)[33m.[39mtoEqu
+al(
+     [90m    |[39m       
+                           
+   [31m[1m^[22m[39m
+     [90m 90 |[39m       
+          expect[33m.[39m
+arrayContaining([
+     [90m 91 |[39m       
+              expect[33m.
+[39mobjectContaining({
+     [90m 92 |[39m       
+                  
+field[33m:[39m 
+[32m'fecha'[39m[0m
+
+      at Object.toEqual (te
+sts/validation.test.js:89:3
+7)
+
+  ÔùÅ Input Validation 
+Tests ÔÇ║ Servicio 
+Validation ÔÇ║ should 
+reject negative price
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: 400
+    Received: 401
+
+    [0m [90m 122 |[39m  
+               
+})[33m;[39m
+     [90m 123 |[39m
+    
+[31m[1m>[22m[39m[90m 
+124 |[39m             expe
+ct(res[33m.[39mstatus)[3
+3m.[39mtoBe([35m400[39m)
+[33m;[39m
+     [90m     |[39m      
+                          
+[31m[1m^[22m[39m
+     [90m 125 |[39m      
+       expect(res[33m.[39
+mbody[33m.[39merrors)[33
+m.[39mtoEqual(
+     [90m 126 |[39m      
+           expect[33m.[39
+marrayContaining([
+     [90m 127 |[39m      
+               expect[33m.
+[39mobjectContaining({[0m
+
+      at Object.toBe (tests
+/validation.test.js:124:32)
+
+  ÔùÅ Input Validation 
+Tests ÔÇ║ Servicio 
+Validation ÔÇ║ should 
+reject invalid duration
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: 400
+    Received: 401
+
+    [0m [90m 142 |[39m  
+               
+})[33m;[39m
+     [90m 143 |[39m
+    
+[31m[1m>[22m[39m[90m 
+144 |[39m             expe
+ct(res[33m.[39mstatus)[3
+3m.[39mtoBe([35m400[39m)
+[33m;[39m
+     [90m     |[39m      
+                          
+[31m[1m^[22m[39m
+     [90m 145 |[39m      
+   })[33m;[39m
+     [90m 146 |[39m     
+})[33m;[39m
+     [90m 147 |[39m 
+})[33m;[39m[0m
+
+      at Object.toBe (tests
+/validation.test.js:144:32)
+
+  ÔùÅ Error Message 
+Quality ÔÇ║ should provide 
+clear field-level errors
+
+    expect(received).toBeGr
+eaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    [0m [90m 217 |[39m
+     [90m 218 |[39m      
+   expect(res[33m.[39msta
+tus)[33m.[39mtoBe([35m40
+0[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+219 |[39m         expect(r
+es[33m.[39mbody[33m.[39
+merrors[33m.[39mlength)[
+33m.[39mtoBeGreaterThan([
+35m0[39m)[33m;[39m
+     [90m     |[39m      
+                           
+       [31m[1m^[22m[39m
+     [90m 220 |[39m
+     [90m 221 |[39m      
+   [90m// Each error 
+should have field and 
+message[39m
+     [90m 222 |[39m      
+   res[33m.[39mbody[33m.
+[39merrors[33m.[39mforEa
+ch(error [33m=>[39m {[0m
+
+      at 
+Object.toBeGreaterThan (tes
+ts/validation.test.js:219:4
+0)
+
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on 
+{"numeroPedido":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+[0mPOST /api/reservas/barberos/507f1f77bcf86cd799439011/reservar [33m400[0m 1.571 ms - 58[0m
+[0mPOST /api/auth/register [33m400[0m 1.538 ms - 58[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=9c55fd6d9de908e527fabee3316a28296cbaf8059273f64dda15c114190dae8c [32m201[0m 29.252 ms - 646[0m
+[0mPOST /api/public/barberia-test/resenas [33m404[0m 8.712 ms - 51[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=invalid-token [33m404[0m 14.361 ms - 51[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=0b7ffdff226cd5b8822be17aff38a333512766a74cc10f7aefab76f1771701b7 [32m201[0m 23.330 ms - 611[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=0b7ffdff226cd5b8822be17aff38a333512766a74cc10f7aefab76f1771701b7 [31m500[0m 42.404 ms - 55[0m
+[0mPOST /api/public/barberia-test/resenas?reviewToken=b32efced576535c1091aef37342fd01aa3a87d71fe4fd04095eab94ddbf6966f [31m500[0m 16.880 ms - 55[0m
+[0mGET /api/public/barberia-test/resenas/validar-token?reviewToken=31bee454a812391dec0f9da2b5c2f98f78f627fe0882ca8654353082e588dfbd [32m200[0m 90.271 ms - 144[0m
+[0mGET /api/public/barberia-test/resenas/validar-token?reviewToken=invalid [33m404[0m 15.389 ms - 45[0m
+[0mGET /api/public/barberia-test/resenas [32m200[0m 51.604 ms - 849[0m
+[0mGET /api/public/barberia-test/resenas [32m200[0m 19.525 ms - 849[0m
+[0mGET /api/admin/resenas/pendientes [32m200[0m 20.848 ms - 424[0m
+[0mGET /api/admin/resenas/pendientes [33m401[0m 0.356 ms - 27[0m
+[0mPATCH /api/admin/resenas/698a87884950754195119285/aprobar [32m200[0m 18.017 ms - 448[0m
+[0mPATCH /api/admin/resenas/698a87884950754195119299/aprobar [33m401[0m 0.198 ms - 27[0m
+[0mGET /api/admin/resenas/estadisticas [32m200[0m 12.809 ms - 91[0m
+[0mGET /api/public/barberia-test/resenas [32m200[0m 36.040 ms - 464[0m
+FAIL tests/resenas.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from 
+.env -- tip: Ô£à audit 
+secrets and track 
+compliance: 
+https://dotenvx.com/ops
+
+      at _log (node_modules
+/dotenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberia-test/resenas?rev
+iewToken=9c55fd6d9de908e527
+fabee3316a28296cbaf8059273f
+64dda15c114190dae8c
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberia-test/resenas
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberia-test/resenas?rev
+iewToken=invalid-token
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberia-test/resenas?rev
+iewToken=0b7ffdff226cd5b882
+2be17aff38a333512766a74cc10
+f7aefab76f1771701b7
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberia-test/resenas?rev
+iewToken=0b7ffdff226cd5b882
+2be17aff38a333512766a74cc10
+f7aefab76f1771701b7
+
+      at log 
+(src/app.js:98:11)
+
+    console.error
+      Error al crear 
+rese├▒a: MongoServerError: 
+E11000 duplicate key error 
+collection: 
+barber-saas-test.resenas 
+index: reservaId_1 dup 
+key: { reservaId: ObjectId(
+'698a878649507541951191d1')
+ }
+          at InsertOneOpera
+tion.handleOk (C:\Users\Kri
+stian\Desktop\barber-saas\b
+ackend\node_modules\mongodb
+\src\operations\insert.ts:7
+9:13)
+          at tryOperation (
+C:\Users\Kristian\Desktop\b
+arber-saas\backend\node_mod
+ules\mongodb\src\operations
+\execute_operation.ts:294:2
+6)
+          at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+          at 
+executeOperation (C:\Users\
+Kristian\Desktop\barber-saa
+s\backend\node_modules\mong
+odb\src\operations\execute_
+operation.ts:123:12)
+          at 
+Collection.insertOne (C:\Us
+ers\Kristian\Desktop\barber
+-saas\backend\node_modules\
+mongodb\src\collection.ts:2
+94:12)
+          at model.$__save 
+(C:\Users\Kristian\Desktop\
+barber-saas\backend\node_mo
+dules\mongoose\lib\model.js
+:398:16)
+          at model.save (C:
+\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modul
+es\mongoose\lib\model.js:60
+9:5)
+          at Object.<anonym
+ous>.exports.crearResena (C
+:\Users\Kristian\Desktop\ba
+rber-saas\backend\src\contr
+ollers\resenas.controller.j
+s:96:9) {
+        errorLabelSet: 
+Set(0) {},
+        errorResponse: {
+          index: 0,
+          code: 11000,
+          errmsg: "E11000 
+duplicate key error 
+collection: 
+barber-saas-test.resenas 
+index: reservaId_1 dup 
+key: { reservaId: ObjectId(
+'698a878649507541951191d1')
+ }",
+          keyPattern: { 
+reservaId: 1 },
+          keyValue: { 
+reservaId: new ObjectId('69
+8a878649507541951191d1') }
+        },
+        index: 0,
+        code: 11000,
+        keyPattern: { 
+reservaId: 1 },
+        keyValue: { 
+reservaId: new ObjectId('69
+8a878649507541951191d1') }
+      }
+
+    [0m [90m 106 |[39m  
+       })[33m;[39m
+     [90m 107 |[39m     
+} [36mcatch[39m (error) {
+    
+[31m[1m>[22m[39m[90m 
+108 |[39m         console
+[33m.[39merror([32m"Error
+ al crear 
+rese├▒a:"[39m[33m,[39m 
+error)[33m;[39m
+     [90m     |[39m      
+           
+[31m[1m^[22m[39m
+     [90m 109 |[39m      
+   res[33m.[39mstatus([3
+5m500[39m)[33m.[39mjson(
+{ success[33m:[39m 
+[36mfalse[39m[33m,[39m 
+message[33m:[39m 
+[32m"Error al crear la 
+rese├▒a"[39m })[33m;[39m
+     [90m 110 |[39m     }
+     [90m 111 |[39m 
+}[33m;[39m[0m
+
+      at error (src/control
+lers/resenas.controller.js:
+108:17)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberia-test/resenas?rev
+iewToken=b32efced576535c109
+1aef37342fd01aa3a87d71fe4fd
+04095eab94ddbf6966f
+
+      at log 
+(src/app.js:98:11)
+
+    console.error
+      Error al crear 
+rese├▒a: ValidationError: 
+Resena validation failed: 
+calificacionGeneral: Path 
+`calificacionGeneral` is 
+required.
+          at model.Object.<
+anonymous>.Document.invalid
+ate (C:\Users\Kristian\Desk
+top\barber-saas\backend\nod
+e_modules\mongoose\lib\docu
+ment.js:3370:32)
+          at validatePath (
+C:\Users\Kristian\Desktop\b
+arber-saas\backend\node_mod
+ules\mongoose\lib\document.
+js:3145:13)
+          at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+          at async 
+Promise.all (index 5)
+          at 
+model.$__validate (C:\Users
+\Kristian\Desktop\barber-sa
+as\backend\node_modules\mon
+goose\lib\document.js:3086:
+3)
+          at 
+model.validate (C:\Users\Kr
+istian\Desktop\barber-saas\
+backend\node_modules\mongoo
+se\lib\document.js:2663:5)
+          at 
+model.validateBeforeSave (C
+:\Users\Kristian\Desktop\ba
+rber-saas\backend\node_modu
+les\mongoose\lib\plugins\va
+lidateBeforeSave.js:34:7)
+          at 
+Kareem.execPre (C:\Users\Kr
+istian\Desktop\barber-saas\
+backend\node_modules\kareem
+\index.js:65:24)
+          at model.$__save 
+(C:\Users\Kristian\Desktop\
+barber-saas\backend\node_mo
+dules\mongoose\lib\model.js
+:369:5)
+          at model.save (C:
+\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modul
+es\mongoose\lib\model.js:60
+9:5)
+          at Object.<anonym
+ous>.exports.crearResena (C
+:\Users\Kristian\Desktop\ba
+rber-saas\backend\src\contr
+ollers\resenas.controller.j
+s:96:9) {
+        errors: {
+          
+calificacionGeneral: 
+ValidatorError: Path 
+`calificacionGeneral` is 
+required.
+              at 
+SchemaNumber.doValidate (C:
+\Users\Kristian\Desktop\bar
+ber-saas\backend\node_modul
+es\mongoose\lib\schemaType.
+js:1425:13)
+              at 
+validatePath (C:\Users\Kris
+tian\Desktop\barber-saas\ba
+ckend\node_modules\mongoose
+\lib\document.js:3137:24)
+              at 
+model.$__validate (C:\Users
+\Kristian\Desktop\barber-sa
+as\backend\node_modules\mon
+goose\lib\document.js:3083:
+21)
+              at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+              at 
+model.validate (C:\Users\Kr
+istian\Desktop\barber-saas\
+backend\node_modules\mongoo
+se\lib\document.js:2663:5)
+              at 
+model.validateBeforeSave (C
+:\Users\Kristian\Desktop\ba
+rber-saas\backend\node_modu
+les\mongoose\lib\plugins\va
+lidateBeforeSave.js:34:7)
+              at 
+Kareem.execPre (C:\Users\Kr
+istian\Desktop\barber-saas\
+backend\node_modules\kareem
+\index.js:65:24)
+              at 
+model.$__save (C:\Users\Kri
+stian\Desktop\barber-saas\b
+ackend\node_modules\mongoos
+e\lib\model.js:369:5)
+              at 
+model.save (C:\Users\Kristi
+an\Desktop\barber-saas\back
+end\node_modules\mongoose\l
+ib\model.js:609:5)
+              at Object.<an
+onymous>.exports.crearResen
+a (C:\Users\Kristian\Deskto
+p\barber-saas\backend\src\c
+ontrollers\resenas.controll
+er.js:96:9) {
+            properties: 
+[Object],
+            kind: 
+'required',
+            path: 
+'calificacionGeneral',
+            value: 
+undefined,
+            reason: 
+undefined,
+            [Symbol(mongoos
+e#validatorError)]: true
+          }
+        },
+        _message: 'Resena 
+validation failed'
+      }
+
+    [0m [90m 106 |[39m  
+       })[33m;[39m
+     [90m 107 |[39m     
+} [36mcatch[39m (error) {
+    
+[31m[1m>[22m[39m[90m 
+108 |[39m         console
+[33m.[39merror([32m"Error
+ al crear 
+rese├▒a:"[39m[33m,[39m 
+error)[33m;[39m
+     [90m     |[39m      
+           
+[31m[1m^[22m[39m
+     [90m 109 |[39m      
+   res[33m.[39mstatus([3
+5m500[39m)[33m.[39mjson(
+{ success[33m:[39m 
+[36mfalse[39m[33m,[39m 
+message[33m:[39m 
+[32m"Error al crear la 
+rese├▒a"[39m })[33m;[39m
+     [90m 110 |[39m     }
+     [90m 111 |[39m 
+}[33m;[39m[0m
+
+      at error (src/control
+lers/resenas.controller.js:
+108:17)
+
+    console.log
+      ƒôí [GET] /api/public
+/barberia-test/resenas/vali
+dar-token?reviewToken=31bee
+454a812391dec0f9da2b5c2f98f
+78f627fe0882ca8654353082e58
+8dfbd
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/public
+/barberia-test/resenas/vali
+dar-token?reviewToken=inval
+id
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/public
+/barberia-test/resenas
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/public
+/barberia-test/resenas
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/admin/
+resenas/pendientes
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/admin/
+resenas/pendientes
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [PATCH] /api/admi
+n/resenas/698a8788495075419
+5119285/aprobar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [PATCH] /api/admi
+n/resenas/698a8788495075419
+5119299/aprobar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/admin/
+resenas/estadisticas
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/public
+/barberia-test/resenas
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [GET] /api/public
+/barberia-2/resenas
+
+      at log 
+(src/app.js:98:11)
+
+    console.warn
+      ÔÜá´©Å MongoDB 
+desconectado
+
+    [0m [90m 89 |[39m   
+mongoose[33m.[39mconnecti
+on[33m.[39mon([32m'disco
+nnected'[39m[33m,[39m 
+() [33m=>[39m {
+     [90m 90 |[39m     
+isConnected [33m=[39m 
+[36mfalse[39m[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+91 |[39m     console[33m.
+[39mwarn([32m'ÔÜá´©Å 
+MongoDB desconectado'[39m)
+[33m;[39m
+     [90m    |[39m       
+      [31m[1m^[22m[39m
+     [90m 92 |[39m   
+})[33m;[39m
+     [90m 93 |[39m
+     [90m 94 |[39m   mong
+oose[33m.[39mconnection[
+33m.[39mon([32m'error'[3
+9m[33m,[39m (err) 
+[33m=>[39m {[0m
+
+      at 
+NativeConnection.warn 
+(src/config/db.js:91:13)
+      at 
+NativeConnection.set (node_
+modules/mongoose/lib/connec
+tion.js:149:12)
+      at 
+NativeConnection.onClose (n
+ode_modules/mongoose/lib/co
+nnection.js:1319:19)
+      at 
+NativeConnection._close (no
+de_modules/mongoose/lib/con
+nection.js:1268:12)
+      at 
+Object.<anonymous> (tests/r
+esenas.test.js:28:9)
+
+  ÔùÅ Sistema de Rese├▒as 
+- Tests ÔÇ║ GET /api/public
+/:slug/resenas/validar-toke
+n - Validar Token ÔÇ║ Debe 
+validar token correcto
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: true
+    Received: undefined
+
+    [0m [90m 179 |[39m
+     [90m 180 |[39m      
+       expect(response[33m
+.[39mstatus)[33m.[39mtoB
+e([35m200[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+181 |[39m             expe
+ct(response[33m.[39mbody
+[33m.[39mvalido)[33m.[39
+mtoBe([36mtrue[39m)[33m;
+[39m
+     [90m     |[39m      
+                           
+         
+[31m[1m^[22m[39m
+     [90m 182 |[39m      
+   })[33m;[39m
+     [90m 183 |[39m
+     [90m 184 |[39m      
+   test([32m'Debe 
+rechazar token 
+inv├ílido'[39m[33m,[39m 
+[36masync[39m () 
+[33m=>[39m {[0m
+
+      at Object.toBe (tests
+/resenas.test.js:181:42)
+
+  ÔùÅ Sistema de Rese├▒as 
+- Tests ÔÇ║ GET /api/public
+/:slug/resenas/validar-toke
+n - Validar Token ÔÇ║ Debe 
+rechazar token inv├ílido
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: false
+    Received: undefined
+
+    [0m [90m 187 |[39m
+     [90m 188 |[39m      
+       expect(response[33m
+.[39mstatus)[33m.[39mtoB
+e([35m404[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+189 |[39m             expe
+ct(response[33m.[39mbody
+[33m.[39mvalido)[33m.[39
+mtoBe([36mfalse[39m)[33m
+;[39m
+     [90m     |[39m      
+                           
+         
+[31m[1m^[22m[39m
+     [90m 190 |[39m      
+   })[33m;[39m
+     [90m 191 |[39m     
+})[33m;[39m
+     [90m 192 |[39m[0m
+
+      at Object.toBe (tests
+/resenas.test.js:189:42)
+
+  ÔùÅ Sistema de Rese├▒as 
+- Tests ÔÇ║ GET 
+/api/public/:slug/resenas 
+- Listar Rese├▒as 
+P├║blicas ÔÇ║ Debe 
+calcular promedio 
+correctamente
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: 4.5
+    Received: undefined
+
+    [0m [90m 242 |[39m
+     [90m 243 |[39m      
+       expect(response[33m
+.[39mstatus)[33m.[39mtoB
+e([35m200[39m)[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+244 |[39m             expe
+ct(response[33m.[39mbody
+[33m.[39mdata[33m.[39mpr
+omedio)[33m.[39mtoBe([35
+m4.5[39m)[33m;[39m 
+[90m// (5+4)/2[39m
+     [90m     |[39m      
+                           
+                
+[31m[1m^[22m[39m
+     [90m 245 |[39m      
+   })[33m;[39m
+     [90m 246 |[39m     
+})[33m;[39m
+     [90m 247 |[39m[0m
+
+      at Object.toBe (tests
+/resenas.test.js:244:49)
+
+  ÔùÅ Sistema de Rese├▒as 
+- Tests ÔÇ║ GET /api/admin/
+resenas/estadisticas - 
+Estad├¡sticas ÔÇ║ Debe 
+retornar estad├¡sticas 
+correctas
+
+    expect(received).toBeDe
+fined()
+
+    Received: undefined
+
+    [0m [90m 349 |[39m  
+           expect(response
+[33m.[39mbody[33m.[39mda
+ta[33m.[39mtotal)[33m.[
+39mtoBe([35m2[39m)[33m;
+[39m
+     [90m 350 |[39m      
+       expect(response[33m
+.[39mbody[33m.[39mdata[
+33m.[39mpromedio)[33m.[3
+9mtoBe([35m4.5[39m)[33m;
+[39m
+    
+[31m[1m>[22m[39m[90m 
+351 |[39m             expe
+ct(response[33m.[39mbody
+[33m.[39mdata[33m.[39mpo
+rCalificacion)[33m.[39mto
+BeDefined()[33m;[39m
+     [90m     |[39m      
+                           
+                       
+[31m[1m^[22m[39m
+     [90m 352 |[39m      
+   })[33m;[39m
+     [90m 353 |[39m     
+})[33m;[39m
+     [90m 354 |[39m[0m
+
+      at 
+Object.toBeDefined (tests/r
+esenas.test.js:351:56)
+
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on 
+{"numeroPedido":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+[0mGET /api/public/barberia-2/resenas [32m200[0m 30.860 ms - 461[0m
+[0mPOST /api/public/barberias/atomic-shop/barberos/698a878a8bbac159db33d3d4/reservar [31m500[0m 62.542 ms - 843[0m
+[0mPOST /api/public/barberias/atomic-shop/barberos/698a878a8bbac159db33d3d4/reservar [31m500[0m 26.942 ms - 843[0m
+FAIL tests/reservas_atomica
+s.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from 
+.env -- tip: ÔÜÖ´©Å  load 
+multiple .env files with { 
+path: ['.env.local', 
+'.env'] }
+
+      at _log (node_modules
+/dotenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberias/atomic-shop/bar
+beros/698a878a8bbac159db33d
+3d4/reservar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      [Transaction] 
+Started: CreateReservation 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: CreateReservation
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.error
+      [Transaction] 
+Failed: CreateReservation {
+        error: 'El horario 
+seleccionado ya no est├í 
+disponible. Por favor, 
+elige otro horario.',
+        attempt: 1,
+        stack: 
+'ReservationConflictError: 
+El horario seleccionado ya 
+no est├í disponible. Por 
+favor, elige otro 
+horario.\n' +
+          '    at Transacti
+onManager.executeInTransact
+ion.operationName (C:\\User
+s\\Kristian\\Desktop\\barbe
+r-saas\\backend\\src\\appli
+cation\\use-cases\\reservas
+\\CreateReserva.js:49:31)\n
+' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at Function.
+executeInTransaction (C:\\U
+sers\\Kristian\\Desktop\\ba
+rber-saas\\backend\\src\\ut
+ils\\TransactionManager.js:
+57:32)\n' +
+          '    at 
+CreateReserva.execute (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\a
+pplication\\use-cases\\rese
+rvas\\CreateReserva.js:26:3
+4)\n' +
+          '    at Object.<a
+nonymous>.exports.crearRese
+rvaBySlug (C:\\Users\\Krist
+ian\\Desktop\\barber-saas\\
+backend\\src\\controllers\\
+public.controller.js:140:25
+)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m       
+          [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 
+82 |[39m                 c
+onsole[33m.[39merror([32
+m`[Transaction] Failed: ${o
+perationName}`[39m[33m,[
+39m {
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 83 |[39m       
+              
+error[33m:[39m error[33m
+.[39mmessage[33m,[39m
+     [90m 84 |[39m       
+              
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m       
+              
+stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error 
+[as executeInTransaction] (
+src/utils/TransactionManage
+r.js:82:25)
+      at 
+CreateReserva.execute (src/
+application/use-cases/reser
+vas/CreateReserva.js:26:34)
+      at Object.<anonymous>
+.exports.crearReservaBySlug
+ (src/controllers/public.co
+ntroller.js:140:25)
+
+    console.error
+      ƒö┤ ERROR: 
+TransactionError: 
+Transaction failed for 
+CreateReservation: El 
+horario seleccionado ya no 
+est├í disponible. Por 
+favor, elige otro horario.
+          at Function.execu
+teInTransaction (C:\Users\K
+ristian\Desktop\barber-saas
+\backend\src\utils\Transact
+ionManager.js:88:23)
+          at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+          at 
+CreateReserva.execute (C:\U
+sers\Kristian\Desktop\barbe
+r-saas\backend\src\applicat
+ion\use-cases\reservas\Crea
+teReserva.js:26:34)
+          at Object.<anonym
+ous>.exports.crearReservaBy
+Slug (C:\Users\Kristian\Des
+ktop\barber-saas\backend\sr
+c\controllers\public.contro
+ller.js:140:25) {
+        
+isTransactionError: true,
+        originalError: 
+ReservationConflictError: 
+El horario seleccionado ya 
+no est├í disponible. Por 
+favor, elige otro horario.
+            at TransactionM
+anager.executeInTransaction
+.operationName (C:\Users\Kr
+istian\Desktop\barber-saas\
+backend\src\application\use
+-cases\reservas\CreateReser
+va.js:49:31)
+            at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+            at Function.exe
+cuteInTransaction (C:\Users
+\Kristian\Desktop\barber-sa
+as\backend\src\utils\Transa
+ctionManager.js:57:32)
+            at 
+CreateReserva.execute (C:\U
+sers\Kristian\Desktop\barbe
+r-saas\backend\src\applicat
+ion\use-cases\reservas\Crea
+teReserva.js:26:34)
+            at Object.<anon
+ymous>.exports.crearReserva
+BySlug (C:\Users\Kristian\D
+esktop\barber-saas\backend\
+src\controllers\public.cont
+roller.js:140:25) {
+          statusCode: 409,
+          userFriendly: 
+true
+        },
+        context: { 
+operationName: 
+'CreateReservation', 
+attempt: 1 },
+        timestamp: 
+2026-02-10T01:19:06.861Z,
+        originalStack: 
+'ReservationConflictError: 
+El horario seleccionado ya 
+no est├í disponible. Por 
+favor, elige otro 
+horario.\n' +
+          '    at Transacti
+onManager.executeInTransact
+ion.operationName (C:\\User
+s\\Kristian\\Desktop\\barbe
+r-saas\\backend\\src\\appli
+cation\\use-cases\\reservas
+\\CreateReserva.js:49:31)\n
+' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at Function.
+executeInTransaction (C:\\U
+sers\\Kristian\\Desktop\\ba
+rber-saas\\backend\\src\\ut
+ils\\TransactionManager.js:
+57:32)\n' +
+          '    at 
+CreateReserva.execute (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\a
+pplication\\use-cases\\rese
+rvas\\CreateReserva.js:26:3
+4)\n' +
+          '    at Object.<a
+nonymous>.exports.crearRese
+rvaBySlug (C:\\Users\\Krist
+ian\\Desktop\\barber-saas\\
+backend\\src\\controllers\\
+public.controller.js:140:25
+)'
+      }
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m 
+errorHandler [33m=[39m 
+(err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 
+6 |[39m   console[33m.[3
+9merror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m        
+   [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR 
+HEADERS CORS SI NO 
+EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mh
+eaders[33m.[39morigin[33
+m;[39m[0m
+
+      at error (src/config/
+middleware/errorHandler.js:
+6:11)
+      at Layer.handleError 
+(node_modules/router/lib/la
+yer.js:116:17)
+      at trimPrefix (node_m
+odules/router/index.js:340:
+13)
+      at node_modules/route
+r/index.js:297:9
+      at processParams (nod
+e_modules/router/index.js:5
+82:12)
+      at next (node_modules
+/router/index.js:291:5)
+      at Layer.handleError 
+(node_modules/router/lib/la
+yer.js:111:12)
+      at trimPrefix (node_m
+odules/router/index.js:340:
+13)
+      at node_modules/route
+r/index.js:297:9
+      at processParams (nod
+e_modules/router/index.js:5
+82:12)
+      at Immediate.next (no
+de_modules/router/index.js:
+291:5)
+      at 
+Immediate._onImmediate (nod
+e_modules/router/index.js:6
+88:15)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/barberias/atomic-shop/bar
+beros/698a878a8bbac159db33d
+3d4/reservar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      [Transaction] 
+Started: CreateReservation 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: CreateReservation
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.error
+      [Transaction] 
+Failed: CreateReservation {
+        error: 'El horario 
+seleccionado ya no est├í 
+disponible. Por favor, 
+elige otro horario.',
+        attempt: 1,
+        stack: 
+'ReservationConflictError: 
+El horario seleccionado ya 
+no est├í disponible. Por 
+favor, elige otro 
+horario.\n' +
+          '    at Transacti
+onManager.executeInTransact
+ion.operationName (C:\\User
+s\\Kristian\\Desktop\\barbe
+r-saas\\backend\\src\\appli
+cation\\use-cases\\reservas
+\\CreateReserva.js:49:31)\n
+' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at Function.
+executeInTransaction (C:\\U
+sers\\Kristian\\Desktop\\ba
+rber-saas\\backend\\src\\ut
+ils\\TransactionManager.js:
+57:32)\n' +
+          '    at 
+CreateReserva.execute (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\a
+pplication\\use-cases\\rese
+rvas\\CreateReserva.js:26:3
+4)\n' +
+          '    at Object.<a
+nonymous>.exports.crearRese
+rvaBySlug (C:\\Users\\Krist
+ian\\Desktop\\barber-saas\\
+backend\\src\\controllers\\
+public.controller.js:140:25
+)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m       
+          [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 
+82 |[39m                 c
+onsole[33m.[39merror([32
+m`[Transaction] Failed: ${o
+perationName}`[39m[33m,[
+39m {
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 83 |[39m       
+              
+error[33m:[39m error[33m
+.[39mmessage[33m,[39m
+     [90m 84 |[39m       
+              
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m       
+              
+stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error 
+[as executeInTransaction] (
+src/utils/TransactionManage
+r.js:82:25)
+      at 
+CreateReserva.execute (src/
+application/use-cases/reser
+vas/CreateReserva.js:26:34)
+      at Object.<anonymous>
+.exports.crearReservaBySlug
+ (src/controllers/public.co
+ntroller.js:140:25)
+
+    console.error
+      ƒö┤ ERROR: 
+TransactionError: 
+Transaction failed for 
+CreateReservation: El 
+horario seleccionado ya no 
+est├í disponible. Por 
+favor, elige otro horario.
+          at Function.execu
+teInTransaction (C:\Users\K
+ristian\Desktop\barber-saas
+\backend\src\utils\Transact
+ionManager.js:88:23)
+          at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+          at 
+CreateReserva.execute (C:\U
+sers\Kristian\Desktop\barbe
+r-saas\backend\src\applicat
+ion\use-cases\reservas\Crea
+teReserva.js:26:34)
+          at Object.<anonym
+ous>.exports.crearReservaBy
+Slug (C:\Users\Kristian\Des
+ktop\barber-saas\backend\sr
+c\controllers\public.contro
+ller.js:140:25) {
+        
+isTransactionError: true,
+        originalError: 
+ReservationConflictError: 
+El horario seleccionado ya 
+no est├í disponible. Por 
+favor, elige otro horario.
+            at TransactionM
+anager.executeInTransaction
+.operationName (C:\Users\Kr
+istian\Desktop\barber-saas\
+backend\src\application\use
+-cases\reservas\CreateReser
+va.js:49:31)
+            at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)
+            at Function.exe
+cuteInTransaction (C:\Users
+\Kristian\Desktop\barber-sa
+as\backend\src\utils\Transa
+ctionManager.js:57:32)
+            at 
+CreateReserva.execute (C:\U
+sers\Kristian\Desktop\barbe
+r-saas\backend\src\applicat
+ion\use-cases\reservas\Crea
+teReserva.js:26:34)
+            at Object.<anon
+ymous>.exports.crearReserva
+BySlug (C:\Users\Kristian\D
+esktop\barber-saas\backend\
+src\controllers\public.cont
+roller.js:140:25) {
+          statusCode: 409,
+          userFriendly: 
+true
+        },
+        context: { 
+operationName: 
+'CreateReservation', 
+attempt: 1 },
+        timestamp: 
+2026-02-10T01:19:06.971Z,
+        originalStack: 
+'ReservationConflictError: 
+El horario seleccionado ya 
+no est├í disponible. Por 
+favor, elige otro 
+horario.\n' +
+          '    at Transacti
+onManager.executeInTransact
+ion.operationName (C:\\User
+s\\Kristian\\Desktop\\barbe
+r-saas\\backend\\src\\appli
+cation\\use-cases\\reservas
+\\CreateReserva.js:49:31)\n
+' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at Function.
+executeInTransaction (C:\\U
+sers\\Kristian\\Desktop\\ba
+rber-saas\\backend\\src\\ut
+ils\\TransactionManager.js:
+57:32)\n' +
+          '    at 
+CreateReserva.execute (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\a
+pplication\\use-cases\\rese
+rvas\\CreateReserva.js:26:3
+4)\n' +
+          '    at Object.<a
+nonymous>.exports.crearRese
+rvaBySlug (C:\\Users\\Krist
+ian\\Desktop\\barber-saas\\
+backend\\src\\controllers\\
+public.controller.js:140:25
+)'
+      }
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m 
+[36mconst[39m 
+errorHandler [33m=[39m 
+(err[33m,[39m 
+req[33m,[39m 
+res[33m,[39m next) 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 
+6 |[39m   console[33m.[3
+9merror([32m"ƒö┤ 
+ERROR:"[39m[33m,[39m 
+err)[33m;[39m
+     [90m   |[39m        
+   [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   
+[90m// ƒöÑ A├æADIR 
+HEADERS CORS SI NO 
+EXISTEN[39m
+     [90m 9 |[39m   
+[36mconst[39m origin 
+[33m=[39m req[33m.[39mh
+eaders[33m.[39morigin[33
+m;[39m[0m
+
+      at error (src/config/
+middleware/errorHandler.js:
+6:11)
+      at Layer.handleError 
+(node_modules/router/lib/la
+yer.js:116:17)
+      at trimPrefix (node_m
+odules/router/index.js:340:
+13)
+      at node_modules/route
+r/index.js:297:9
+      at processParams (nod
+e_modules/router/index.js:5
+82:12)
+      at next (node_modules
+/router/index.js:291:5)
+      at Layer.handleError 
+(node_modules/router/lib/la
+yer.js:111:12)
+      at trimPrefix (node_m
+odules/router/index.js:340:
+13)
+      at node_modules/route
+r/index.js:297:9
+      at processParams (nod
+e_modules/router/index.js:5
+82:12)
+      at Immediate.next (no
+de_modules/router/index.js:
+291:5)
+      at 
+Immediate._onImmediate (nod
+e_modules/router/index.js:6
+88:15)
+
+    console.warn
+      ÔÜá´©Å MongoDB 
+desconectado
+
+    [0m [90m 89 |[39m   
+mongoose[33m.[39mconnecti
+on[33m.[39mon([32m'disco
+nnected'[39m[33m,[39m 
+() [33m=>[39m {
+     [90m 90 |[39m     
+isConnected [33m=[39m 
+[36mfalse[39m[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+91 |[39m     console[33m.
+[39mwarn([32m'ÔÜá´©Å 
+MongoDB desconectado'[39m)
+[33m;[39m
+     [90m    |[39m       
+      [31m[1m^[22m[39m
+     [90m 92 |[39m   
+})[33m;[39m
+     [90m 93 |[39m
+     [90m 94 |[39m   mong
+oose[33m.[39mconnection[
+33m.[39mon([32m'error'[3
+9m[33m,[39m (err) 
+[33m=>[39m {[0m
+
+      at 
+NativeConnection.warn 
+(src/config/db.js:91:13)
+      at 
+NativeConnection.set (node_
+modules/mongoose/lib/connec
+tion.js:149:12)
+      at 
+NativeConnection.onClose (n
+ode_modules/mongoose/lib/co
+nnection.js:1319:19)
+      at 
+NativeConnection._close (no
+de_modules/mongoose/lib/con
+nection.js:1268:12)
+      at 
+Object.<anonymous> (tests/r
+eservas_atomicas.test.js:48
+:9)
+
+  ÔùÅ Pruebas de 
+Atomicidad de Reservas 
+(Anti-Overbooking) ÔÇ║ No 
+debe permitir dos reservas 
+en el mismo horario 
+(Previene Overbooking)
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: 201
+    Received: 500
+
+    [0m [90m 63 |[39m   
+          [33m.[39msend(p
+ayload)[33m;[39m
+     [90m 64 |[39m
+    
+[31m[1m>[22m[39m[90m 
+65 |[39m         expect(re
+s1[33m.[39mstatus)[33m.
+[39mtoBe([35m201[39m)[33
+m;[39m
+     [90m    |[39m       
+                      
+[31m[1m^[22m[39m
+     [90m 66 |[39m       
+  expect(res1[33m.[39mbod
+y[33m.[39mmessage)[33m.
+[39mtoContain([32m'correct
+amente'[39m)[33m;[39m
+     [90m 67 |[39m
+     [90m 68 |[39m       
+  [90m// 2. Intentar 
+crear exactamente la misma 
+reserva[39m[0m
+
+      at Object.toBe (tests
+/reservas_atomicas.test.js:
+65:29)
+
+  ÔùÅ Pruebas de 
+Atomicidad de Reservas 
+(Anti-Overbooking) ÔÇ║ 
+Debe permitir reservar si 
+la cita anterior fue 
+CANCELADA
+
+    TypeError: Cannot read 
+properties of undefined 
+(reading '_id')
+
+    [0m [90m  99 |[39m  
+           [33m.[39msend(
+payload)[33m;[39m
+     [90m 100 |[39m
+    
+[31m[1m>[22m[39m[90m 
+101 |[39m         
+[36mconst[39m reservaId 
+[33m=[39m res1[33m.[39m
+body[33m.[39mreserva[33m
+.[39m_id[33m;[39m
+     [90m     |[39m      
+                           
+            
+[31m[1m^[22m[39m
+     [90m 102 |[39m
+     [90m 103 |[39m      
+   [90m// 2. Cancelar la 
+reserva[39m
+     [90m 104 |[39m      
+   [36mawait[39m [33mRes
+erva[39m[33m.[39mfindByI
+dAndUpdate(reservaId[33m,
+[39m { estado[33m:[39m 
+[32m'CANCELADA'[39m 
+})[33m;[39m[0m
+
+      at Object._id (tests/
+reservas_atomicas.test.js:1
+01:45)
+
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+FAIL tests/transaction-roll
+back.test.js
+  ÔùÅ Console
+
+    console.log
+      [Transaction] 
+Started: 
+CompleteReservation 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: 
+CompleteReservation
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.error
+      [Transaction] 
+Failed: 
+CompleteReservation {
+        error: 'barberiaId 
+es requerido para el 
+aislamiento de datos',
+        attempt: 1,
+        stack: 'Error: 
+barberiaId es requerido 
+para el aislamiento de 
+datos\n' +
+          '    at MongoRese
+rvaRepository.findById (C:\
+\Users\\Kristian\\Desktop\\
+barber-saas\\backend\\src\\
+infrastructure\\database\\m
+ongodb\\repositories\\Mongo
+ReservaRepository.js:23:19)
+\n' +
+          '    at findById 
+(C:\\Users\\Kristian\\Deskt
+op\\barber-saas\\backend\\s
+rc\\application\\use-cases\
+\reservas\\CompleteReserva.
+js:27:62)\n' +
+          '    at 
+Function.operation [as 
+executeInTransaction] (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\u
+tils\\TransactionManager.js
+:57:38)\n' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at 
+CompleteReserva.execute (C:
+\\Users\\Kristian\\Desktop\
+\barber-saas\\backend\\src\
+\application\\use-cases\\re
+servas\\CompleteReserva.js:
+24:24)\n' +
+          '    at 
+Object.<anonymous> (C:\\Use
+rs\\Kristian\\Desktop\\barb
+er-saas\\backend\\tests\\tr
+ansaction-rollback.test.js:
+82:13)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m       
+          [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 
+82 |[39m                 c
+onsole[33m.[39merror([32
+m`[Transaction] Failed: ${o
+perationName}`[39m[33m,[
+39m {
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 83 |[39m       
+              
+error[33m:[39m error[33m
+.[39mmessage[33m,[39m
+     [90m 84 |[39m       
+              
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m       
+              
+stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error 
+[as executeInTransaction] (
+src/utils/TransactionManage
+r.js:82:25)
+      at 
+CompleteReserva.execute (sr
+c/application/use-cases/res
+ervas/CompleteReserva.js:24
+:24)
+      at 
+Object.<anonymous> (tests/t
+ransaction-rollback.test.js
+:82:13)
+
+    console.log
+      [Transaction] 
+Started: 
+CompleteReservation 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: 
+CompleteReservation
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.error
+      [Transaction] 
+Failed: 
+CompleteReservation {
+        error: 'barberiaId 
+es requerido para el 
+aislamiento de datos',
+        attempt: 1,
+        stack: 'Error: 
+barberiaId es requerido 
+para el aislamiento de 
+datos\n' +
+          '    at MongoRese
+rvaRepository.findById (C:\
+\Users\\Kristian\\Desktop\\
+barber-saas\\backend\\src\\
+infrastructure\\database\\m
+ongodb\\repositories\\Mongo
+ReservaRepository.js:23:19)
+\n' +
+          '    at findById 
+(C:\\Users\\Kristian\\Deskt
+op\\barber-saas\\backend\\s
+rc\\application\\use-cases\
+\reservas\\CompleteReserva.
+js:27:62)\n' +
+          '    at 
+Function.operation [as 
+executeInTransaction] (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\u
+tils\\TransactionManager.js
+:57:38)\n' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at 
+CompleteReserva.execute (C:
+\\Users\\Kristian\\Desktop\
+\barber-saas\\backend\\src\
+\application\\use-cases\\re
+servas\\CompleteReserva.js:
+24:24)\n' +
+          '    at 
+Object.<anonymous> (C:\\Use
+rs\\Kristian\\Desktop\\barb
+er-saas\\backend\\tests\\tr
+ansaction-rollback.test.js:
+138:28)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m       
+          [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 
+82 |[39m                 c
+onsole[33m.[39merror([32
+m`[Transaction] Failed: ${o
+perationName}`[39m[33m,[
+39m {
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 83 |[39m       
+              
+error[33m:[39m error[33m
+.[39mmessage[33m,[39m
+     [90m 84 |[39m       
+              
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m       
+              
+stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error 
+[as executeInTransaction] (
+src/utils/TransactionManage
+r.js:82:25)
+      at 
+CompleteReserva.execute (sr
+c/application/use-cases/res
+ervas/CompleteReserva.js:24
+:24)
+      at 
+Object.<anonymous> (tests/t
+ransaction-rollback.test.js
+:138:28)
+
+  ÔùÅ Transaction Rollback 
+Integration Tests ÔÇ║ 
+CompleteReserva 
+Transaction Rollback ÔÇ║ 
+should rollback 
+reservation update if 
+client update fails
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: 0
+    Received: undefined
+
+    [0m [90m 91 |[39m   
+          [90m// 6. 
+Verify client visit count 
+unchanged[39m
+     [90m 92 |[39m       
+      [36mconst[39m 
+clienteAfter [33m=[39m 
+[36mawait[39m [33mUserMo
+del[39m[33m.[39mfindById
+(cliente[33m.[39m_id)[33
+m;[39m
+    
+[31m[1m>[22m[39m[90m 
+93 |[39m             expec
+t(clienteAfter[33m.[39mhi
+storialVisitas)[33m.[39mt
+oBe([35m0[39m)[33m;[39m
+     [90m    |[39m       
+                           
+                 
+[31m[1m^[22m[39m
+     [90m 94 |[39m
+     [90m 95 |[39m       
+      [90m// Restore 
+original method[39m
+     [90m 96 |[39m       
+      clienteRepository[33
+m.[39mupdate [33m=[39m o
+riginalUpdate[33m;[39m[0
+m
+
+      at Object.toBe (tests
+/transaction-rollback.test.
+js:93:51)
+
+  ÔùÅ Transaction Rollback 
+Integration Tests ÔÇ║ 
+CompleteReserva 
+Transaction Rollback ÔÇ║ 
+should commit both updates 
+when successful
+
+    TransactionError: 
+Transaction failed for 
+CompleteReservation: 
+barberiaId es requerido 
+para el aislamiento de 
+datos
+
+    [0m [90m 86 |[39m   
+              })[33m;[39m
+     [90m 87 |[39m
+    
+[31m[1m>[22m[39m[90m 
+88 |[39m                 
+[36mthrow[39m 
+[36mnew[39m 
+[33mTransactionError[39m(
+     [90m    |[39m       
+                
+[31m[1m^[22m[39m
+     [90m 89 |[39m       
+              
+[32m`Transaction failed 
+for ${operationName}: ${err
+or.message}`[39m[33m,[39
+m
+     [90m 90 |[39m       
+              
+error[33m,[39m
+     [90m 91 |[39m       
+              { 
+operationName[33m,[39m 
+attempt[33m:[39m attempt 
+[33m+[39m [35m1[39m 
+}[0m
+
+      at Function.executeIn
+Transaction (src/utils/Tran
+sactionManager.js:88:23)
+      at 
+CompleteReserva.execute (sr
+c/application/use-cases/res
+ervas/CompleteReserva.js:24
+:24)
+      at 
+Object.<anonymous> (tests/t
+ransaction-rollback.test.js
+:138:28)
+
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on 
+{"numeroPedido":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 194.830 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 194.335 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 193.117 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 191.724 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 189.505 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 182.958 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 180.408 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 176.778 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 173.110 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 169.539 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 167.494 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 164.680 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 161.727 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 152.181 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 148.983 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 145.944 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 142.559 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 140.453 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 138.438 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 136.693 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 133.957 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 128.376 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 124.439 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 121.523 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 118.807 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 116.652 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 114.487 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 112.342 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 111.036 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 103.042 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 99.821 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 94.335 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 91.191 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 90.054 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 89.277 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 87.985 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 86.668 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 83.544 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 77.004 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 73.342 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 69.267 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 67.263 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 65.723 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 64.135 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 62.620 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 61.344 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 56.980 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 52.554 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 49.181 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878d2d75c936f2f69c26/reservar [33m404[0m 47.022 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69c88/reservar [33m404[0m 1.913 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 96.465 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 93.989 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 90.175 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 81.720 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 78.672 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 75.336 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 71.710 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 68.966 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 66.056 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 62.265 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 56.688 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 58.179 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 56.989 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 52.261 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 49.945 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 46.426 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 38.827 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 32.695 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 27.691 ms - 207[0m
+[0mPOST /api/public/test-barberia/barberos/698a878e2d75c936f2f69ca8/reservar [33m404[0m 24.679 ms - 207[0m
+FAIL tests/race-condition-s
+tress.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from 
+.env -- tip: ƒöÉ encrypt 
+with Dotenvx: 
+https://dotenvx.com
+
+      at _log (node_modules
+/dotenv/lib/main.js:142:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878d2d75c936f2f69c26/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69c88/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.log
+      ƒôí [POST] /api/publi
+c/test-barberia/barberos/69
+8a878e2d75c936f2f69ca8/rese
+rvar
+
+      at log 
+(src/app.js:98:11)
+
+    console.warn
+      ÔÜá´©Å MongoDB 
+desconectado
+
+    [0m [90m 89 |[39m   
+mongoose[33m.[39mconnecti
+on[33m.[39mon([32m'disco
+nnected'[39m[33m,[39m 
+() [33m=>[39m {
+     [90m 90 |[39m     
+isConnected [33m=[39m 
+[36mfalse[39m[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+91 |[39m     console[33m.
+[39mwarn([32m'ÔÜá´©Å 
+MongoDB desconectado'[39m)
+[33m;[39m
+     [90m    |[39m       
+      [31m[1m^[22m[39m
+     [90m 92 |[39m   
+})[33m;[39m
+     [90m 93 |[39m
+     [90m 94 |[39m   mong
+oose[33m.[39mconnection[
+33m.[39mon([32m'error'[3
+9m[33m,[39m (err) 
+[33m=>[39m {[0m
+
+      at 
+NativeConnection.warn 
+(src/config/db.js:91:13)
+      at 
+NativeConnection.set (node_
+modules/mongoose/lib/connec
+tion.js:149:12)
+      at 
+NativeConnection.onClose (n
+ode_modules/mongoose/lib/co
+nnection.js:1319:19)
+      at 
+NativeConnection._close (no
+de_modules/mongoose/lib/con
+nection.js:1268:12)
+      at closeDB 
+(tests/setup.js:29:5)
+      at 
+Object.<anonymous> (tests/r
+ace-condition-stress.test.j
+s:22:9)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ 
+Concurrencia Extrema ÔÇ║ 
+10 requests simult├íneos 
+al mismo horario - solo 1 
+debe tener ├®xito
+
+    MongoServerError: BSON 
+field 'delete.deletes.q' 
+is missing but a required 
+field
+
+      at 
+Connection.sendCommand (nod
+e_modules/mongodb/src/cmap/
+connection.ts:557:17)
+      at 
+Connection.command (node_mo
+dules/mongodb/src/cmap/conn
+ection.ts:627:22)
+      at Server.command (no
+de_modules/mongodb/src/sdam
+/server.ts:350:21)
+      at tryOperation (node
+_modules/mongodb/src/operat
+ions/execute_operation.ts:2
+93:24)
+      at executeOperation (
+node_modules/mongodb/src/op
+erations/execute_operation.
+ts:123:12)
+      at 
+Collection.deleteMany (node
+_modules/mongodb/src/collec
+tion.ts:482:12)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ 
+Concurrencia Extrema ÔÇ║ 
+50 requests simult├íneos - 
+solo 1 debe tener ├®xito
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: 1
+    Received: 0
+
+    [0m [90m 123 |[39m  
+           )[33m;[39m
+     [90m 124 |[39m
+    
+[31m[1m>[22m[39m[90m 
+125 |[39m             expe
+ct(successful[33m.[39mlen
+gth)[33m.[39mtoBe([35m1
+[39m)[33m;[39m
+     [90m     |[39m      
+                           
+      [31m[1m^[22m[39m
+     [90m 126 |[39m
+     [90m 127 |[39m      
+       [90m// Verificar 
+en DB[39m
+     [90m 128 |[39m      
+       [36mconst[39m 
+count [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcountDocum
+ents({[0m
+
+      at Object.toBe (tests
+/race-condition-stress.test
+.js:125:39)
+
+  ÔùÅ ƒöÑ Race Condition 
+Stress Tests ÔÇ║ 
+Performance bajo carga ÔÇ║ 
+Maneja 20 reservas 
+diferentes simult├íneas 
+sin problemas
+
+    expect(received).toBeGr
+eaterThan(expected)
+
+    Expected: > 15
+    Received:   0
+
+    [0m [90m 253 |[39m
+     [90m 254 |[39m      
+       [90m// Todas 
+deber├¡an tener ├®xito 
+(diferentes horarios)[39m
+    
+[31m[1m>[22m[39m[90m 
+255 |[39m             expe
+ct(successful[33m.[39mlen
+gth)[33m.[39mtoBeGreaterT
+han([35m15[39m)[33m;[39
+m [90m// Al menos 75% de 
+├®xito[39m
+     [90m     |[39m      
+                           
+      [31m[1m^[22m[39m
+     [90m 256 |[39m
+     [90m 257 |[39m      
+       [90m// Verificar 
+que no hay duplicados[39m
+     [90m 258 |[39m      
+       [36mconst[39m 
+reservas [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mfind({[0m
+
+      at 
+Object.toBeGreaterThan (tes
+ts/race-condition-stress.te
+st.js:255:39)
+
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on 
+{"numeroPedido":1} found. 
+This is often due to 
+declaring an index using 
+both "index: true" and 
+"schema.index()". Please 
+remove the duplicate index 
+definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"expiraEn":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+(node:5964) [MONGOOSE] 
+Warning: Duplicate schema 
+index on {"reviewToken":1} 
+found. This is often due 
+to declaring an index 
+using both "index: true" 
+and "schema.index()". 
+Please remove the 
+duplicate index definition.
+FAIL tests/multi-tenant-sec
+urity.test.js (5.522 s)
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.2.3] 
+injecting env (13) from 
+.env -- tip: ƒöæ add 
+access controls to 
+secrets: 
+https://dotenvx.com/ops
+
+      at _log (node_modules
+/dotenv/lib/main.js:142:11)
+
+    console.warn
+      ÔÜá´©Å MongoDB 
+desconectado
+
+    [0m [90m 89 |[39m   
+mongoose[33m.[39mconnecti
+on[33m.[39mon([32m'disco
+nnected'[39m[33m,[39m 
+() [33m=>[39m {
+     [90m 90 |[39m     
+isConnected [33m=[39m 
+[36mfalse[39m[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+91 |[39m     console[33m.
+[39mwarn([32m'ÔÜá´©Å 
+MongoDB desconectado'[39m)
+[33m;[39m
+     [90m    |[39m       
+      [31m[1m^[22m[39m
+     [90m 92 |[39m   
+})[33m;[39m
+     [90m 93 |[39m
+     [90m 94 |[39m   mong
+oose[33m.[39mconnection[
+33m.[39mon([32m'error'[3
+9m[33m,[39m (err) 
+[33m=>[39m {[0m
+
+      at 
+NativeConnection.warn 
+(src/config/db.js:91:13)
+      at 
+NativeConnection.set (node_
+modules/mongoose/lib/connec
+tion.js:149:12)
+      at 
+NativeConnection.onClose (n
+ode_modules/mongoose/lib/co
+nnection.js:1319:19)
+      at 
+NativeConnection._close (no
+de_modules/mongoose/lib/con
+nection.js:1268:12)
+      at closeDB 
+(tests/setup.js:29:5)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:24:9)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede ver 
+reserva de Barber├¡a B
+
+    MongoServerError: BSON 
+field 'delete.deletes.q' 
+is missing but a required 
+field
+
+      at 
+Connection.sendCommand (nod
+e_modules/mongodb/src/cmap/
+connection.ts:557:17)
+      at 
+Connection.command (node_mo
+dules/mongodb/src/cmap/conn
+ection.ts:627:22)
+      at Server.command (no
+de_modules/mongodb/src/sdam
+/server.ts:350:21)
+      at tryOperation (node
+_modules/mongodb/src/operat
+ions/execute_operation.ts:2
+93:24)
+      at executeOperation (
+node_modules/mongodb/src/op
+erations/execute_operation.
+ts:123:12)
+      at 
+Collection.deleteMany (node
+_modules/mongodb/src/collec
+tion.ts:482:12)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede editar 
+reserva de Barber├¡a B
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede cancelar 
+reserva de Barber├¡a B
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Reservas - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A solo ve sus 
+propias reservas al listar
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Servicios - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede acceder a 
+servicios de Barber├¡a B 
+v├¡a slug
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Servicios - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede crear 
+servicio en Barber├¡a B
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Servicios - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede editar 
+servicio de Barber├¡a B
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Barberos - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede ver 
+barberos de Barber├¡a B
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒÜ½ 
+Barberos - Cross-Tenant 
+Access Prevention ÔÇ║ 
+Admin A NO puede crear 
+barbero en Barber├¡a B
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ URL 
+Slug Manipulation Attempts 
+ÔÇ║ Rechaza intento de 
+acceder con slug incorrecto
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ URL 
+Slug Manipulation Attempts 
+ÔÇ║ Rechaza slug 
+inexistente
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ 
+Query Parameter Injection 
+Prevention ÔÇ║ Ignora 
+barberiaId inyectado en 
+query params
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöÆ 
+Query Parameter Injection 
+Prevention ÔÇ║ Ignora 
+barberiaId inyectado en 
+request body
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ Ô£à 
+Legitimate Access Allowed 
+ÔÇ║ Admin A puede ver sus 
+propias reservas
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ Ô£à 
+Legitimate Access Allowed 
+ÔÇ║ Admin A puede acceder 
+a sus servicios
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ Ô£à 
+Legitimate Access Allowed 
+ÔÇ║ Admin B puede acceder 
+a sus propios datos
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒöì 
+Logging and Monitoring ÔÇ║ 
+Loguea intentos de acceso 
+cross-tenant
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+  ÔùÅ ƒöÉ Multi-Tenant 
+Security Tests ÔÇ║ ƒææ 
+SUPERADMIN Access ÔÇ║ 
+SUPERADMIN puede acceder a 
+cualquier barber├¡a
+
+    ValidationError: 
+Reserva validation failed: 
+horaFin: Path `horaFin` is 
+required., estado: 
+`CONFIRMADA` is not a 
+valid enum value for path 
+`estado`.
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m      
+   [90m// Crear Reserva 
+A[39m
+    
+[31m[1m>[22m[39m[90m 
+105 |[39m         
+reservaA [33m=[39m 
+[36mawait[39m [33mReserv
+a[39m[33m.[39mcreate({
+     [90m     |[39m      
+              
+[31m[1m^[22m[39m
+     [90m 106 |[39m      
+       
+barberoId[33m:[39m barber
+oA[33m.[39m_id[33m,[39m
+     [90m 107 |[39m      
+       
+barberiaId[33m:[39m barbe
+riaA[33m.[39m_id[33m,[3
+9m
+     [90m 108 |[39m      
+       
+servicioId[33m:[39m servi
+cioA[33m.[39m_id[33m,[3
+9m[0m
+
+      at model.Object.<anon
+ymous>.Document.invalidate 
+(node_modules/mongoose/lib/
+document.js:3370:32)
+      at validatePath (node
+_modules/mongoose/lib/docum
+ent.js:3145:13)
+          at async 
+Promise.all (index 0)
+      at model.$__validate 
+(node_modules/mongoose/lib/
+document.js:3086:3)
+      at model.validate (no
+de_modules/mongoose/lib/doc
+ument.js:2663:5)
+      at 
+model.validateBeforeSave (n
+ode_modules/mongoose/lib/pl
+ugins/validateBeforeSave.js
+:34:7)
+      at Kareem.execPre (no
+de_modules/kareem/index.js:
+65:24)
+      at model.$__save (nod
+e_modules/mongoose/lib/mode
+l.js:369:5)
+      at model.save (node_m
+odules/mongoose/lib/model.j
+s:609:5)
+      at node_modules/mongo
+ose/lib/model.js:2722:9
+          at async 
+Promise.all (index 0)
+      at Function.create (n
+ode_modules/mongoose/lib/mo
+del.js:2707:11)
+      at 
+Object.<anonymous> (tests/m
+ulti-tenant-security.test.j
+s:105:20)
+
+PASS 
+tests/transactions.test.js
+  ÔùÅ Console
+
+    console.log
+      [Transaction] 
+Started: 
+TestSuccessfulTransaction 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Committed: 
+TestSuccessfulTransaction
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:61:25)
+
+    console.log
+      [Transaction] 
+Started: TestRollback 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: TestRollback
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.error
+      [Transaction] 
+Failed: TestRollback {
+        error: 'Simulated 
+error',
+        attempt: 1,
+        stack: 'Error: 
+Simulated error\n' +
+          '    at Transacti
+onManager.executeInTransact
+ion.operationName (C:\\User
+s\\Kristian\\Desktop\\barbe
+r-saas\\backend\\tests\\tra
+nsactions.test.js:34:31)\n'
+ +
+          '    at 
+Function.operation [as 
+executeInTransaction] (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\u
+tils\\TransactionManager.js
+:57:38)\n' +
+          '    at 
+processTicksAndRejections (
+node:internal/process/task_
+queues:105:5)\n' +
+          '    at 
+Object.<anonymous> (C:\\Use
+rs\\Kristian\\Desktop\\barb
+er-saas\\backend\\tests\\tr
+ansactions.test.js:31:13)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m       
+          [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 
+82 |[39m                 c
+onsole[33m.[39merror([32
+m`[Transaction] Failed: ${o
+perationName}`[39m[33m,[
+39m {
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 83 |[39m       
+              
+error[33m:[39m error[33m
+.[39mmessage[33m,[39m
+     [90m 84 |[39m       
+              
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m       
+              
+stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error 
+[as executeInTransaction] (
+src/utils/TransactionManage
+r.js:82:25)
+      at 
+Object.<anonymous> (tests/t
+ransactions.test.js:31:13)
+
+    console.log
+      [Transaction] 
+Started: TestRetry 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: TestRetry
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.warn
+      [Transaction] 
+Transient error, retrying 
+in 200ms: WriteConflict
+
+    [0m [90m 74 |[39m   
+                  attempt[
+33m++[39m[33m;[39m
+     [90m 75 |[39m       
+              
+[36mconst[39m delay 
+[33m=[39m retryDelay 
+[33m*[39m [33mMath[39m
+[33m.[39mpow([35m2[39m[
+33m,[39m 
+attempt)[33m;[39m 
+[90m// Exponential 
+backoff[39m
+    
+[31m[1m>[22m[39m[90m 
+76 |[39m                  
+   console[33m.[39mwarn(
+[32m`[Transaction] 
+Transient error, retrying 
+in ${delay}ms:`[39m[33m,
+[39m error[33m.[39mmessag
+e)[33m;[39m
+     [90m    |[39m       
+                      
+[31m[1m^[22m[39m
+     [90m 77 |[39m       
+              
+[36mawait[39m [36mthis[
+39m[33m.[39msleep(delay)
+[33m;[39m
+     [90m 78 |[39m       
+              [36mcontinue
+[39m[33m;[39m
+     [90m 79 |[39m       
+          }[0m
+
+      at Function.warn [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:76:29)
+      at 
+Object.<anonymous> (tests/t
+ransactions.test.js:44:28)
+
+    console.log
+      [Transaction] 
+Started: TestRetry 
+(attempt 2/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Committed: TestRetry
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:61:25)
+
+    console.log
+      [Transaction] 
+Started: TestNoRetry 
+(attempt 1/3)
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:54:25)
+
+    console.log
+      [Transaction] 
+Aborted: TestNoRetry
+
+      at Function.log [as 
+executeInTransaction] (src/
+utils/TransactionManager.js
+:69:29)
+
+    console.error
+      [Transaction] 
+Failed: TestNoRetry {
+        error: 'Reserva no 
+encontrada',
+        attempt: 1,
+        stack: 'Error: 
+Reserva no encontrada\n' +
+          '    at Transacti
+onManager.executeInTransact
+ion.operationName (C:\\User
+s\\Kristian\\Desktop\\barbe
+r-saas\\backend\\tests\\tra
+nsactions.test.js:69:31)\n'
+ +
+          '    at 
+Function.operation [as 
+executeInTransaction] (C:\\
+Users\\Kristian\\Desktop\\b
+arber-saas\\backend\\src\\u
+tils\\TransactionManager.js
+:57:38)\n' +
+          '    at 
+Object.<anonymous> (C:\\Use
+rs\\Kristian\\Desktop\\barb
+er-saas\\backend\\tests\\tr
+ansactions.test.js:65:13)'
+      }
+
+    [0m [90m 80 |[39m
+     [90m 81 |[39m       
+          [90m// 
+Non-transient error or max 
+retries reached[39m
+    
+[31m[1m>[22m[39m[90m 
+82 |[39m                 c
+onsole[33m.[39merror([32
+m`[Transaction] Failed: ${o
+perationName}`[39m[33m,[
+39m {
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 83 |[39m       
+              
+error[33m:[39m error[33m
+.[39mmessage[33m,[39m
+     [90m 84 |[39m       
+              
+attempt[33m:[39m attempt 
+[33m+[39m 
+[35m1[39m[33m,[39m
+     [90m 85 |[39m       
+              
+stack[33m:[39m 
+error[33m.[39mstack[0m
+
+      at Function.error 
+[as executeInTransaction] (
+src/utils/TransactionManage
+r.js:82:25)
+      at 
+Object.<anonymous> (tests/t
+ransactions.test.js:65:13)
+
+    console.log
+      Ô£à MongoDB 
+transactions are supported
+
+      at Function.log [as v
+alidateTransactionSupport] 
+(src/utils/TransactionManag
+er.js:185:21)
+
+PASS tests/revenue.test.js
+
+Test Suites: 6 failed, 2 
+passed, 8 total
+Tests:       36 failed, 38 
+passed, 74 total
+Snapshots:   0 total
+Time:        21.82 s
+Ran all test suites.
+
+Jest has detected the 
+following 1 open handle 
+potentially keeping Jest 
+from exiting:
+
+  ÔùÅ  TCPWRAP
+
+    [0m [90m 43 |[39m   
+  [36mawait[39m 
+retryDatabaseOperation(
+     [90m 44 |[39m       
+[36masync[39m () 
+[33m=>[39m {
+    
+[31m[1m>[22m[39m[90m 
+45 |[39m         
+[36mawait[39m mongoose[3
+3m.[39mconnect(uri[33m,[
+39m options)[33m;[39m
+     [90m    |[39m       
+                 
+[31m[1m^[22m[39m
+     [90m 46 |[39m       
+}[33m,[39m
+     [90m 47 |[39m       
+[32m'MongoDB 
+Connection'[39m
+     [90m 48 |[39m     
+)[33m;[39m[0m
+
+      at makeSocket (node_m
+odules/mongodb/src/cmap/con
+nect.ts:379:18)
+      at node_modules/mongo
+db/src/sdam/monitor.ts:383:
+36
+      at checkServer (node_
+modules/mongodb/src/sdam/mo
+nitor.ts:394:5)
+      at 
+MonitorInterval.fn (node_mo
+dules/mongodb/src/sdam/moni
+tor.ts:441:5)
+      at MonitorInterval._e
+xecuteAndReschedule (node_m
+odules/mongodb/src/sdam/mon
+itor.ts:686:10)
+      at new 
+MonitorInterval (node_modul
+es/mongodb/src/sdam/monitor
+.ts:603:12)
+      at Monitor.connect (n
+ode_modules/mongodb/src/sda
+m/monitor.ts:160:22)
+      at Server.connect (no
+de_modules/mongodb/src/sdam
+/server.ts:243:21)
+      at 
+createAndConnectServer (nod
+e_modules/mongodb/src/sdam/
+topology.ts:844:10)
+      at node_modules/mongo
+db/src/sdam/topology.ts:432
+:9
+          at Array.map 
+(<anonymous>)
+      at Topology._connect 
+(node_modules/mongodb/src/s
+dam/topology.ts:430:26)
+      at Topology.connect (
+node_modules/mongodb/src/sd
+am/topology.ts:397:34)
+      at topologyConnect (n
+ode_modules/mongodb/src/mon
+go_client.ts:662:30)
+      at 
+MongoClient._connect (node_
+modules/mongodb/src/mongo_c
+lient.ts:674:13)
+      at 
+MongoClient.connect (node_m
+odules/mongodb/src/mongo_cl
+ient.ts:585:34)
+      at NativeConnection.c
+reateClient (node_modules/m
+ongoose/lib/drivers/node-mo
+ngodb-native/connection.js:
+344:16)
+      at 
+NativeConnection.openUri (n
+ode_modules/mongoose/lib/co
+nnection.js:1075:34)
+      at Mongoose.connect (
+node_modules/mongoose/lib/m
+ongoose.js:451:15)
+      at connect 
+(src/config/db.js:45:24)
+      at fn 
+(src/utils/retry.js:36:26)
+      at retryWithBackoff 
+(src/utils/retry.js:89:12)
+      at 
+retryDatabaseOperation 
+(src/config/db.js:43:11)
+      at Object.connectDB 
+(src/app.js:40:3)
+      at Object.require (te
+sts/validation.test.js:2:13
+)
+

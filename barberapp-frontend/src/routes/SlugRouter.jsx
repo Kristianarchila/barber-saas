@@ -1,35 +1,44 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { BarberiaProvider } from "../context/BarberiaContext";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
-import Home from "../pages/public/Home";
-import BookBySlug from "../pages/public/BookBySlug";
-import CancelarReserva from "../pages/public/CancelarReserva";
-import Reagendar from "../pages/public/Reagendar";
-import AdminRouter from "./AdminRouter";
-import BarberoRouter from "./BarberoRouter";
+// Lazy-loaded pages
+const Home = lazy(() => import("../pages/public/Home"));
+const BookBySlug = lazy(() => import("../pages/public/BookBySlug"));
+const CancelarReserva = lazy(() => import("../pages/public/CancelarReserva"));
+const Reagendar = lazy(() => import("../pages/public/Reagendar"));
+
+// Lazy-loaded sub-routers
+const AdminRouter = lazy(() => import("./AdminRouter"));
+const BarberoRouter = lazy(() => import("./BarberoRouter"));
 
 export default function SlugRouter() {
   return (
     <BarberiaProvider>
-      <Routes>
-        {/* /:slug - Landing page */}
-        <Route index element={<Home />} />
+      <Suspense fallback={<LoadingSpinner fullScreen label="Cargando..." />}>
+        <Routes>
+          {/* SINGLE LOCATION: /:slug - Landing page tradicional */}
+          <Route index element={<Home />} />
 
-        {/* /:slug/book - Página de reservas públicas (con soporte para reagendar opcional) */}
-        <Route path="book/:rescheduleToken?" element={<BookBySlug />} />
+          {/* ⚠️ IMPORTANTE: Rutas específicas DEBEN ir ANTES de rutas dinámicas (:sedeSlug) */}
 
-        {/* /:slug/cancelar/:token - Cancelar reserva */}
-        <Route path="cancelar/:token" element={<CancelarReserva />} />
+          {/* /:slug/book o /:marcaSlug/:sedeSlug/book - Página de reservas */}
+          <Route path="book/:rescheduleToken?" element={<BookBySlug />} />
 
-        {/* /:slug/reagendar/:token - Reagendar ahora usa la misma UI Premium de reserva */}
-        <Route path="reagendar/:rescheduleToken" element={<BookBySlug />} />
+          {/* /:slug/cancelar o /:marcaSlug/:sedeSlug/cancelar - Cancelar reserva */}
+          <Route path="cancelar/:token" element={<CancelarReserva />} />
 
-        {/* /:slug/admin/* */}
-        <Route path="admin/*" element={<AdminRouter />} />
+          {/* /:slug/reagendar o /:marcaSlug/:sedeSlug/reagendar - Reagendar */}
+          <Route path="reagendar/:rescheduleToken" element={<BookBySlug />} />
 
-        {/* /:slug/barbero/* */}
-        <Route path="barbero/*" element={<BarberoRouter />} />
-      </Routes>
+          {/* /:slug/admin/* o /:marcaSlug/:sedeSlug/admin/* - Panel admin */}
+          <Route path="admin/*" element={<AdminRouter />} />
+
+          {/* Panel barbero */}
+          <Route path="barbero/*" element={<BarberoRouter />} />
+        </Routes>
+      </Suspense>
     </BarberiaProvider>
   );
 }

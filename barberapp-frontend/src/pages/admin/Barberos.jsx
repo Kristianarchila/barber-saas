@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { getBarberos, crearBarbero, editarBarbero, eliminarBarbero, toggleEstadoBarbero } from '../../services/barberosService';
 import { Card, Button, Badge, Skeleton, Avatar } from '../../components/ui';
 import { Users, Plus, Edit2, Trash2, Power, Upload, X, Save, Mail, Lock, Scissors, Star, FileText } from 'lucide-react';
+import { useApiCall } from '../../hooks/useApiCall';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
+import { toast } from 'react-hot-toast';
 
 export default function Barberos() {
   const [barberos, setBarberos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingBarbero, setEditingBarbero] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -24,17 +26,14 @@ export default function Barberos() {
     cargarBarberos();
   }, []);
 
-  const cargarBarberos = async () => {
-    try {
-      setLoading(true);
-      const data = await getBarberos();
-      setBarberos(data);
-    } catch (error) {
-      console.error('Error al cargar barberos:', error);
-    } finally {
-      setLoading(false);
+  // Hook para cargar barberos con manejo de errores
+  const { execute: cargarBarberos, loading, error } = useApiCall(
+    getBarberos,
+    {
+      errorMessage: 'Error al cargar barberos',
+      onSuccess: (data) => setBarberos(data)
     }
-  };
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -110,78 +109,76 @@ export default function Barberos() {
     setShowModal(true);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Hook para guardar barbero (crear/editar) con protección
+  const { execute: handleSubmit, loading: saving } = useAsyncAction(
+    async (e) => {
+      e.preventDefault();
 
-    try {
       const payload = {
         ...formData,
         especialidades: formData.especialidades.split(',').map(e => e.trim()).filter(Boolean),
         experiencia: formData.experiencia ? Number(formData.experiencia) : 0
       };
 
-      if (editingBarbero) {
-        await editarBarbero(editingBarbero._id, payload);
-      } else {
-        await crearBarbero(payload);
+      return editingBarbero
+        ? await editarBarbero(editingBarbero._id, payload)
+        : await crearBarbero(payload);
+    },
+    {
+      successMessage: editingBarbero ? 'Barbero actualizado exitosamente' : 'Barbero creado exitosamente',
+      errorMessage: 'Error al guardar barbero',
+      onSuccess: () => {
+        cargarBarberos();
+        setShowModal(false);
+        setImagePreview(null);
+        setFormData({
+          nombre: '',
+          foto: '',
+          descripcion: '',
+          especialidades: '',
+          experiencia: '',
+          email: '',
+          password: ''
+        });
       }
-
-      await cargarBarberos();
-      setShowModal(false);
-      setImagePreview(null);
-
-      setFormData({
-        nombre: '',
-        foto: '',
-        descripcion: '',
-        especialidades: '',
-        experiencia: '',
-        email: '',
-        password: ''
-      });
-    } catch (error) {
-      alert('Error al guardar barbero: ' + (error.response?.data?.message || error.message));
     }
-  };
+  );
 
-  const handleEliminar = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este barbero?')) {
-      return;
+  // Hook para eliminar barbero con confirmación
+  const { execute: handleEliminar } = useAsyncAction(
+    eliminarBarbero,
+    {
+      successMessage: 'Barbero eliminado exitosamente',
+      errorMessage: 'Error al eliminar barbero',
+      confirmMessage: '¿Estás seguro de eliminar este barbero?',
+      onSuccess: () => cargarBarberos()
     }
+  );
 
-    try {
-      await eliminarBarbero(id);
-      await cargarBarberos();
-    } catch (error) {
-      alert('Error al eliminar barbero: ' + (error.response?.data?.message || error.message));
+  // Hook para cambiar estado del barbero
+  const { execute: handleToggleEstado } = useAsyncAction(
+    toggleEstadoBarbero,
+    {
+      successMessage: 'Estado del barbero actualizado',
+      errorMessage: 'Error al cambiar estado',
+      onSuccess: () => cargarBarberos()
     }
-  };
-
-  const handleToggleEstado = async (id) => {
-    try {
-      await toggleEstadoBarbero(id);
-      await cargarBarberos();
-    } catch (error) {
-      alert('Error al cambiar estado: ' + (error.response?.data?.message || error.message));
-    }
-  };
+  );
 
   return (
     <div className="space-y-8 animate-slide-in">
       {/* HEADER */}
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-gradient-primary">
-            👨‍💼 Gestión de Barberos
-          </h1>
-          <p className="text-neutral-400 text-lg mt-2">
+          <h1 className="heading-1 font-extrabold">Gestión de Barberos</h1>
+          <p className="body-large text-gray-600 mt-2">
             Administra tu equipo de profesionales
           </p>
         </div>
-        <Button variant="primary" onClick={abrirModalNuevo}>
+        <button onClick={abrirModalNuevo} className="btn btn-primary self-start md:self-center">
           <Plus size={20} />
           Nuevo Barbero
-        </Button>
+        </button>
       </header>
 
       {/* LOADING */}
@@ -193,58 +190,56 @@ export default function Barberos() {
         </div>
       ) : barberos.length === 0 ? (
         /* EMPTY STATE */
-        <Card className="border-neutral-700">
-          <div className="py-16 text-center">
-            <div className="w-20 h-20 bg-primary-500 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="text-primary-500" size={32} />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              No hay barberos registrados
-            </h3>
-            <p className="text-neutral-400 mb-6">
-              Crea el primer barbero para comenzar
-            </p>
-            <Button variant="primary" onClick={abrirModalNuevo}>
-              <Plus size={16} />
-              Crear el primero
-            </Button>
+        <div className="card card-padding text-center py-20">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Users className="text-blue-600" size={32} />
           </div>
-        </Card>
+          <h3 className="heading-3 mb-2">
+            No hay barberos registrados
+          </h3>
+          <p className="body text-gray-500 mb-8">
+            Crea el primer barbero para comenzar
+          </p>
+          <button onClick={abrirModalNuevo} className="btn btn-primary px-8">
+            <Plus size={18} />
+            Crear el primero
+          </button>
+        </div>
       ) : (
         /* GRID DE BARBEROS */
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {barberos.map((barbero) => (
-            <Card key={barbero._id} className="hover:shadow-glow-primary transition-all">
-              <div className="p-6 space-y-4">
+            <div key={barbero._id} className="card hover:shadow-lg transition-all border border-gray-100 group">
+              <div className="p-6 space-y-5">
                 {/* Header con foto y estado */}
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <Avatar
                       name={barbero.nombre}
                       src={barbero.foto}
                       size="lg"
                     />
                     <div>
-                      <h3 className="text-xl font-bold text-white">
+                      <h3 className="heading-4 font-bold text-gray-900">
                         {barbero.nombre}
                       </h3>
                       {barbero.experiencia > 0 && (
-                        <p className="text-neutral-400 text-sm flex items-center gap-1">
-                          <Star size={12} className="text-accent-500" />
-                          {barbero.experiencia} años
+                        <p className="caption text-gray-500 flex items-center gap-1.5 mt-1">
+                          <Star size={12} className="text-amber-500 fill-amber-500" />
+                          {barbero.experiencia} años de experiencia
                         </p>
                       )}
                     </div>
                   </div>
-                  <Badge variant={barbero.activo ? "success" : "error"} size="sm">
+                  <span className={`badge ${barbero.activo ? 'badge-success' : 'badge-error'}`}>
                     {barbero.activo ? "Activo" : "Inactivo"}
-                  </Badge>
+                  </span>
                 </div>
 
                 {/* Descripción */}
                 {barbero.descripcion && (
-                  <p className="text-neutral-300 text-sm line-clamp-2">
-                    {barbero.descripcion}
+                  <p className="body-small text-gray-600 line-clamp-2 italic">
+                    "{barbero.descripcion}"
                   </p>
                 )}
 
@@ -254,7 +249,7 @@ export default function Barberos() {
                     {barbero.especialidades.map((esp, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 bg-primary-500 bg-opacity-20 text-primary-500 rounded-lg text-xs font-semibold"
+                        className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider"
                       >
                         {esp}
                       </span>
@@ -263,76 +258,76 @@ export default function Barberos() {
                 )}
 
                 {/* Acciones */}
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-2 pt-2 border-t border-gray-50 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => abrirModalEditar(barbero)}
-                    className="flex-1 flex items-center justify-center gap-2 p-2 bg-warning-500 bg-opacity-20 text-warning-500 rounded-lg hover:bg-opacity-30 transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-all font-semibold text-xs"
                     title="Editar"
                   >
                     <Edit2 size={16} />
+                    Editar
                   </button>
                   <button
                     onClick={() => handleToggleEstado(barbero._id)}
-                    className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-lg transition-all ${barbero.activo
-                        ? 'bg-error-500 bg-opacity-20 text-error-500 hover:bg-opacity-30'
-                        : 'bg-success-500 bg-opacity-20 text-success-500 hover:bg-opacity-30'
+                    className={`flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl transition-all font-semibold text-xs ${barbero.activo
+                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                      : 'bg-green-50 text-green-600 hover:bg-green-100'
                       }`}
                     title={barbero.activo ? "Desactivar" : "Activar"}
                   >
                     <Power size={16} />
+                    {barbero.activo ? "Pausar" : "Activar"}
                   </button>
                   <button
                     onClick={() => handleEliminar(barbero._id)}
-                    className="flex-1 flex items-center justify-center gap-2 p-2 bg-error-500 bg-opacity-20 text-error-500 rounded-lg hover:bg-opacity-30 transition-all"
+                    className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
                     title="Eliminar"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
 
-      {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm animate-fade-in">
-          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="card card-padding w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+            <button
+              type="button"
+              onClick={() => {
+                setShowModal(false);
+                setImagePreview(null);
+              }}
+              className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-900"
+            >
+              <X size={20} />
+            </button>
+
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Header del modal */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-primary-500 bg-opacity-20 rounded-xl">
-                    {editingBarbero ? <Edit2 className="text-primary-500" size={24} /> : <Plus className="text-primary-500" size={24} />}
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">
-                      {editingBarbero ? 'Editar Barbero' : 'Nuevo Barbero'}
-                    </h3>
-                    <p className="text-neutral-400 text-sm">
-                      {editingBarbero ? 'Actualiza la información' : 'Completa los datos del barbero'}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-50 rounded-xl">
+                  {editingBarbero ? <Edit2 className="text-blue-600" size={24} /> : <Plus className="text-blue-600" size={24} />}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setImagePreview(null);
-                  }}
-                  className="p-2 hover:bg-neutral-800 rounded-lg transition-all"
-                >
-                  <X size={20} className="text-neutral-400" />
-                </button>
+                <div>
+                  <h3 className="heading-3">
+                    {editingBarbero ? 'Editar Barbero' : 'Nuevo Barbero'}
+                  </h3>
+                  <p className="body text-gray-500">
+                    {editingBarbero ? 'Actualiza la información' : 'Completa los datos del barbero'}
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Nombre */}
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                    <Users size={16} className="text-primary-500" />
-                    Nombre *
+                <div className="md:col-span-2 space-y-2">
+                  <label className="label flex items-center gap-2">
+                    <Users size={16} className="text-blue-600" />
+                    Nombre Completo *
                   </label>
                   <input
                     type="text"
@@ -340,73 +335,72 @@ export default function Barberos() {
                     value={formData.nombre}
                     onChange={handleInputChange}
                     required
-                    className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
+                    className="input"
                     placeholder="Ej: Carlos Soto"
                   />
                 </div>
 
                 {/* Email (solo crear) */}
                 {!editingBarbero && (
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                      <Mail size={16} className="text-primary-500" />
-                      Email (login) *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
-                      placeholder="barbero@correo.com"
-                    />
-                  </div>
-                )}
+                  <>
+                    <div className="space-y-2">
+                      <label className="label flex items-center gap-2">
+                        <Mail size={16} className="text-blue-600" />
+                        Email (usuario) *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        className="input"
+                        placeholder="barbero@correo.com"
+                      />
+                    </div>
 
-                {/* Password (solo crear) */}
-                {!editingBarbero && (
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                      <Lock size={16} className="text-primary-500" />
-                      Contraseña *
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
-                      placeholder="Mínimo 8 caracteres"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <label className="label flex items-center gap-2">
+                        <Lock size={16} className="text-blue-600" />
+                        Contraseña *
+                      </label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                        className="input"
+                        placeholder="Mínimo 8 caracteres"
+                      />
+                    </div>
+                  </>
                 )}
 
                 {/* Foto - Upload */}
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                    <Upload size={16} className="text-primary-500" />
-                    Foto del Barbero
+                <div className="md:col-span-2 space-y-3">
+                  <label className="label flex items-center gap-2">
+                    <Upload size={16} className="text-blue-600" />
+                    Foto del Perfil
                   </label>
 
                   {imagePreview ? (
-                    <div className="relative inline-block">
+                    <div className="relative inline-block group">
                       <img
                         src={imagePreview}
                         alt="Preview"
-                        className="w-32 h-32 object-cover rounded-xl border-2 border-primary-500"
+                        className="w-32 h-32 object-cover rounded-2xl border-2 border-blue-100 group-hover:border-blue-300 transition-all"
                       />
                       <button
                         type="button"
                         onClick={removeImage}
-                        className="absolute -top-2 -right-2 p-1 bg-error-500 hover:bg-error-600 text-white rounded-full transition-all"
+                        className="absolute -top-3 -right-3 p-1.5 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-all"
                       >
-                        <X size={16} />
+                        <X size={14} />
                       </button>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-neutral-700 rounded-xl p-6 text-center hover:border-primary-500 transition-all">
+                    <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
                       <input
                         type="file"
                         accept="image/*"
@@ -417,15 +411,15 @@ export default function Barberos() {
                       />
                       <label htmlFor="imageUpload" className="cursor-pointer block">
                         {uploadingImage ? (
-                          <div className="text-neutral-400">
-                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 mx-auto mb-2"></div>
-                            <p>Cargando imagen...</p>
+                          <div className="text-gray-400 flex flex-col items-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600 mb-3"></div>
+                            <p className="font-semibold text-sm">Cargando imagen...</p>
                           </div>
                         ) : (
-                          <div className="text-neutral-400">
-                            <Upload className="mx-auto h-12 w-12 mb-2" />
-                            <p className="font-semibold">Click para subir imagen</p>
-                            <p className="text-xs mt-1">PNG, JPG hasta 5MB</p>
+                          <div className="text-gray-400 group-hover:text-blue-500 flex flex-col items-center">
+                            <Upload className="h-10 w-10 mb-3" />
+                            <p className="font-bold text-sm text-gray-600 group-hover:text-blue-600">Subir una imagen</p>
+                            <p className="caption mt-1">PNG, JPG hasta 5MB</p>
                           </div>
                         )}
                       </label>
@@ -434,8 +428,8 @@ export default function Barberos() {
                 </div>
 
                 {/* URL alternativa */}
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
+                <div className="md:col-span-2 space-y-2">
+                  <label className="label flex items-center gap-2">
                     🔗 O URL de imagen
                   </label>
                   <input
@@ -443,16 +437,16 @@ export default function Barberos() {
                     name="foto"
                     value={formData.foto}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
+                    className="input"
                     placeholder="https://ejemplo.com/foto.jpg"
                     disabled={!!imagePreview}
                   />
                 </div>
 
                 {/* Descripción */}
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                    <FileText size={16} className="text-primary-500" />
+                <div className="md:col-span-2 space-y-2">
+                  <label className="label flex items-center gap-2">
+                    <FileText size={16} className="text-blue-600" />
                     Descripción
                   </label>
                   <textarea
@@ -460,15 +454,15 @@ export default function Barberos() {
                     value={formData.descripcion}
                     onChange={handleInputChange}
                     rows="3"
-                    className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none resize-none"
+                    className="input resize-none"
                     placeholder="Breve descripción del barbero..."
                   />
                 </div>
 
                 {/* Especialidades */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                    <Scissors size={16} className="text-primary-500" />
+                <div className="space-y-2">
+                  <label className="label flex items-center gap-2">
+                    <Scissors size={16} className="text-blue-600" />
                     Especialidades
                   </label>
                   <input
@@ -476,17 +470,17 @@ export default function Barberos() {
                     name="especialidades"
                     value={formData.especialidades}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
+                    className="input"
                     placeholder="Fade, Barba, Corte clásico"
                   />
-                  <p className="text-xs text-neutral-500 mt-1">Separadas por coma</p>
+                  <p className="caption text-gray-500">Separadas por coma</p>
                 </div>
 
                 {/* Experiencia */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-bold text-neutral-300 mb-2">
-                    <Star size={16} className="text-primary-500" />
-                    Años de experiencia
+                <div className="space-y-2">
+                  <label className="label flex items-center gap-2">
+                    <Star size={16} className="text-blue-600" />
+                    Experiencia (años)
                   </label>
                   <input
                     type="number"
@@ -494,37 +488,35 @@ export default function Barberos() {
                     value={formData.experiencia}
                     onChange={handleInputChange}
                     min="0"
-                    className="w-full bg-neutral-800 text-white p-3 rounded-xl border border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all outline-none"
+                    className="input"
                     placeholder="5"
                   />
                 </div>
               </div>
 
               {/* Botones */}
-              <div className="flex gap-3 pt-4">
-                <Button
+              <div className="flex gap-4 pt-6 border-t border-gray-100 mt-8">
+                <button
                   type="button"
-                  variant="ghost"
-                  className="flex-1"
+                  className="btn btn-ghost flex-1"
                   onClick={() => {
                     setShowModal(false);
                     setImagePreview(null);
                   }}
                 >
                   Cancelar
-                </Button>
-                <Button
+                </button>
+                <button
                   type="submit"
-                  variant="primary"
-                  className="flex-1"
-                  disabled={uploadingImage}
+                  className="btn btn-primary flex-[2]"
+                  disabled={uploadingImage || saving}
                 >
-                  <Save size={16} />
-                  {editingBarbero ? 'Actualizar' : 'Crear'}
-                </Button>
+                  <Save size={18} />
+                  {saving ? 'Guardando...' : (editingBarbero ? 'Actualizar Perfil' : 'Crear Barbero')}
+                </button>
               </div>
             </form>
-          </Card>
+          </div>
         </div>
       )}
     </div>

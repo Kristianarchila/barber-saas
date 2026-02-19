@@ -14,6 +14,7 @@
  */
 
 import api from "./api";
+import dayjs from "dayjs";
 
 /**
  * Obtiene el slug de la barbería actual desde la URL del navegador
@@ -36,6 +37,20 @@ export async function getAgendaBarbero(fecha) {
   const slug = getSlugActual();
   const res = await api.get(
     `/barberias/${slug}/barbero/agenda?fecha=${fecha}`
+  );
+  return res.data || [];
+}
+
+/**
+ * Obtiene la agenda del barbero para un rango de fechas (weekly/monthly views)
+ * @param {string} fechaInicio - Fecha inicio en formato YYYY-MM-DD
+ * @param {string} fechaFin - Fecha fin en formato YYYY-MM-DD
+ * @returns {Promise<Array>} Lista de reservas en el rango
+ */
+export async function getAgendaBarberoRange(fechaInicio, fechaFin) {
+  const slug = getSlugActual();
+  const res = await api.get(
+    `/barberias/${slug}/barbero/agenda?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
   );
   return res.data || [];
 }
@@ -103,6 +118,21 @@ export async function getEstadisticasBarbero() {
   const slug = getSlugActual();
   const res = await api.get(
     `/barberias/${slug}/barbero/estadisticas`
+  );
+  return res.data;
+}
+
+/**
+ * Actualiza el perfil del barbero autenticado
+ * @param {Object} perfilData - Datos del perfil a actualizar (nombre, telefono, bio, especialidades, etc.)
+ * @returns {Promise<Object>} Perfil actualizado
+ * @endpoint PATCH /api/barberias/:slug/barbero/mi-perfil
+ */
+export async function updatePerfilBarbero(perfilData) {
+  const slug = getSlugActual();
+  const res = await api.patch(
+    `/barberias/${slug}/barbero/mi-perfil`,
+    perfilData
   );
   return res.data;
 }

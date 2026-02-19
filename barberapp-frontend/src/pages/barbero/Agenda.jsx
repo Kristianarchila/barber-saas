@@ -1,80 +1,183 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import {
   getAgendaBarbero,
+  getAgendaBarberoRange,
   completarReserva,
-  cancelarReserva
+  cancelarReserva,
 } from "../../services/barberoDashboardService";
+import { Card, Button, Badge, Skeleton, ConfirmModal } from "../../components/ui";
+import { ErrorAlert } from "../../components/ErrorComponents";
+import { useApiCall } from "../../hooks/useApiCall";
+import { useAsyncAction } from "../../hooks/useAsyncAction";
+import { ensureArray } from "../../utils/validateData";
+import ViewSwitcher from "../../components/calendar/ViewSwitcher";
+import WeeklyView from "../../components/calendar/WeeklyView";
+import MonthlyView from "../../components/calendar/MonthlyView";
 import {
-  Card,
-  Stat,
-  Button,
-  Badge,
-  Skeleton
-} from "../../components/ui";
-import {
-  Calendar,
+  Users,
+  Scissors,
+  DollarSign,
   Clock,
-  User,
+  Calendar as CalendarIcon,
   CheckCircle,
   XCircle,
-  ChevronLeft,
   ChevronRight,
-  TrendingUp,
-  DollarSign,
-  Briefcase
+  ChevronLeft,
+  Filter,
+  CalendarCheck,
+  Search
 } from "lucide-react";
+import WhatsAppButton from "../../components/WhatsAppButton";
 
 dayjs.locale("es");
 
 export default function Agenda() {
-  const [agenda, setAgenda] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
+  // View state
+  const [currentView, setCurrentView] = useState('day'); // 'day', 'week', 'month'
 
+  // Date states
+  const [fecha, setFecha] = useState(dayjs().format("YYYY-MM-DD"));
+  const [weekStart, setWeekStart] = useState(dayjs().startOf('week').format("YYYY-MM-DD"));
+  const [monthStart, setMonthStart] = useState(dayjs().startOf('month').format("YYYY-MM-DD"));
+
+  // Data states
+  const [reservas, setReservas] = useState([]);
+  const [stats, setStats] = useState({ total: 0, compl: 0, pend: 0 });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, reservaId: null });
+
+  // Calculate date range based on current view
+  const dateRange = useMemo(() => {
+    if (currentView === 'week') {
+      const start = dayjs(weekStart);
+      const end = start.add(6, 'day');
+      return {
+        fechaInicio: start.format('YYYY-MM-DD'),
+        fechaFin: end.format('YYYY-MM-DD')
+      };
+    } else if (currentView === 'month') {
+      const start = dayjs(monthStart).startOf('month').startOf('week');
+      const end = start.add(41, 'day'); // 6 weeks
+      return {
+        fechaInicio: start.format('YYYY-MM-DD'),
+        fechaFin: end.format('YYYY-MM-DD')
+      };
+    }
+    return null;
+  }, [currentView, weekStart, monthStart]);
+
+  // Hook para cargar agenda (single date or range)
+  const { execute: cargarAgenda, loading, error } = useApiCall(
+    async () => {
+      if (currentView === 'day') {
+        return await getAgendaBarbero(fecha);
+      } else {
+        return await getAgendaBarberoRange(dateRange.fechaInicio, dateRange.fechaFin);
+      }
+    },
+    {
+      errorMessage: 'Error al cargar la agenda. Por favor, intenta nuevamente.',
+      onSuccess: (data) => {
+        const arrayReservas = ensureArray(data);
+        setReservas(arrayReservas);
+
+        setStats({
+          total: arrayReservas.length,
+          compl: arrayReservas.filter(r => r.estado === 'COMPLETADA').length,
+          pend: arrayReservas.filter(r => r.estado === 'RESERVADA').length
+        });
+      }
+    }
+  );
+
+  // Hook para completar reserva
+  const { execute: onCompletar, loading: completando } = useAsyncAction(
+    completarReserva,
+    {
+      successMessage: '✅ Reserva completada exitosamente',
+      errorMessage: 'Error al completar la reserva',
+      onSuccess: () => cargarAgenda()
+    }
+  );
+
+  // Hook para cancelar reserva
+  const { execute: onCancelar, loading: cancelando } = useAsyncAction(
+    cancelarReserva,
+    {
+      successMessage: 'Reserva cancelada',
+      errorMessage: 'Error al cancelar la reserva',
+      onSuccess: () => {
+        setConfirmModal({ isOpen: false, reservaId: null });
+        cargarAgenda();
+      }
+    }
+  );
+
+  // Load data when view or dates change
   useEffect(() => {
     cargarAgenda();
-  }, [selectedDate]);
+  }, [currentView, fecha, weekStart, monthStart]);
 
-  const cargarAgenda = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getAgendaBarbero(selectedDate);
-      setAgenda(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Error cargando agenda:", err);
-      setError(err.response?.data?.message || "Error al cargar la agenda");
-    } finally {
-      setLoading(false);
+  // Navigation handlers
+  const handlePrevious = () => {
+    if (currentView === 'day') {
+      setFecha(dayjs(fecha).subtract(1, 'day').format('YYYY-MM-DD'));
+    } else if (currentView === 'week') {
+      setWeekStart(dayjs(weekStart).subtract(1, 'week').format('YYYY-MM-DD'));
+    } else if (currentView === 'month') {
+      setMonthStart(dayjs(monthStart).subtract(1, 'month').format('YYYY-MM-DD'));
     }
   };
 
-  const onCompletar = async (id) => {
-    try {
-      await completarReserva(id);
-      await cargarAgenda();
-    } catch (error) {
-      console.error("❌ Error completando reserva:", error);
-      alert(error.response?.data?.message || "Error al completar reserva");
+  const handleNext = () => {
+    if (currentView === 'day') {
+      setFecha(dayjs(fecha).add(1, 'day').format('YYYY-MM-DD'));
+    } else if (currentView === 'week') {
+      setWeekStart(dayjs(weekStart).add(1, 'week').format('YYYY-MM-DD'));
+    } else if (currentView === 'month') {
+      setMonthStart(dayjs(monthStart).add(1, 'month').format('YYYY-MM-DD'));
     }
   };
 
-  const onCancelar = async (id) => {
-    if (!confirm("¿Estás seguro de cancelar esta reserva?")) return;
-    try {
-      await cancelarReserva(id);
-      await cargarAgenda();
-    } catch (error) {
-      console.error("❌ Error cancelando reserva:", error);
-      alert(error.response?.data?.message || "Error al cancelar reserva");
+  const handleToday = () => {
+    const today = dayjs();
+    setFecha(today.format('YYYY-MM-DD'));
+    setWeekStart(today.startOf('week').format('YYYY-MM-DD'));
+    setMonthStart(today.startOf('month').format('YYYY-MM-DD'));
+  };
+
+  const handleViewChange = (newView) => {
+    setCurrentView(newView);
+  };
+
+  const handleDateClick = (dateKey) => {
+    setFecha(dateKey);
+    setCurrentView('day');
+  };
+
+  const handleReservaClick = (reserva) => {
+    // Could open a modal or navigate to detail view
+    console.log('Reserva clicked:', reserva);
+  };
+
+  const handleCancelar = () => {
+    if (confirmModal.reservaId) {
+      onCancelar(confirmModal.reservaId);
     }
   };
 
-  const cambiarDia = (offset) => {
-    setSelectedDate(dayjs(selectedDate).add(offset, 'day').format("YYYY-MM-DD"));
+  // Get current date label
+  const getCurrentLabel = () => {
+    if (currentView === 'day') {
+      return dayjs(fecha).format('dddd, D [de] MMMM [de] YYYY');
+    } else if (currentView === 'week') {
+      const start = dayjs(weekStart);
+      const end = start.add(6, 'day');
+      return `${start.format('D MMM')} - ${end.format('D MMM YYYY')}`;
+    } else if (currentView === 'month') {
+      return dayjs(monthStart).format('MMMM YYYY');
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -84,192 +187,244 @@ export default function Agenda() {
     }).format(amount || 0);
   };
 
-  const stats = {
-    total: agenda.length,
-    completadas: agenda.filter(r => r.estado === "COMPLETADA").length,
-    ingresos: agenda.filter(r => r.estado === "COMPLETADA").reduce((acc, r) => acc + (r.servicioId?.precio || 0), 0)
-  };
+  // Filter reservas for daily view
+  const reservasDia = useMemo(() => {
+    if (currentView !== 'day') return [];
+    return ensureArray(reservas).filter(r =>
+      dayjs(r.fecha).format('YYYY-MM-DD') === fecha
+    ).sort((a, b) => a.hora.localeCompare(b.hora));
+  }, [reservas, fecha, currentView]);
 
   return (
-    <div className="space-y-8 animate-slide-in">
-      {/* HEADER & DATE SELECTOR */}
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+      {/* HEADER AGENDA */}
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-black text-white flex items-center gap-3">
-            <span className="text-indigo-500"><Calendar size={36} /></span>
+          <h1 className="heading-1 flex items-center gap-3">
+            <CalendarCheck className="text-blue-600" size={32} />
             Mi Agenda
           </h1>
-          <p className="text-slate-400 mt-2 text-lg capitalize">
-            {dayjs(selectedDate).format("dddd, D [de] MMMM YYYY")}
-          </p>
+          <p className="body-large text-gray-600 mt-2 capitalize">{getCurrentLabel()}</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-slate-900 p-2 border border-slate-800 rounded-2xl shadow-xl">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => cambiarDia(-1)}
-            className="text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl"
-          >
-            <ChevronLeft size={20} />
-          </Button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+          {/* View Switcher */}
+          <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
 
-          <div className="relative group">
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent text-white px-4 py-2 font-black text-sm uppercase tracking-wider focus:outline-none cursor-pointer"
-            />
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-2 bg-white border border-gray-100 shadow-sm rounded-2xl p-2">
+            <Button
+              onClick={handlePrevious}
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <ChevronLeft size={20} />
+            </Button>
+
+            <Button
+              onClick={handleToday}
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4"
+            >
+              Hoy
+            </Button>
+
+            <Button
+              onClick={handleNext}
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <ChevronRight size={20} />
+            </Button>
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => cambiarDia(1)}
-            className="text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl"
-          >
-            <ChevronRight size={20} />
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setSelectedDate(dayjs().format("YYYY-MM-DD"))}
-            className="ml-2 text-[10px] font-black uppercase tracking-widest px-4 py-2"
-          >
-            Hoy
-          </Button>
+          {/* Date Picker (only for day view) */}
+          {currentView === 'day' && (
+            <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-2">
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="border-none p-2 text-sm font-semibold text-gray-900 outline-none cursor-pointer bg-transparent"
+              />
+            </div>
+          )}
         </div>
       </header>
 
-      {/* DASHBOARD KPIs */}
+      {/* ERROR DISPLAY */}
+      {error && (
+        <ErrorAlert
+          title="Error al cargar agenda"
+          message={error}
+          onRetry={() => cargarAgenda()}
+          variant="error"
+        />
+      )}
+
+      {/* QUICK STATS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Stat
-          title="Total Citas"
-          value={stats.total}
-          icon={<Briefcase />}
-          color="primary"
-          subtitle="Programadas para hoy"
-        />
-        <Stat
-          title="Completadas"
-          value={stats.completadas}
-          icon={<CheckCircle />}
-          color="success"
-          trend="up"
-          change={`${Math.round((stats.completadas / (stats.total || 1)) * 100)}% de progreso`}
-        />
-        <Stat
-          title="Ingresos Estimados"
-          value={formatCurrency(stats.ingresos)}
-          icon={<DollarSign />}
-          color="secondary"
-          subtitle="Basado en completadas"
-        />
-      </div>
-
-      {/* AGENDA LIST */}
-      <div className="grid grid-cols-1 gap-4">
-        {loading ? (
-          [1, 2, 3].map(i => <Skeleton key={i} variant="rectangular" height="h-32" />)
-        ) : agenda.length === 0 ? (
-          <Card className="p-20 text-center border-dashed border-slate-800 bg-transparent">
-            <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-700">
-              <Calendar size={40} />
+        <div className="card card-padding relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110" />
+          <div className="relative z-10 flex justify-between items-center">
+            <div>
+              <p className="caption text-gray-400 mb-1">Total Citas</p>
+              <p className="text-3xl font-black text-gray-900">{stats.total}</p>
             </div>
-            <h3 className="text-xl font-bold text-slate-400">Todo despejado por aquí</h3>
-            <p className="text-slate-500 mt-2">No tienes reservas registradas para esta fecha.</p>
-          </Card>
-        ) : (
-          agenda.map((reserva) => (
-            <Card
-              key={reserva._id}
-              className={`border-slate-800 hover:border-indigo-500/30 transition-all group ${reserva.estado !== 'RESERVADA' ? 'opacity-70' : ''}`}
-            >
-              <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-6 w-full">
-                  {/* TIME SLOT */}
-                  <div className="w-20 h-20 shrink-0 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-glow-sm">
-                    <Clock size={16} className="mb-1 opacity-50" />
-                    <span className="text-2xl font-black leading-none">{reserva.hora}</span>
-                  </div>
+            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+              <CalendarIcon size={24} />
+            </div>
+          </div>
+        </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-black text-white leading-tight">
-                        {reserva.servicioId?.nombre || "Servicio"}
-                      </h3>
-                      <Badge
-                        variant={
-                          reserva.estado === "COMPLETADA" ? "success" :
-                            reserva.estado === "CANCELADA" ? "error" : "primary"
-                        }
-                        className="text-[10px] uppercase font-bold px-2 py-0.5"
-                      >
-                        {reserva.estado}
-                      </Badge>
-                    </div>
+        <div className="card card-padding relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-green-50/50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110" />
+          <div className="relative z-10 flex justify-between items-center">
+            <div>
+              <p className="caption text-gray-400 mb-1">Completadas</p>
+              <p className="text-3xl font-black text-green-600">{stats.compl}</p>
+            </div>
+            <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+              <CheckCircle size={24} />
+            </div>
+          </div>
+        </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 font-medium">
-                      <span className="flex items-center gap-1.5">
-                        <User size={14} className="text-indigo-400/70" /> {reserva.nombreCliente || "Cliente Anónimo"}
-                      </span>
-                      <span className="text-slate-800">•</span>
-                      <span className="text-indigo-400 font-bold">
-                        {formatCurrency(reserva.servicioId?.precio)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 w-full md:w-auto shrink-0 mt-4 md:mt-0">
-                  {reserva.estado === "RESERVADA" && (
-                    <>
-                      <Button
-                        onClick={() => onCompletar(reserva._id)}
-                        className="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest py-3 px-6 rounded-xl shadow-glow-success"
-                      >
-                        <CheckCircle size={18} className="mr-2" /> Completar
-                      </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() => onCancelar(reserva._id)}
-                        className="flex-1 md:flex-none bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border-none py-3 px-6 rounded-xl transition-all"
-                      >
-                        <XCircle size={18} />
-                      </Button>
-                    </>
-                  )}
-                  {reserva.estado === "COMPLETADA" && (
-                    <div className="flex items-center gap-2 text-emerald-500 font-black text-xs uppercase tracking-widest bg-emerald-500/10 px-6 py-3 rounded-xl border border-emerald-500/20">
-                      <CheckCircle size={18} /> Cita Finalizada
-                    </div>
-                  )}
-                  {reserva.estado === "CANCELADA" && (
-                    <div className="flex items-center gap-2 text-red-500 font-black text-xs uppercase tracking-widest bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/20">
-                      <XCircle size={18} /> Cancelada
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          ))
-        )}
+        <div className="card card-padding relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50/50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110" />
+          <div className="relative z-10 flex justify-between items-center">
+            <div>
+              <p className="caption text-gray-400 mb-1">Pendientes</p>
+              <p className="text-3xl font-black text-orange-600">{stats.pend}</p>
+            </div>
+            <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
+              <Clock size={24} />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* FOOTER ADVICE */}
-      <Card className="bg-slate-900/50 border-slate-800 p-6 flex items-start gap-4">
-        <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
-          <TrendingUp size={24} />
+      {/* CALENDAR VIEWS */}
+      {loading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
         </div>
-        <div>
-          <h4 className="font-bold text-white mb-1">Dato del día</h4>
-          <p className="text-sm text-slate-400 leading-relaxed">
-            Mantén tu agenda actualizada completando las citas a tiempo. Esto nos ayuda a generar tus estadísticas de ganancias de forma más precisa.
-          </p>
-        </div>
-      </Card>
+      ) : (
+        <>
+          {/* DAILY VIEW */}
+          {currentView === 'day' && (
+            <div className="space-y-4">
+              <h2 className="heading-3">Citas del Día</h2>
+              {reservasDia.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <CalendarIcon className="mx-auto text-gray-300 mb-4" size={48} />
+                  <p className="text-gray-500 font-medium">No hay citas programadas para este día</p>
+                  <p className="text-gray-400 text-sm mt-2">¡Disfruta tu día libre!</p>
+                </Card>
+              ) : (
+                reservasDia.map((r) => (
+                  <Card key={r._id} className="p-6 hover:shadow-lg transition-all border-l-4 border-l-blue-500">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-16 h-16 bg-blue-50 rounded-xl flex flex-col items-center justify-center">
+                          <span className="text-xs text-gray-500">{dayjs(r.fecha).format('MMM')}</span>
+                          <span className="text-2xl font-bold text-blue-600">{dayjs(r.fecha).format('DD')}</span>
+                        </div>
+
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock size={16} className="text-gray-400" />
+                            <span className="font-bold text-gray-900">{r.hora}</span>
+                            <Badge variant={r.estado === 'COMPLETADA' ? 'success' : r.estado === 'CANCELADA' ? 'destructive' : 'primary'}>
+                              {r.estado}
+                            </Badge>
+                          </div>
+
+                          <h4 className="text-gray-900 font-bold">{r.servicioId?.nombre}</h4>
+                          <p className="text-gray-500 text-sm flex items-center gap-2 mt-1">
+                            <Users size={14} /> {r.nombreCliente}
+                          </p>
+                          {r.telefonoCliente && (
+                            <WhatsAppButton
+                              phoneNumber={r.telefonoCliente}
+                              message={`Hola ${r.nombreCliente}, te contacto sobre tu cita del ${dayjs(r.fecha).format('DD/MM/YYYY')} a las ${r.hora}`}
+                              className="mt-2"
+                              label={r.telefonoCliente}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      {r.estado === "RESERVADA" && (
+                        <div className="flex gap-2 w-full md:w-auto">
+                          <Button
+                            onClick={() => onCompletar(r._id)}
+                            size="sm"
+                            className="flex-1 md:flex-none bg-green-600 hover:bg-green-700 text-white rounded-lg h-10 font-semibold"
+                            disabled={completando || cancelando}
+                          >
+                            {completando ? 'Completando...' : 'Completar'}
+                          </Button>
+                          <Button
+                            onClick={() => setConfirmModal({ isOpen: true, reservaId: r._id })}
+                            variant="ghost"
+                            size="sm"
+                            className="px-3 border border-gray-200 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-lg"
+                            disabled={completando || cancelando}
+                          >
+                            <XCircle size={18} />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* WEEKLY VIEW */}
+          {currentView === 'week' && (
+            <div>
+              <h2 className="heading-3 mb-4">Vista Semanal</h2>
+              <WeeklyView
+                reservas={reservas}
+                weekStart={weekStart}
+                onReservaClick={handleReservaClick}
+              />
+            </div>
+          )}
+
+          {/* MONTHLY VIEW */}
+          {currentView === 'month' && (
+            <div>
+              <h2 className="heading-3 mb-4">Vista Mensual</h2>
+              <MonthlyView
+                reservas={reservas}
+                monthStart={monthStart}
+                onDateClick={handleDateClick}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* CONFIRMATION MODAL */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, reservaId: null })}
+        onConfirm={handleCancelar}
+        title="¿Cancelar cita?"
+        message="Esta acción no se puede deshacer. El cliente será notificado de la cancelación."
+        confirmText="Sí, cancelar"
+        cancelText="No, mantener"
+        variant="danger"
+      />
     </div>
   );
 }

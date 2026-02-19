@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEmailConfig, updateEmailConfig, testEmailConfig } from "../../services/emailService";
+import { Mail, Save, TestTube, Eye, EyeOff, CheckCircle, XCircle, AlertCircle, Loader2, HelpCircle } from "lucide-react";
 
 export default function EmailConfig() {
   const [form, setForm] = useState({
@@ -135,36 +136,40 @@ export default function EmailConfig() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-400">Cargando configuración...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="animate-spin text-blue-600" size={40} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">📧 Configuración de Email</h1>
-        <p className="text-gray-400">
+    <div className="space-y-6">
+      {/* HEADER */}
+      <div>
+        <h1 className="heading-1">Configuración de Email</h1>
+        <p className="body-large text-gray-600 mt-2">
           Configura tu servidor de email para enviar notificaciones a tus clientes
         </p>
       </div>
 
-      {/* Estado actual */}
-      <div className={`mb-6 p-4 rounded-lg border ${isConfigured
-          ? 'bg-green-900/20 border-green-700'
-          : 'bg-yellow-900/20 border-yellow-700'
+      {/* STATUS BADGE */}
+      <div className={`p-4 rounded-lg border ${isConfigured
+        ? 'bg-green-50 border-green-200'
+        : 'bg-yellow-50 border-yellow-200'
         }`}>
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{isConfigured ? '✅' : '⚠️'}</span>
+        <div className="flex items-center gap-3">
+          {isConfigured ? (
+            <CheckCircle className="text-green-600" size={20} />
+          ) : (
+            <AlertCircle className="text-yellow-600" size={20} />
+          )}
           <div>
-            <p className="font-semibold text-white">
+            <p className="label text-gray-900">
               {isConfigured ? 'Configurado' : 'Sin configurar'}
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="body-small text-gray-600">
               {isConfigured
-                ? 'Tus clientes reciben emails desde tu dominio'
+                ? `Tus clientes reciben emails desde: ${form.emailNotificaciones}`
                 : 'Tus clientes reciben emails desde: barberingsaas@gmail.com'}
             </p>
           </div>
@@ -172,132 +177,114 @@ export default function EmailConfig() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Información Básica */}
-        <div className="bg-gray-800 rounded-lg p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-white mb-4">Información Básica</h2>
+        {/* INFORMACIÓN BÁSICA */}
+        <div className="card card-padding">
+          <h2 className="heading-3 mb-6">Información Básica</h2>
 
-          {/* Email de notificaciones */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Email de notificaciones *
-            </label>
-            <input
-              type="email"
-              name="emailNotificaciones"
-              value={form.emailNotificaciones}
-              onChange={handleChange}
-              required
-              placeholder="contacto@mibarberia.com"
-              className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Los clientes verán este email como remitente
-            </p>
-          </div>
-
-          {/* Nombre para emails */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Nombre para emails
-            </label>
-            <input
-              type="text"
-              name="nombreParaEmails"
-              value={form.nombreParaEmails}
-              onChange={handleChange}
-              placeholder="Barbería El Corte"
-              className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Aparecerá como: "Barbería El Corte &lt;contacto@mibarberia.com&gt;"
-            </p>
-          </div>
-
-          {/* Proveedor */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Proveedor de email
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="emailProvider"
-                  value="gmail"
-                  checked={form.emailProvider === "gmail"}
-                  onChange={handleChange}
-                  className="text-blue-600"
-                />
-                <span className="text-white">Gmail</span>
+          <div className="space-y-4">
+            {/* Email de notificaciones */}
+            <div>
+              <label className="label mb-2 block">
+                Email de notificaciones *
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="emailProvider"
-                  value="outlook"
-                  checked={form.emailProvider === "outlook"}
-                  onChange={handleChange}
-                  className="text-blue-600"
-                />
-                <span className="text-white">Outlook</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="emailProvider"
-                  value="smtp"
-                  checked={form.emailProvider === "smtp"}
-                  onChange={handleChange}
-                  className="text-blue-600"
-                />
-                <span className="text-white">SMTP Personalizado</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Contraseña */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Contraseña de aplicación *
-            </label>
-            <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
-                name="emailPassword"
-                value={form.emailPassword}
+                type="email"
+                name="emailNotificaciones"
+                value={form.emailNotificaciones}
                 onChange={handleChange}
-                placeholder={isConfigured ? "Dejar vacío para no cambiar" : "••••••••••••"}
-                className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none pr-10"
+                required
+                placeholder="contacto@mibarberia.com"
+                className="input"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-              >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
-              </button>
+              <p className="body-small text-gray-500 mt-1">
+                Los clientes verán este email como remitente
+              </p>
             </div>
-            <div className="mt-2 flex items-start gap-2 text-xs text-gray-400">
-              <span>ℹ️</span>
-              <div>
-                <p>Usa una "App Password", no tu contraseña normal.</p>
+
+            {/* Nombre para emails */}
+            <div>
+              <label className="label mb-2 block">
+                Nombre para emails
+              </label>
+              <input
+                type="text"
+                name="nombreParaEmails"
+                value={form.nombreParaEmails}
+                onChange={handleChange}
+                placeholder="Barbería El Corte"
+                className="input"
+              />
+              <p className="body-small text-gray-500 mt-1">
+                Aparecerá como: "Barbería El Corte &lt;contacto@mibarberia.com&gt;"
+              </p>
+            </div>
+
+            {/* Proveedor */}
+            <div>
+              <label className="label mb-2 block">
+                Proveedor de email
+              </label>
+              <div className="flex gap-4">
+                {['gmail', 'outlook', 'smtp'].map((provider) => (
+                  <label key={provider} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="emailProvider"
+                      value={provider}
+                      checked={form.emailProvider === provider}
+                      onChange={handleChange}
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="label capitalize">{provider === 'smtp' ? 'SMTP Personalizado' : provider}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Contraseña */}
+            <div>
+              <label className="label mb-2 block">
+                Contraseña de aplicación *
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="emailPassword"
+                  value={form.emailPassword}
+                  onChange={handleChange}
+                  placeholder={isConfigured ? "Dejar vacío para no cambiar" : "••••••••••••"}
+                  className="input pr-10"
+                />
                 <button
                   type="button"
-                  onClick={() => setShowGuide(!showGuide)}
-                  className="text-blue-400 hover:underline mt-1"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  ¿Cómo crear una App Password?
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
+              </div>
+              <div className="mt-2 flex items-start gap-2">
+                <HelpCircle size={16} className="text-gray-400 mt-0.5" />
+                <div className="body-small text-gray-500">
+                  <p>Usa una "App Password", no tu contraseña normal.</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowGuide(!showGuide)}
+                    className="text-blue-600 hover:underline mt-1"
+                  >
+                    ¿Cómo crear una App Password?
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Guía de App Password */}
+        {/* GUÍA DE APP PASSWORD */}
         {showGuide && (
-          <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-            <h3 className="font-semibold text-white mb-2">📖 Guía: Crear App Password en Gmail</h3>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-300">
+          <div className="card card-padding bg-blue-50 border-blue-200">
+            <h3 className="heading-4 mb-4">📖 Guía: Crear App Password en Gmail</h3>
+            <ol className="list-decimal list-inside space-y-2 body-small text-gray-700">
               <li>Ve a tu cuenta de Google → Seguridad</li>
               <li>Activa la verificación en 2 pasos (si no está activa)</li>
               <li>Busca "Contraseñas de aplicaciones"</li>
@@ -309,21 +296,21 @@ export default function EmailConfig() {
               href="https://support.google.com/accounts/answer/185833"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:underline text-sm mt-2 inline-block"
+              className="text-blue-600 hover:underline body-small mt-3 inline-block"
             >
               Ver guía completa de Google →
             </a>
           </div>
         )}
 
-        {/* Configuración SMTP Avanzada */}
+        {/* CONFIGURACIÓN SMTP AVANZADA */}
         {form.emailProvider === "smtp" && (
-          <div className="bg-gray-800 rounded-lg p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-white mb-4">Configuración SMTP</h2>
+          <div className="card card-padding">
+            <h2 className="heading-3 mb-6">Configuración SMTP</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="label mb-2 block">
                   Host *
                 </label>
                 <input
@@ -333,12 +320,12 @@ export default function EmailConfig() {
                   onChange={handleChange}
                   placeholder="smtp.miservidor.com"
                   required={form.emailProvider === "smtp"}
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="label mb-2 block">
                   Puerto
                 </label>
                 <input
@@ -347,59 +334,60 @@ export default function EmailConfig() {
                   value={form.smtpConfig.port}
                   onChange={handleChange}
                   placeholder="587"
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="input"
                 />
               </div>
             </div>
 
-            <div>
+            <div className="mt-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   name="smtp.secure"
                   checked={form.smtpConfig.secure}
                   onChange={handleChange}
-                  className="rounded"
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-300">Usar SSL/TLS (puerto 465)</span>
+                <span className="label">Usar SSL/TLS (puerto 465)</span>
               </label>
             </div>
           </div>
         )}
 
-        {/* Resultado del test */}
+        {/* RESULTADO DEL TEST */}
         {testResult && (
           <div className={`p-4 rounded-lg border ${testResult.success
-              ? 'bg-green-900/20 border-green-700'
-              : 'bg-red-900/20 border-red-700'
+            ? 'bg-green-50 border-green-200'
+            : 'bg-red-50 border-red-200'
             }`}>
-            <p className={`font-semibold ${testResult.success ? 'text-green-400' : 'text-red-400'}`}>
+            <p className={`label ${testResult.success ? 'text-green-700' : 'text-red-700'}`}>
               {testResult.message}
             </p>
             {testResult.hint && (
-              <p className="text-sm text-gray-300 mt-1">
+              <p className="body-small text-gray-600 mt-1">
                 💡 {testResult.hint}
               </p>
             )}
           </div>
         )}
 
-        {/* Botones */}
+        {/* BOTONES */}
         <div className="flex gap-4">
           <button
             type="button"
             onClick={handleTest}
             disabled={testing || !form.emailNotificaciones || !form.emailPassword}
-            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn btn-secondary"
           >
             {testing ? (
               <>
-                <span className="animate-spin">⏳</span>
+                <Loader2 className="animate-spin" size={18} />
                 Probando...
               </>
             ) : (
               <>
-                🧪 Probar Configuración
+                <TestTube size={18} />
+                Probar Configuración
               </>
             )}
           </button>
@@ -407,25 +395,26 @@ export default function EmailConfig() {
           <button
             type="submit"
             disabled={saving || !form.emailNotificaciones}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn btn-primary"
           >
             {saving ? (
               <>
-                <span className="animate-spin">⏳</span>
+                <Loader2 className="animate-spin" size={18} />
                 Guardando...
               </>
             ) : (
               <>
-                💾 Guardar Configuración
+                <Save size={18} />
+                Guardar Configuración
               </>
             )}
           </button>
         </div>
 
-        {/* Info de seguridad */}
-        <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-          <div className="flex items-start gap-2 text-sm text-gray-400">
-            <span>🔒</span>
+        {/* INFO DE SEGURIDAD */}
+        <div className="card card-padding bg-gray-50">
+          <div className="flex items-start gap-2 body-small text-gray-600">
+            <CheckCircle size={16} className="text-green-600 mt-0.5" />
             <p>
               Tu contraseña se guarda encriptada en nuestra base de datos.
               Nunca compartimos tus credenciales con terceros.

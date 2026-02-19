@@ -1,73 +1,110 @@
 import { useEffect, useState } from "react";
 import { getServicios, crearServicio, editarServicio, cambiarEstadoServicio } from "../../services/serviciosService";
+import uploadService from "../../services/uploadService";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import ErrorMessage from "../../components/ui/ErrorMessage";
+import { useApiCall } from "../../hooks/useApiCall";
+import { useAsyncAction } from "../../hooks/useAsyncAction";
+import { toast } from "react-hot-toast";
 
 export default function Servicios() {
   const [servicios, setServicios] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const [form, setForm] = useState({
     nombre: "",
+    descripcion: "",
     duracion: "",
-    precio: ""
+    precio: "",
+    extras: "",
+    imagen: "",
+    categoria: ""
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
-  const cargarServicios = async () => {
-    try {
-      setLoading(true);
-      const data = await getServicios();
-      setServicios(data);
-    } finally {
-      setLoading(false);
+  // Categorías predefinidas (opcional, se puede dejar como texto libre o un select)
+  const sugerenciasCategorias = ["Cortes", "Barbas", "Colorimetría", "Químicos", "Faciales", "Otros"];
+
+  // Hook para cargar servicios con manejo de errores
+  const { execute: cargarServicios, loading, error } = useApiCall(
+    getServicios,
+    {
+      errorMessage: 'No pudimos cargar tus servicios',
+      onSuccess: (data) => setServicios(data)
     }
-  };
+  );
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     cargarServicios();
   }, []);
 
-  const handleGuardarServicio = async () => {
-    if (!form.nombre || !form.duracion || !form.precio) {
-      alert("Completa todos los campos");
-      return;
-    }
+  // Hook para guardar servicio (crear/editar) con protección contra doble click
+  const { execute: handleGuardarServicio, loading: saving } = useAsyncAction(
+    async () => {
+      // Validación de campos obligatorios
+      if (!form.nombre || !form.duracion || !form.precio) {
+        toast.error('Completa todos los campos obligatorios');
+        throw new Error('Campos obligatorios faltantes');
+      }
 
-    try {
-      setSaving(true);
+      let imageUrl = form.imagen;
+
+      // Subir imagen si existe
+      if (imageFile) {
+        const uploadRes = await uploadService.uploadServiceImage(imageFile);
+        if (uploadRes.success) {
+          imageUrl = uploadRes.url;
+        }
+      }
 
       const payload = {
         nombre: form.nombre,
+        descripcion: form.descripcion || "",
         duracion: Number(form.duracion),
-        precio: Number(form.precio)
+        precio: Number(form.precio),
+        extras: form.extras || "",
+        imagen: imageUrl,
+        categoria: form.categoria || "Otros"
       };
 
-      if (editId) {
-        await editarServicio(editId, payload);
-      } else {
-        await crearServicio(payload);
+      // Crear o editar según el caso
+      return editId
+        ? await editarServicio(editId, payload)
+        : await crearServicio(payload);
+    },
+    {
+      successMessage: editId ? 'Servicio actualizado exitosamente' : 'Servicio creado exitosamente',
+      errorMessage: 'Error al guardar servicio',
+      onSuccess: () => {
+        cargarServicios();
+        cerrarModal();
       }
-
-      await cargarServicios();
-      cerrarModal();
-    } catch (error) {
-      alert("Error al guardar servicio");
-    } finally {
-      setSaving(false);
     }
-  };
+  );
 
-  const handleToggleEstado = async (id) => {
-    await cambiarEstadoServicio(id);
-    await cargarServicios();
-    setConfirmDelete(null);
-  };
+  // Hook para cambiar estado del servicio con protección
+  const { execute: handleToggleEstado, loading: toggling } = useAsyncAction(
+    cambiarEstadoServicio,
+    {
+      successMessage: 'Estado del servicio actualizado',
+      errorMessage: 'Error al cambiar estado',
+      onSuccess: () => {
+        cargarServicios();
+        setConfirmDelete(null);
+      }
+    }
+  );
 
   const abrirNuevo = () => {
     setEditId(null);
-    setForm({ nombre: "", duracion: "", precio: "" });
+    setForm({ nombre: "", descripcion: "", duracion: "", precio: "", extras: "", imagen: "", categoria: "Cortes" });
+    setImageFile(null);
+    setImagePreview("");
     setOpen(true);
   };
 
@@ -75,16 +112,58 @@ export default function Servicios() {
     setEditId(servicio._id);
     setForm({
       nombre: servicio.nombre,
+      descripcion: servicio.descripcion || "",
       duracion: servicio.duracion,
-      precio: servicio.precio
+      precio: servicio.precio,
+      extras: servicio.extras || "",
+      imagen: servicio.imagen || "",
+      categoria: servicio.categoria || "Otros"
     });
+    setImagePreview(servicio.imagen || "");
+    setImageFile(null);
     setOpen(true);
   };
 
   const cerrarModal = () => {
     setOpen(false);
     setEditId(null);
-    setForm({ nombre: "", duracion: "", precio: "" });
+    setForm({ nombre: "", descripcion: "", duracion: "", precio: "", extras: "", imagen: "", categoria: "" });
+    setImageFile(null);
+    setImagePreview("");
+  };
+
+  const processFile = (file) => {
+    if (file && file.type.startsWith('image/')) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Por favor selecciona un archivo de imagen válido");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    processFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    processFile(file);
   };
 
   const formatearPrecio = (precio) => {
@@ -102,156 +181,126 @@ export default function Servicios() {
   };
 
   if (loading) {
+    return <LoadingSpinner label="Sincronizando tus servicios..." fullPage />;
+  }
+
+  if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Cargando servicios...</p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <ErrorMessage
+          title="Error al cargar"
+          message={error}
+          onRetry={cargarServicios}
+        />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2">✂️ Servicios</h1>
-          <p className="text-gray-400">Gestiona los servicios de tu barbería</p>
+          <h1 className="heading-1">Servicios</h1>
+          <p className="body-large text-gray-600 mt-2">Control total sobre tu catálogo y precios</p>
         </div>
         <button
           onClick={abrirNuevo}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+          className="btn btn-primary flex items-center gap-2"
         >
           <span className="text-xl">+</span>
-          Nuevo Servicio
+          Añadir Servicio
         </button>
       </div>
 
-      {/* Tabla */}
+      {/* Grid de Servicios */}
       {servicios.length === 0 ? (
-        <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-12 text-center border border-gray-700">
-          <div className="text-6xl mb-4">✂️</div>
-          <p className="text-gray-400 text-lg">No hay servicios registrados</p>
-          <p className="text-gray-500 text-sm mt-2">Comienza agregando tu primer servicio</p>
+        <div className="card card-padding text-center py-20">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-5xl">✂️</span>
+          </div>
+          <h2 className="heading-3 mb-2">Tu catálogo está vacío</h2>
+          <p className="body text-gray-500 mb-6 max-w-sm mx-auto">Comienza agregando servicios para que tus clientes puedan reservar online.</p>
+          <button onClick={abrirNuevo} className="btn btn-ghost">Crear primer servicio</button>
         </div>
       ) : (
-        <div className="bg-gray-800/50 backdrop-blur rounded-2xl overflow-hidden border border-gray-700 shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Servicio
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Duración
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Precio
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-700/50">
-                {servicios.map((s) => (
-                  <tr
-                    key={s._id}
-                    className="hover:bg-gray-700/30 transition-colors duration-150"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-xl">
-                          ✂️
-                        </div>
-                        <span className="text-white font-medium">
-                          {capitalizarNombre(s.nombre)}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="inline-flex items-center gap-1 text-gray-300">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {s.duracion} min
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-green-400 font-semibold">
-                        {formatearPrecio(s.precio)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${s.activo
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                        }`}>
-                        <span className={`w-2 h-2 rounded-full mr-2 ${s.activo ? 'bg-green-400' : 'bg-gray-400'}`}></span>
-                        {s.activo ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2 justify-center">
-                        <button
-                          onClick={() => abrirEditar(s)}
-                          className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow hover:shadow-lg flex items-center gap-2"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(s._id)}
-                          className={`${s.activo
-                              ? 'bg-red-600 hover:bg-red-700'
-                              : 'bg-green-600 hover:bg-green-700'
-                            } text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow hover:shadow-lg`}
-                        >
-                          {s.activo ? 'Desactivar' : 'Activar'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {servicios.map((s) => (
+            <div
+              key={s._id}
+              className={`card card-padding transition-all duration-300 hover:shadow-md ${s.activo ? '' : 'grayscale opacity-60'
+                }`}
+            >
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                  {s.imagen ? (
+                    <img src={s.imagen} alt={s.nombre} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-3xl">
+                      ✂️
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <span className={`badge ${s.activo ? 'badge-success' : 'badge-error'}`}>
+                    {s.activo ? 'Activo' : 'Pausado'}
+                  </span>
+                  <span className="caption text-gray-500 px-3 py-1 rounded-full bg-gray-100">
+                    {s.categoria || 'Sin Cat.'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="heading-4 mb-2 group-hover:text-blue-600 transition-colors truncate">
+                  {s.nombre}
+                </h3>
+                <div className="flex items-center gap-4 text-gray-500 body-small">
+                  <span className="flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {s.duracion} min
+                  </span>
+                  <span className="text-gray-900 font-bold">{formatearPrecio(s.precio)}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-6 border-t border-gray-200">
+                <button
+                  onClick={() => abrirEditar(s)}
+                  className="btn btn-secondary"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(s._id)}
+                  className={`btn ${s.activo ? 'btn-ghost text-red-600 hover:bg-red-50' : 'btn-ghost text-green-600 hover:bg-green-50'}`}
+                >
+                  {s.activo ? 'Desactivar' : 'Activar'}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Modal de Confirmación */}
+      {/* Modales */}
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-gray-700 animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-white">Confirmar acción</h3>
-            </div>
-            <p className="text-gray-300 mb-6">
-              ¿Estás seguro de que deseas cambiar el estado de este servicio?
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-6">
+          <div className="card card-padding max-w-md w-full">
+            <h3 className="heading-3 mb-4">¿Actualizar estado?</h3>
+            <p className="body text-gray-600 mb-6">
+              Esto cambiará la visibilidad de tu servicio para los clientes en tiempo real.
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-4">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                className="btn btn-ghost flex-1"
               >
-                Cancelar
+                Cerrar
               </button>
               <button
                 onClick={() => handleToggleEstado(confirmDelete)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                className="btn btn-primary flex-1"
               >
                 Confirmar
               </button>
@@ -260,95 +309,136 @@ export default function Servicios() {
         </div>
       )}
 
-      {/* Modal de Crear/Editar */}
       {open && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-700 animate-in fade-in zoom-in duration-200">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              {editId ? (
-                <>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  Editar servicio
-                </>
-              ) : (
-                <>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Nuevo servicio
-                </>
-              )}
-            </h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 lg:p-10 overflow-y-auto">
+          <div className="card card-padding max-w-2xl w-full my-auto relative">
+            <button onClick={cerrarModal} className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
 
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Nombre del servicio
-                </label>
-                <input
-                  placeholder="Ej: Corte de Cabello"
-                  value={form.nombre}
-                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
+            <header className="mb-8">
+              <h2 className="heading-2">
+                {editId ? "Editar Servicio" : "Nuevo Servicio"}
+              </h2>
+            </header>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* IZQUIERDA: Formulario */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="label">Nombre</label>
+                  <input
+                    value={form.nombre}
+                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                    className="input"
+                    placeholder="Ej: Corte de Autor"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="label">Precio</label>
+                    <input
+                      type="number"
+                      value={form.precio}
+                      onChange={(e) => setForm({ ...form, precio: e.target.value })}
+                      className="input"
+                      placeholder="15000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="label">Tiempo (Min)</label>
+                    <input
+                      type="number"
+                      value={form.duracion}
+                      onChange={(e) => setForm({ ...form, duracion: e.target.value })}
+                      className="input"
+                      placeholder="45"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="label">Categoría</label>
+                  <select
+                    value={form.categoria}
+                    onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+                    className="input"
+                  >
+                    {sugerenciasCategorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="label">Descripción corta</label>
+                  <textarea
+                    rows={2}
+                    value={form.descripcion}
+                    onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+                    className="input resize-none"
+                    placeholder="Describe el servicio..."
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Duración (minutos)
-                </label>
-                <input
-                  placeholder="Ej: 30"
-                  type="number"
-                  value={form.duracion}
-                  onChange={(e) => setForm({ ...form, duracion: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Precio (CLP)
-                </label>
-                <input
-                  placeholder="Ej: 15000"
-                  type="number"
-                  value={form.precio}
-                  onChange={(e) => setForm({ ...form, precio: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
+              {/* DERECHA: Imagen con Drag & Drop */}
+              <div className="flex flex-col">
+                <label className="label mb-2">Imagen Referencial</label>
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`relative flex-grow min-h-[250px] border-2 border-dashed rounded-xl transition-all flex flex-col items-center justify-center p-6 text-center overflow-hidden ${isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : imagePreview ? 'border-gray-300' : 'border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400'
+                    }`}
+                >
+                  {imagePreview ? (
+                    <>
+                      <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                        <p className="text-white font-bold mb-4">Soltar para reemplazar</p>
+                        <label htmlFor="image-input" className="cursor-pointer bg-white text-black px-4 py-2 rounded-lg text-sm font-bold">Cambiar</label>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center mb-4 text-gray-400">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                      <p className="text-gray-700 font-semibold text-sm mb-1">Arrastra tu imagen aquí</p>
+                      <p className="text-gray-500 caption">Recomendado: 800x600px (3:2)</p>
+                      <label htmlFor="image-input" className="mt-4 cursor-pointer text-blue-600 font-semibold text-sm hover:text-blue-700 transition-colors">O busca un archivo</label>
+                    </>
+                  )}
+                  <input type="file" id="image-input" className="hidden" accept="image/*" onChange={handleImageChange} />
+                </div>
+                {imagePreview && (
+                  <button
+                    onClick={() => { setImageFile(null); setImagePreview(""); setForm({ ...form, imagen: "" }); }}
+                    className="mt-4 text-red-600 font-semibold text-sm hover:text-red-700 self-center"
+                  >
+                    Eliminar Imagen
+                  </button>
+                )}
               </div>
             </div>
 
-            <div className="flex gap-3 justify-end">
+            <footer className="flex gap-4 border-t border-gray-200 pt-8">
               <button
                 onClick={cerrarModal}
-                className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                className="btn btn-ghost flex-1"
               >
-                Cancelar
+                Descartar
               </button>
               <button
                 onClick={handleGuardarServicio}
                 disabled={saving}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn btn-primary flex-[2]"
               >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Guardar
-                  </>
-                )}
+                {saving ? "Procesando..." : editId ? "Actualizar Servicio" : "Publicar Servicio"}
               </button>
-            </div>
+            </footer>
           </div>
         </div>
       )}

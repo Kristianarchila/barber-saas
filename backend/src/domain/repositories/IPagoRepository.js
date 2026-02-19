@@ -1,0 +1,10 @@
+/**
+ * IPagoRepository Interface
+ */
+class IPagoRepository {
+    async findAll(filtros) { throw new Error('Method not implemented'); }
+    async findById(id) { throw new Error('Method not implemented'); }
+    async save(pago) { throw new Error('Method not implemented'); }
+}
+
+module.exports = IPagoRepository;

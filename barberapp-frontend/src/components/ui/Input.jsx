@@ -18,12 +18,15 @@ export default function Input({
     onChange,
     icon,
     className = '',
+    variant = 'light', // 'light' or 'dark'
     ...props
 }) {
+    const isDark = variant === 'dark';
+
     return (
         <div className={`relative w-full ${className}`}>
             {icon && (
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>
                     {React.cloneElement(icon, { size: 18 })}
                 </div>
             )}
@@ -33,10 +36,12 @@ export default function Input({
                 value={value}
                 onChange={onChange}
                 className={`
-                    w-full bg-slate-950 border border-slate-800 rounded-2xl py-3 px-4 
-                    text-slate-200 placeholder:text-slate-600
-                    focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 
+                    w-full rounded-2xl py-3 px-4 
                     transition-all outline-none
+                    ${isDark
+                        ? 'bg-slate-950 border border-slate-800 text-slate-200 placeholder:text-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20'
+                        : 'bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20'
+                    }
                     ${icon ? 'pl-12' : ''}
                 `}
                 {...props}

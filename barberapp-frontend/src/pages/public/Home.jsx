@@ -1,123 +1,126 @@
-import { useParams, useNavigate } from "react-router-dom";
 import { useBarberia } from "../../context/BarberiaContext";
-import { Hero } from "../../components/home/Hero";
-import { ServiceCard } from "../../components/home/ServiceCard";
-import { StickyCTA } from "../../components/home/StickyCTA";
-import { BarberCard } from "../../components/home/BarberCard";
-import { PortfolioGallery } from "../../components/home/PortfolioGallery";
+import { BarberiaThemeProvider } from "../../context/BarberiaThemeContext";
+import { ErrorBoundary } from "../../components/ui/ErrorBoundary";
+import { SEOHead } from "../../components/ui/SEOHead";
+import { AnalyticsScripts } from "../../components/ui/AnalyticsScripts";
+import ThemeInjector from "../../components/ui/ThemeInjector";
+import ModernTemplate from "./templates/ModernTemplate";
+import PremiumTemplate from "./templates/PremiumTemplate";
 import { motion } from "framer-motion";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const { slug } = useParams();
-  const { barberia, servicios, barberos, loading } = useBarberia();
+  const { barberia, servicios, barberos, resenas, loading, error } = useBarberia();
 
+  // Loading state
   if (loading) return <LoadingSpinner />;
 
+  // Error state
+  if (error || !barberia) {
+    return <ErrorState error={error} />;
+  }
+
+
+  // Helper function to safely extract string values from potential value objects
+  const extractValue = (val) => {
+    if (val === null || val === undefined) return '';
+    if (typeof val === 'object' && val._value !== undefined) return val._value;
+    return val;
+  };
+
+  // Prepare theme data
+  const theme = {
+    template: extractValue(barberia.configuracion?.template) || 'modern',
+    logo: extractValue(barberia.configuracion?.logoUrl) || '',
+    colorPrimary: extractValue(barberia.configuracion?.colorPrincipal) || '#cc2b2b',
+    colorAccent: extractValue(barberia.configuracion?.colorAccent) || '#1e3a8a',
+    colorSuccess: extractValue(barberia.configuracion?.colorSuccess) || '#059669',
+    colorWarning: extractValue(barberia.configuracion?.colorWarning) || '#f59e0b',
+    colorLight: extractValue(barberia.configuracion?.colorLight) || '#f8fafc',
+    colorDark: extractValue(barberia.configuracion?.colorDark) || '#0a0a0b',
+    fontFamily: extractValue(barberia.configuracion?.fontFamily) || 'Inter',
+    fontHeading: extractValue(barberia.configuracion?.fontHeading) || extractValue(barberia.configuracion?.fontFamily) || 'Inter',
+    heroImages: barberia.configuracion?.galeria || [],
+    nombre: extractValue(barberia.nombre),
+    heroTitle: extractValue(barberia.configuracion?.heroTitle) || 'REDEFINIENDO EL ESTILO MASCULINO',
+    slogan: extractValue(barberia.configuracion?.mensajeBienvenida) || 'Más que un corte, una experiencia. Descubre la excelencia en cada detalle.',
+    badge: extractValue(barberia.configuracion?.badge) || 'ESTUDIO Y EXCELENCIA',
+    ctaPrimary: extractValue(barberia.configuracion?.ctaPrimary) || 'Reservar Turno',
+    ctaSecondary: extractValue(barberia.configuracion?.ctaSecondary) || 'Ver Servicios',
+    // Real social links from barberia
+    instagram: extractValue(barberia.configuracion?.instagram) || '',
+    facebook: extractValue(barberia.configuracion?.facebook) || '',
+    // Add servicios to theme
+    servicios: servicios || [],
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="bg-black min-h-screen text-white selection:bg-gold/30 scroll-smooth"
-    >
-      {/* 1. Cinematic Impact Section */}
-      <Hero
-        nombre={barberia?.nombre}
-        mensaje={barberia?.configuracion?.mensajeBienvenida}
-      />
-
-      {/* 2. Services Section - Refined Spacing */}
-      <section className="py-32 relative">
-        {/* Subtle Background Decoration */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold/5 blur-[120px] rounded-full pointer-events-none" />
-
-        <div className="px-6 mb-12 flex flex-col items-center text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="text-gold tracking-[0.5em] text-[10px] uppercase font-black mb-4"
-          >
-            Nuestra Carta
-          </motion.h2>
-          <p className="text-4xl md:text-6xl font-serif italic tracking-tighter text-white">
-            Servicios de Maestría
-          </p>
-        </div>
-
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-8 px-6 no-scrollbar pb-20 max-w-7xl mx-auto">
-          {servicios && servicios.length > 0 ? (
-            servicios.map((s) => (
-              <ServiceCard key={s._id} servicio={s} />
-            ))
+    <ErrorBoundary>
+      <SEOHead barberia={barberia} />
+      <AnalyticsScripts barberia={barberia} />
+      <BarberiaThemeProvider theme={theme}>
+        <ThemeInjector theme={theme} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {theme.template === 'premium' ? (
+            <PremiumTemplate
+              barberia={barberia}
+              servicios={servicios}
+              barberos={barberos}
+              resenas={resenas}
+            />
           ) : (
-            <div className="w-full text-center py-20 glass-premium rounded-[3rem]">
-              <p className="text-gray-500 text-sm tracking-widest uppercase">Próximamente disponibles</p>
-            </div>
+            <ModernTemplate
+              barberia={barberia}
+              servicios={servicios}
+              barberos={barberos}
+              resenas={resenas}
+            />
           )}
-        </div>
-      </section>
-
-      {/* 3. Team Portfolio Section */}
-      <section className="py-32 bg-neutral-950/50">
-        <div className="px-6 mb-16 max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div>
-            <h2 className="text-gold tracking-[0.5em] text-[10px] uppercase font-black mb-4">
-              El Equipo
-            </h2>
-            <p className="text-4xl md:text-6xl font-serif italic tracking-tighter text-white">
-              Maestros del Oficio
-            </p>
-          </div>
-          <p className="text-gray-500 text-sm max-w-xs leading-relaxed italic">
-            Artistas especializados en el arte de la barbería tradicional y contemporánea.
-          </p>
-        </div>
-
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 px-6 no-scrollbar pb-10 max-w-7xl mx-auto">
-          {barberos && barberos.length > 0 ? (
-            barberos.map((b) => (
-              <BarberCard key={b._id} barbero={b} />
-            ))
-          ) : (
-            <div className="w-full text-center py-20 border border-white/5 rounded-[3rem]">
-              <p className="text-gray-500 text-sm tracking-widest uppercase italic">Nuestros barberos se están preparando...</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 4. Visual Proof Section - The Gallery */}
-      <section className="py-32 bg-black">
-        <div className="px-6 mb-16 flex flex-col items-center text-center">
-          <h2 className="text-gold tracking-[0.5em] text-[10px] uppercase font-black mb-4">
-            Galería
-          </h2>
-          <p className="text-4xl md:text-6xl font-serif italic tracking-tighter text-white">
-            Nuestro Trabajo
-          </p>
-        </div>
-
-        <PortfolioGallery />
-      </section>
-
-      {/* 5. Footer Branding */}
-      <footer className="py-20 border-t border-white/5 text-center bg-black">
-        <p className="text-[10px] tracking-[0.8em] text-gray-700 uppercase font-black">
-          © {new Date().getFullYear()} {barberia?.nombre} • Crafted for excellence
-        </p>
-      </footer>
-
-      {/* 6. Sticky Call to Action */}
-      <StickyCTA onClick={() => navigate(`/${slug}/book`)} />
-    </motion.div>
+        </motion.div>
+      </BarberiaThemeProvider>
+    </ErrorBoundary>
   );
 }
 
+// Loading Spinner
 const LoadingSpinner = () => (
-  <div className="h-screen bg-black flex items-center justify-center">
-    <div className="relative">
-      <div className="w-16 h-16 border border-gold/20 rounded-full" />
-      <div className="absolute inset-0 w-16 h-16 border-t-2 border-gold rounded-full animate-spin" />
+  <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-16 h-16 border-4 border-gold/20 border-t-gold rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-neutral-500 text-sm uppercase tracking-wider">Cargando...</p>
     </div>
+  </div>
+);
+
+// Error State
+const ErrorState = ({ error }) => (
+  <div className="min-h-screen bg-black flex items-center justify-center px-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-md w-full text-center"
+    >
+      <div className="mb-8">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-gold/30 flex items-center justify-center">
+          <span className="text-4xl">🔍</span>
+        </div>
+        <h1 className="text-3xl font-serif italic text-white mb-4">
+          Barbería no encontrada
+        </h1>
+        <p className="text-gray-400 text-sm leading-relaxed mb-8">
+          {error || "No pudimos encontrar esta barbería. Verifica la URL o contacta al administrador."}
+        </p>
+      </div>
+
+      <button
+        onClick={() => window.location.href = '/'}
+        className="px-8 py-3 bg-gold/10 border border-gold/30 text-gold rounded-full text-sm uppercase tracking-widest font-bold hover:bg-gold hover:text-black transition-all duration-300"
+      >
+        Volver al Inicio
+      </button>
+    </motion.div>
   </div>
 );

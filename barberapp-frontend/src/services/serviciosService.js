@@ -27,7 +27,10 @@ function getSlugActual() {
 export async function getServicios() {
   const slug = getSlugActual();
   const res = await api.get(`/barberias/${slug}/admin/servicios`);
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { total: number, servicios: Array }
+  // Retornamos solo el array de servicios para compatibilidad
+  return res.data.servicios || res.data;
 }
 
 /**
@@ -39,7 +42,9 @@ export async function getServicios() {
 export async function crearServicio(data) {
   const slug = getSlugActual();
   const res = await api.post(`/barberias/${slug}/admin/servicios`, data);
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { message: string, servicio: Object }
+  return res.data.servicio || res.data;
 }
 
 /**
@@ -52,7 +57,9 @@ export async function crearServicio(data) {
 export async function editarServicio(id, data) {
   const slug = getSlugActual();
   const res = await api.put(`/barberias/${slug}/admin/servicios/${id}`, data);
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { message: string, servicio: Object }
+  return res.data.servicio || res.data;
 }
 
 /**
@@ -65,5 +72,7 @@ export async function editarServicio(id, data) {
 export async function cambiarEstadoServicio(id, activo) {
   const slug = getSlugActual();
   const res = await api.patch(`/barberias/${slug}/admin/servicios/${id}`, { activo });
-  return res.data;
+
+  // Arquitectura hexagonal devuelve: { message: string, servicio: Object }
+  return res.data.servicio || res.data;
 }

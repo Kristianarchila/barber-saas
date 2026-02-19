@@ -1,0 +1,97 @@
+# ─────────────────────────────────────────────────────────────
+# Docker Compose — Production Override (SSL/TLS)
+# ─────────────────────────────────────────────────────────────
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Before first run:
+#   1. Set DOMAIN and CERTBOT_EMAIL in your .env file
+#   2. Run: bash scripts/init-letsencrypt.sh
+# ─────────────────────────────────────────────────────────────
+
+services:
+  frontend:
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - certbot-conf:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
+    environment:
+      - DOMAIN=${DOMAIN:?DOMAIN is required}
+    # On startup, substitute ${DOMAIN} in the SSL config and use it
+    command: >
+      /bin/sh -c "
+        if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
+          echo '🔒 SSL certificates found — enabling HTTPS';
+          envsubst '$$DOMAIN' < /etc/nginx/conf.d/ssl.conf.template > /etc/nginx/conf.d/default.conf;
+        else
+          echo '⚠️  No SSL certificates found — running HTTP only';
+          echo '   Run scripts/init-letsencrypt.sh first';
+        fi;
+        nginx -g 'daemon off;'
+      "
+
+  # ─────────────────────────────────────────
+  # Certbot (Let's Encrypt auto-renewal)
+  # ─────────────────────────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    container_name: barber-certbot
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    # Auto-renew every 12 hours (certbot exits if not needed)
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done;'"
+    depends_on:
+      - frontend
+
+  # ─────────────────────────────────────────
+  # MongoDB Automated Backups (Daily at 3 AM)
+  # ─────────────────────────────────────────
+  backup:
+    image: mongo:7
+    container_name: barber-backup
+    restart: unless-stopped
+    volumes:
+      - ./scripts/backup-mongo.sh:/backup-mongo.sh:ro
+      - mongo-backups:/backups
+    environment:
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_DB: barber-saas
+      MONGO_USER: barber_app
+      MONGO_PASSWORD: ${MONGO_APP_PASSWORD:?MONGO_APP_PASSWORD is required}
+      MONGO_AUTH_DB: barber-saas
+      BACKUP_DIR: /backups
+      RETENTION_DAILY: 7
+      RETENTION_WEEKLY: 4
+      RETENTION_MONTHLY: 6
+    # Run backup at 3 AM daily using a simple sleep loop
+    entrypoint: >
+      /bin/bash -c "
+        echo '🗃️  Backup service started';
+        echo '   Schedule: Daily at 03:00 UTC';
+        echo '   Retention: 7 daily / 4 weekly / 6 monthly';
+        chmod +x /backup-mongo.sh;
+        # Run initial backup on startup
+        /backup-mongo.sh;
+        # Then run daily at 3 AM
+        while true; do
+          CURRENT_HOUR=$$(date +%H);
+          CURRENT_MIN=$$(date +%M);
+          if [ \"$$CURRENT_HOUR\" = '03' ] && [ \"$$CURRENT_MIN\" = '00' ]; then
+            /backup-mongo.sh;
+            sleep 120;
+          fi;
+          sleep 50;
+        done
+      "
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  certbot-conf:
+  certbot-www:
+  mongo-backups:

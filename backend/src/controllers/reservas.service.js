@@ -1,4 +1,4 @@
-const Reserva = require("../models/Reserva");
+const Reserva = require("../infrastructure/database/mongodb/models/Reserva");
 const events = require("../events");
 
 // ⚠️ OBLIGATORIO: la función debe ser async

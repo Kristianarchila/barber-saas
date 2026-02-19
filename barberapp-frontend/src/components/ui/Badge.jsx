@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 /**
  * Badge Component - Badge reutilizable con variantes semánticas
  * 
- * @param {string} variant - Variante: 'success' | 'warning' | 'error' | 'info' | 'neutral'
+ * @param {string} variant - Variante: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'premium' | 'premium-gold'
  * @param {string} size - Tamaño: 'sm' | 'md' | 'lg'
  * @param {ReactNode} children - Contenido del badge
  * @param {string} className - Clases adicionales
@@ -21,9 +21,11 @@ export default function Badge({
         warning: 'bg-warning-500/20 text-warning-500 border border-warning-500/30',
         error: 'bg-error-500/20 text-error-500 border border-error-500/30',
         info: 'bg-info-500/20 text-info-500 border border-info-500/30',
-        neutral: 'bg-neutral-800 text-neutral-300 border border-neutral-700',
+        neutral: 'bg-gray-100 text-gray-600 border border-gray-200',
         primary: 'bg-primary-500/20 text-primary-500 border border-primary-500/30',
         outline: 'bg-transparent text-slate-500 border border-slate-800',
+        premium: 'bg-transparent text-black/60 border border-black/10 uppercase tracking-wide font-medium',
+        'premium-gold': 'bg-[#C9A961]/10 text-[#8B7355] border border-[#C9A961]/30 uppercase tracking-wide font-medium',
     };
 
     const sizes = {
@@ -40,8 +42,9 @@ export default function Badge({
 }
 
 Badge.propTypes = {
-    variant: PropTypes.oneOf(['success', 'warning', 'error', 'info', 'neutral', 'primary', 'outline']),
+    variant: PropTypes.oneOf(['success', 'warning', 'error', 'info', 'neutral', 'primary', 'outline', 'premium', 'premium-gold']),
     size: PropTypes.oneOf(['sm', 'md', 'lg']),
     children: PropTypes.node,
     className: PropTypes.string,
 };
+

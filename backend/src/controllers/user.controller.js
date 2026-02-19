@@ -1,89 +1,121 @@
-const User = require("../models/User");
-const Barberia = require("../models/Barberia");
-const Barbero = require("../models/Barbero");
+/**
+ * User Controller (Hexagonal Architecture Version)
+ * Acts as an adapter in the interfaces layer
+ */
+const container = require('../shared/Container');
 
-// Crear BARBERIA_ADMIN (solo SUPER_ADMIN)
+// ==========================================
+// 1) CREAR BARBERIA_ADMIN (SUPER_ADMIN)
+// ==========================================
 exports.createBarberiaAdmin = async (req, res, next) => {
-  try {
-    const { nombre, email, password, barberiaId } = req.body;
+    try {
+        const useCase = container.createBarberiaAdminUseCase;
+        const user = await useCase.execute(req.body);
 
-    if (!nombre || !email || !password || !barberiaId) {
-      return res.status(400).json({
-        message: "Datos incompletos"
-      });
+        res.status(201).json({
+            message: 'Administrador de barbería creado',
+            user: {
+                id: user.id,
+                nombre: user.nombre,
+                email: user.email,
+                rol: user.rol,
+                barberiaId: user.barberiaId
+            }
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // Verificar que la barbería exista
-    const barberia = await Barberia.findById(barberiaId);
-    if (!barberia) {
-      return res.status(404).json({
-        message: "Barbería no encontrada"
-      });
-    }
-
-    const user = await User.create({
-      nombre,
-      email,
-      password,
-      rol: "BARBERIA_ADMIN",
-      barberiaId
-    });
-
-    res.status(201).json({
-      message: "Administrador de barbería creado",
-      user: {
-        id: user._id,
-        nombre: user.nombre,
-        email: user.email,
-        rol: user.rol,
-        barberiaId: user.barberiaId
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-// =========================================================
-// CREAR USUARIO BARBERO (solo BARBERIA_ADMIN)
-// =========================================================
+// ==========================================
+// 2) CREAR USUARIO BARBERO (BARBERIA_ADMIN)
+// ==========================================
 exports.createUsuarioBarbero = async (req, res, next) => {
-  try {
-    const { nombre, email, password, barberoId } = req.body;
+    try {
+        if (req.user.rol !== 'BARBERIA_ADMIN') {
+            return res.status(403).json({ message: 'No autorizado' });
+        }
 
-    if (!nombre || !email || !password || !barberoId) {
-      return res.status(400).json({ message: "Datos incompletos" });
+        const useCase = container.createUsuarioBarberoUseCase;
+        const user = await useCase.execute({
+            ...req.body,
+            barberiaId: req.user.barberiaId
+        });
+
+        res.status(201).json({
+            message: 'Usuario barbero creado',
+            user: {
+                id: user.id,
+                nombre: user.nombre,
+                email: user.email,
+                rol: user.rol
+            }
+        });
+    } catch (error) {
+        next(error);
     }
+};
 
-    // Solo ADMIN puede crear barberos
-    if (req.user.rol !== "BARBERIA_ADMIN") {
-      return res.status(403).json({ message: "No autorizado" });
+// ==========================================
+// 3) MIS BARBERÍAS (MULTI-SEDE)
+// ==========================================
+exports.getMyBarberias = async (req, res, next) => {
+    try {
+        const useCase = container.getMyBarberiasUseCase;
+        const barberias = await useCase.execute(req.user.id);
+
+        res.json(barberias.map(b => ({
+            id: b.id,
+            nombre: b.nombre,
+            slug: b.slug,
+            logoUrl: b.configuracion?.logoUrl,
+            direccion: b.direccion
+        })));
+    } catch (error) {
+        next(error);
     }
+};
 
-    const barbero = await Barbero.findById(barberoId);
-    if (!barbero) {
-      return res.status(404).json({ message: "Barbero no encontrado" });
+// ==========================================
+// 4) LISTAR CLIENTES
+// ==========================================
+exports.obtenerClientesByBarberia = async (req, res, next) => {
+    try {
+        const useCase = container.listClientesUseCase;
+        const clientes = await useCase.execute(req.user.barberiaId);
+
+        res.json(clientes.map(c => ({
+            id: c.id,
+            nombre: c.nombre,
+            email: c.email,
+            createdAt: c.createdAt
+        })));
+    } catch (error) {
+        next(error);
     }
+};
 
-    const user = await User.create({
-      nombre,
-      email,
-      password,
-      rol: "BARBERO",
-      barberiaId: barbero.barberiaId
-    });
+// ==========================================
+// 5) CREAR CLIENTE (ADMIN)
+// ==========================================
+exports.createCliente = async (req, res, next) => {
+    try {
+        const useCase = container.createClienteUseCase;
+        const user = await useCase.execute({
+            ...req.body,
+            barberiaId: req.user.barberiaId
+        });
 
-    res.status(201).json({
-      message: "Usuario barbero creado",
-      user: {
-        id: user._id,
-        nombre: user.nombre,
-        email: user.email,
-        rol: user.rol
-      }
-    });
-
-  } catch (error) {
-    next(error);
-  }
+        res.status(201).json({
+            message: 'Cliente creado exitosamente',
+            cliente: {
+                id: user.id,
+                nombre: user.nombre,
+                email: user.email,
+                createdAt: user.createdAt
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
 };

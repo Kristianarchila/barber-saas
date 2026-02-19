@@ -66,3 +66,48 @@ export async function getFinanzasSuperAdmin() {
   const res = await api.get("/superadmin/finanzas");
   return res.data;
 }
+
+// =========================================================
+// GESTIÓN DE ADMINS
+// =========================================================
+export async function getAdminsSuperAdmin(params = {}) {
+  const res = await api.get("/superadmin/admins", { params });
+  return res.data;
+}
+
+export async function actualizarSedesAdmin(id, barberiaIds) {
+  const res = await api.patch(`/superadmin/admins/${id}/sedes`, { barberiaIds });
+  return res.data;
+}
+
+// =========================================================
+// GESTIÓN DE SUCURSALES (Multi-Location)
+// =========================================================
+export async function getSucursales(barberiaId) {
+  const res = await api.get(`/superadmin/barberias/${barberiaId}/sucursales`);
+  return res.data;
+}
+
+export async function crearSucursal(barberiaId, data) {
+  const res = await api.post(`/superadmin/barberias/${barberiaId}/sucursales`, data);
+  return res.data;
+}
+
+export async function actualizarSucursal(barberiaId, sucursalId, data) {
+  const res = await api.put(`/superadmin/barberias/${barberiaId}/sucursales/${sucursalId}`, data);
+  return res.data;
+}
+
+export async function eliminarSucursal(barberiaId, sucursalId) {
+  const res = await api.delete(`/superadmin/barberias/${barberiaId}/sucursales/${sucursalId}`);
+  return res.data;
+}
+
+export async function toggleMatriz(barberiaId, esMatriz) {
+  const res = await api.patch(`/superadmin/barberias/${barberiaId}/matriz`, { esMatriz });
+  return res.data;
+}
+export async function getAuditLogs(params = {}) {
+  const res = await api.get("/superadmin/audit-logs", { params });
+  return res.data;
+}

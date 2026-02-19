@@ -1,14 +1,15 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "../guards/ProtectedRoute";
-
 import BarberoLayout from "../layout/BarberoLayout";
 
-import Dashboard from "../pages/barbero/Dashboard";
-import Citas from "../pages/barbero/Citas";
-import Perfil from "../pages/barbero/Perfil";
-
-import MisFinanzas from "../pages/barbero/MisFinanzas";
-import MisTransacciones from "../pages/barbero/MisTransacciones";
+// Lazy-loaded pages
+const Dashboard = lazy(() => import("../pages/barbero/Dashboard"));
+const Agenda = lazy(() => import("../pages/barbero/Agenda"));
+const Citas = lazy(() => import("../pages/barbero/Citas"));
+const Perfil = lazy(() => import("../pages/barbero/Perfil"));
+const MisFinanzas = lazy(() => import("../pages/barbero/MisFinanzas"));
+const MisTransacciones = lazy(() => import("../pages/barbero/MisTransacciones"));
 
 export default function BarberoRouter() {
   return (
@@ -20,6 +21,9 @@ export default function BarberoRouter() {
 
           {/* /:slug/barbero/dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
+
+          {/* /:slug/barbero/agenda */}
+          <Route path="agenda" element={<Agenda />} />
 
           {/* /:slug/barbero/citas */}
           <Route path="citas" element={<Citas />} />

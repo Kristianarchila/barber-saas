@@ -12,7 +12,7 @@ export default function Skeleton({
     height = 'h-4',
     className = '',
 }) {
-    const baseClasses = 'bg-neutral-800 animate-shimmer';
+    const baseClasses = 'bg-gray-200 animate-pulse';
 
     const variants = {
         text: 'rounded',

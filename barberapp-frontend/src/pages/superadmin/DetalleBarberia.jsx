@@ -87,6 +87,29 @@ export default function DetalleBarberia() {
         )}
       </div>
 
+      {/* Multi-Sede */}
+      <div className="bg-gray-800 rounded p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-bold">Multi-Sede</h2>
+          {barberia.esMatriz && (
+            <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">
+              Activo
+            </span>
+          )}
+        </div>
+        <p className="text-gray-400 mb-3">
+          {barberia.esMatriz
+            ? `${barberia.sucursales?.length || 0} sucursal(es) configurada(s)`
+            : "Modo multi-sede desactivado"}
+        </p>
+        <button
+          onClick={() => navigate(`/superadmin/dashboard/barberias/${id}/sucursales`)}
+          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm font-semibold transition-all"
+        >
+          Gestionar Sucursales
+        </button>
+      </div>
+
       {/* Acciones */}
       <div className="flex gap-3 flex-wrap">
         {barberia.estado !== "activa" && (

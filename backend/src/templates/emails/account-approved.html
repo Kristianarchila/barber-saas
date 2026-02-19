@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Cuenta Aprobada!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .checkmark {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .content h2 {
+            color: #1a202c;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .content p {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            display: block;
+            width: fit-content;
+            margin: 40px auto;
+            padding: 18px 50px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .features {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .feature-content h4 {
+            color: #1a202c;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .feature-content p {
+            color: #718096;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .footer {
+            background: #f7fafc;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 20px;
+            }
+
+            .header {
+                padding: 40px 20px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .cta-button {
+                padding: 16px 40px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="checkmark">✅</div>
+            <h1>¡Cuenta Aprobada!</h1>
+            <p>Ya puedes comenzar a usar Barber SaaS</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2>¡Felicidades {{nombre}}! 🎊</h2>
+
+            <p>
+                Tu cuenta ha sido <strong>aprobada exitosamente</strong>.
+                Ahora tienes acceso completo a todas las funcionalidades de Barber SaaS.
+            </p>
+
+            <p style="text-align: center; font-size: 18px; color: #10b981; font-weight: 600; margin: 30px 0;">
+                ¡Es hora de digitalizar tu barbería!
+            </p>
+
+            <a href="{{loginUrl}}" class="cta-button">
+                Iniciar Sesión Ahora →
+            </a>
+
+            <!-- Barberia Info -->
+            <div
+                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 25px; margin: 30px 0; text-align: center;">
+                <h3 style="color: white; font-size: 18px; font-weight: 700; margin-bottom: 15px;">
+                    🏪 Tu Barbería Está Lista
+                </h3>
+                <p style="color: rgba(255, 255, 255, 0.95); font-size: 14px; margin-bottom: 20px;">
+                    Hemos creado tu barbería con el nombre: <strong>{{nombre}}</strong>
+                </p>
+                <div
+                    style="background: rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                    <p
+                        style="color: rgba(255, 255, 255, 0.8); font-size: 12px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">
+                        Tu URL de Reservas
+                    </p>
+                    <p style="color: white; font-size: 16px; font-weight: 600; word-break: break-all;">
+                        {{publicUrl}}
+                    </p>
+                </div>
+                <p style="color: rgba(255, 255, 255, 0.9); font-size: 13px; margin: 0;">
+                    Comparte este link con tus clientes para que puedan reservar online 🚀
+                </p>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-content">
+                        <h4>Gestión de Reservas</h4>
+                        <p>Administra todas tus citas desde un solo lugar</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-content">
+                        <h4>Control Financiero</h4>
+                        <p>Lleva el control de ingresos, egresos y comisiones</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-content">
+                        <h4>Reportes y Analytics</h4>
+                        <p>Toma decisiones basadas en datos reales</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-content">
+                        <h4>Gestión de Equipo</h4>
+                        <p>Administra barberos, servicios y horarios</p>
+                    </div>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 30px; color: #718096;">
+                <strong>Tus credenciales de acceso:</strong><br>
+                Email: <span style="color: #1a202c;">{{email}}</span><br>
+                <small>Usa la contraseña que creaste al registrarte</small>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                ¿Necesitas ayuda para comenzar?
+                <a href="mailto:soporte@barbersaas.com" style="color: #10b981; text-decoration: none;">Contáctanos</a>
+            </p>
+            <p style="color: #a0aec0; font-size: 12px; margin-top: 20px;">
+                © 2026 Barber SaaS. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

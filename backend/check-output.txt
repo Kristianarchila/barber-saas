@@ -1,0 +1,61 @@
+﻿[dotenv@17.2.3] injecting env (15) from .env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+node : (node:30760) 
+[MONGOOSE] Warning: 
+Duplicate schema 
+index on {"slug":1} 
+found. This is often 
+due to declaring an 
+index using both 
+"index: true" and 
+"schema.index()". 
+Please remove the 
+duplicate index 
+definition.
+En línea: 1 Carácter: 
+1
++ node scripts/check-s
+uperadmin.js 2>&1 | 
+Out-File -FilePath 
+check-outp ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ((node:3076   
+ 0) [M...dex defin    
+ition.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+(Use `node 
+--trace-warnings ...` 
+to show where the 
+warning was created)
+Ô£à Conectado a MongoDB
+
+­ƒôè SUPER_ADMINS ENCONTRADOS: 1
+==================================================
+
+1. SUPER_ADMIN:
+   - ID: new ObjectId('69716ab8c7a7abd90ca92e66')
+   - Nombre: Super Admin
+   - Email: krisjosearchila@gmail.com
+   - Activo: Ô£à
+   - Creado: 2026-01-22T00:09:28.006Z
+
+==================================================
+­ƒôè ESTAD├ìSTICAS DE BARBER├ìAS:
+   - Total: 4
+   - Activas: 1
+   - Trial: 1
+   - Suspendidas: 1
+
+­ƒôï Primeras barber├¡as:
+   1. Barber├¡a Central (/barberia-central) - trial
+   2. barberiaCapitan (/barberiacapitan) - suspendida
+   3. barberiapedrope (/barberiapedrope) - trial
+   4. barberialamejor (/barberialamejor) - activa
+
+­ƒæï Desconectado de MongoDB

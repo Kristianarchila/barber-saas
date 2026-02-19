@@ -1,13 +1,20 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "../guards/ProtectedRoute";
 import SuperAdminLayout from "../layout/SuperAdminLayout";
 
-import SuperAdminDashboard from "../pages/superadmin/Dashboard";
-import BarberiasList from "../pages/superadmin/Barberias";
-import CrearBarberia from "../pages/superadmin/CrearBarberia";
-import DetalleBarberia from "../pages/superadmin/DetalleBarberia";
-import Finanzas from "../pages/superadmin/Finanzas";
-import Reportes from "../pages/superadmin/Reportes";
+// Lazy-loaded pages
+const SuperAdminDashboard = lazy(() => import("../pages/superadmin/Dashboard"));
+const BarberiasList = lazy(() => import("../pages/superadmin/Barberias"));
+const CrearBarberia = lazy(() => import("../pages/superadmin/CrearBarberia"));
+const DetalleBarberia = lazy(() => import("../pages/superadmin/DetalleBarberia"));
+const GestionarSucursales = lazy(() => import("../pages/superadmin/GestionarSucursales"));
+const Finanzas = lazy(() => import("../pages/superadmin/Finanzas"));
+const Reportes = lazy(() => import("../pages/superadmin/Reportes"));
+const Admins = lazy(() => import("../pages/superadmin/Admins"));
+const Suscripciones = lazy(() => import("../pages/superadmin/Suscripciones"));
+const CuentasPendientes = lazy(() => import("../pages/superadmin/CuentasPendientes"));
+const AuditLogs = lazy(() => import("../pages/superadmin/AuditLogs"));
 
 export default function SuperAdminRouter() {
   return (
@@ -40,9 +47,19 @@ export default function SuperAdminRouter() {
           element={<DetalleBarberia />}
         />
 
+        {/* /superadmin/dashboard/barberias/:id/sucursales */}
+        <Route
+          path="dashboard/barberias/:id/sucursales"
+          element={<GestionarSucursales />}
+        />
+
         <Route path="dashboard/finanzas" element={<Finanzas />} />
 
         <Route path="dashboard/reportes" element={<Reportes />} />
+        <Route path="dashboard/admins" element={<Admins />} />
+        <Route path="dashboard/suscripciones" element={<Suscripciones />} />
+        <Route path="dashboard/cuentas-pendientes" element={<CuentasPendientes />} />
+        <Route path="dashboard/auditoria" element={<AuditLogs />} />
 
       </Route>
     </Routes>

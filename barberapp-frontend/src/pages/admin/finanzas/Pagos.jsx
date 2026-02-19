@@ -1,39 +1,33 @@
 import { useState, useEffect } from "react";
-import { getTransactions, marcarComoPagado, getBalanceBarbero } from "../../../services/transactionService";
-import { getBarberos } from "../../../services/barberosService";
-import { Card, Button, Badge, Skeleton, Avatar } from "../../../components/ui";
+import dayjs from "dayjs";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    CreditCard,
-    Search,
-    ArrowUpRight,
-    CheckCircle2,
-    Clock,
-    DollarSign,
     Wallet,
-    Users,
-    AlertCircle,
-    FileText,
-    Filter,
     RefreshCcw,
-    ArrowRight
+    Check,
+    CheckCircle2,
+    ChevronRight,
+    FileText,
+    Loader2,
+    Users,
+    CreditCard
 } from "lucide-react";
+import { getBarberos } from "../../../services/barberosService";
+import { getBalanceBarbero, getTransactions, marcarComoPagado } from "../../../services/transactionService";
+import { Button, Badge, Avatar, Card } from "../../../components/ui";
+import { ErrorAlert } from "../../../components/ErrorComponents";
+import { useApiCall } from "../../../hooks/useApiCall";
+import { useAsyncAction } from "../../../hooks/useAsyncAction";
 
 export default function Pagos() {
-    const [loading, setLoading] = useState(true);
     const [barberosBalances, setBarberosBalances] = useState([]);
     const [selectedBarbero, setSelectedBarbero] = useState(null);
     const [barberoTransactions, setBarberoTransactions] = useState([]);
-    const [loadingBarbero, setLoadingBarbero] = useState(false);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
+    // Hook para cargar balances de todos los barberos
+    const { execute: fetchData, loading, error } = useApiCall(
+        async () => {
             const barberosData = await getBarberos();
-
             // Obtener balance para cada barbero
             const balances = await Promise.all(
                 barberosData.map(async (b) => {
@@ -44,53 +38,56 @@ export default function Pagos() {
                     };
                 })
             );
-
-            setBarberosBalances(balances);
-        } catch (error) {
-            console.error("Error fetching payouts data:", error);
-        } finally {
-            setLoading(false);
+            return balances;
+        },
+        {
+            errorMessage: 'Error al cargar los balances del staff.',
+            onSuccess: (balances) => setBarberosBalances(balances)
         }
-    };
+    );
 
-    const fetchBarberoTransactions = async (barberoId) => {
-        try {
-            setLoadingBarbero(true);
-            const data = await getTransactions({
+    // Hook para cargar transacciones de un barbero específico
+    const { execute: fetchBarberoTransactions, loading: loadingBarbero, error: errorBarbero } = useApiCall(
+        async (barberoId) => {
+            return await getTransactions({
                 barberoId,
                 estado: 'aprobado',
                 limit: 100
             });
-            setBarberoTransactions(data.transactions);
-        } catch (error) {
-            console.error("Error fetching barbero transactions:", error);
-        } finally {
-            setLoadingBarbero(false);
+        },
+        {
+            errorMessage: 'Error al cargar las transacciones del profesional.',
+            onSuccess: (data) => setBarberoTransactions(data.transactions)
         }
-    };
+    );
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleSelectBarbero = (b) => {
         setSelectedBarbero(b);
         fetchBarberoTransactions(b._id);
     };
 
-    const handlePaySelection = async () => {
-        if (!confirm(`¿Deseas marcar las ${barberoTransactions.length} transacciones como pagadas para ${selectedBarbero.nombre}?`)) return;
-
-        try {
-            setLoadingBarbero(true);
-            await Promise.all(
+    // Hook para procesar pagos (liquidación)
+    const { execute: handlePaySelection, loading: procesandoPago } = useAsyncAction(
+        async () => {
+            if (barberoTransactions.length === 0) return;
+            return await Promise.all(
                 barberoTransactions.map(tx => marcarComoPagado(tx._id, { metodoPago: 'efectivo' }))
             );
-            alert("Pagos procesados correctamente");
-            fetchData();
-            setSelectedBarbero(null);
-        } catch (error) {
-            alert("Error procesando pagos");
-        } finally {
-            setLoadingBarbero(false);
+        },
+        {
+            successMessage: '✅ Pagos procesados y liquidados correctamente',
+            errorMessage: 'Error al procesar la liquidación',
+            confirmMessage: `¿Deseas marcar las transacciones como pagadas y cerrar este periodo?`,
+            onSuccess: () => {
+                fetchData();
+                setSelectedBarbero(null);
+            }
         }
-    };
+    );
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('es-CL', {
@@ -100,148 +97,224 @@ export default function Pagos() {
     };
 
     return (
-        <div className="space-y-8 animate-slide-in pb-20">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 pb-24 lg:pb-8">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black text-gradient-primary flex items-center gap-3">
-                        <CreditCard size={40} className="text-primary-500" />
-                        Liquidación de Pagos
+                    <h1 className="heading-1 flex items-center gap-3">
+                        <Wallet className="text-blue-600" size={32} />
+                        Liquidación de Haberes
                     </h1>
-                    <p className="text-neutral-400 text-lg mt-2">
-                        Gestiona los montos acumulados y paga a tu equipo de barberos
+                    <p className="body-large text-gray-600 mt-2">
+                        Control de comisiones y cierres de pagos al staff
                     </p>
                 </div>
-                <Button variant="ghost" onClick={fetchData} className="bg-neutral-900 border-neutral-800">
-                    <RefreshCcw size={18} />
-                    Refrescar Balances
+                <Button
+                    variant="outline"
+                    onClick={fetchData}
+                    className="flex items-center gap-2 px-6 py-4 rounded-2xl font-black transition-all hover:bg-gray-50 border-gray-200"
+                >
+                    <RefreshCcw size={20} />
+                    Actualizar Balances
                 </Button>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {error && (
+                <div className="max-w-4xl mx-auto mb-8">
+                    <ErrorAlert
+                        title="Error en Liquidaciones"
+                        message={error}
+                        onRetry={fetchData}
+                        variant="error"
+                    />
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
                 {/* LISTA DE BARBEROS Y SUS BALANCES */}
                 <div className="lg:col-span-5 space-y-6">
-                    <h3 className="text-xs font-black text-neutral-500 uppercase tracking-[0.2em] px-4">Balances del Staff</h3>
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="caption font-black text-gray-400 uppercase tracking-widest">Estado de Cuentas Staff</h3>
+                        <Badge className="bg-blue-50 text-blue-600 border-none font-black px-3 py-1 text-[10px]">
+                            {barberosBalances.length} PROFESIONALES
+                        </Badge>
+                    </div>
 
-                    {loading ? (
-                        [1, 2, 3].map(i => <Skeleton key={i} variant="rectangular" height="h-32" className="rounded-3xl" />)
-                    ) : (
-                        barberosBalances.map(b => (
-                            <Card
-                                key={b._id}
-                                onClick={() => handleSelectBarbero(b)}
-                                className={`cursor-pointer transition-all border-2 ${selectedBarbero?._id === b._id
-                                        ? "border-primary-500 bg-primary-500 bg-opacity-5 shadow-glow-primary"
-                                        : "border-neutral-900 bg-neutral-900 hover:border-neutral-800"
-                                    } rounded-[32px] overflow-hidden group`}
-                            >
-                                <div className="p-6 flex items-center gap-4">
-                                    <Avatar src={b.foto} name={b.nombre} size="lg" className="border-2 border-neutral-800" />
-                                    <div className="flex-1">
-                                        <h4 className="text-lg font-black text-white">{b.nombre}</h4>
-                                        <p className="text-xs text-neutral-500 uppercase font-bold tracking-wider group-hover:text-primary-500 transition-colors">Ver Detalles de Pago</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-2xl font-black text-white">{formatCurrency(b.balance.pendiente.totalMontoBarero || b.balance.pendiente.totalMontoBarbero)}</p>
-                                        <Badge variant="warning" className="text-[10px] font-black uppercase">Pendiente</Badge>
-                                    </div>
-                                </div>
-                                <div className="px-6 py-4 bg-black bg-opacity-20 flex justify-between items-center text-[10px] font-black uppercase text-neutral-500 tracking-widest">
-                                    <div className="flex items-center gap-2">
-                                        <CheckCircle2 size={12} className="text-success-500" />
-                                        <span>Pagado histórico: {formatCurrency(b.balance.pagado.totalMontoBarbero)}</span>
-                                    </div>
-                                    <ArrowRight size={14} className={selectedBarbero?._id === b._id ? "text-primary-500" : ""} />
-                                </div>
-                            </Card>
-                        ))
-                    )}
+                    <div className="space-y-4">
+                        {loading ? (
+                            [1, 2, 3].map(i => <Card key={i} className="h-32 bg-gray-50 animate-pulse border-none" />)
+                        ) : (
+                            barberosBalances.map(b => (
+                                <motion.div
+                                    key={b._id}
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    onClick={() => handleSelectBarbero(b)}
+                                    className={`relative cursor-pointer transition-all ${selectedBarbero?._id === b._id
+                                        ? "scale-[1.02]"
+                                        : ""
+                                        }`}
+                                >
+                                    <Card className={`p-6 shadow-sm border-none ring-1 transition-all ${selectedBarbero?._id === b._id
+                                        ? "ring-blue-500 bg-white"
+                                        : "ring-gray-100 hover:ring-blue-200 bg-white"
+                                        }`}>
+                                        <div className="flex items-center gap-5">
+                                            <div className="relative">
+                                                <Avatar src={b.foto} name={b.nombre} className="w-16 h-16 ring-4 ring-gray-50 shadow-sm" />
+                                                {selectedBarbero?._id === b._id && (
+                                                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 border-2 border-white rounded-full flex items-center justify-center">
+                                                        <Check size={12} className="text-white" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="body-large font-black text-gray-900 truncate">{b.nombre}</h4>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                                                    <span className="caption font-black text-gray-400 uppercase tracking-tighter">Staff Activo</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xl font-black text-gray-900">
+                                                    {formatCurrency(b.balance.pendiente.totalMontoBarero || b.balance.pendiente.totalMontoBarbero)}
+                                                </p>
+                                                <span className="caption font-black text-amber-500 uppercase tracking-widest text-[9px]">A Liquidar</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-5 pt-4 border-t border-gray-50 flex justify-between items-center">
+                                            <div className="flex items-center gap-2 caption font-black text-gray-400">
+                                                <CheckCircle2 size={12} className="text-green-600" />
+                                                Pagado histórico: {formatCurrency(b.balance.pagado.totalMontoBarbero)}
+                                            </div>
+                                            <ChevronRight size={18} className={selectedBarbero?._id === b._id ? "text-blue-600" : "text-gray-300"} />
+                                        </div>
+                                    </Card>
+                                </motion.div>
+                            ))
+                        )}
+                    </div>
                 </div>
 
                 {/* DETALLE DE PAGO SELECCIONADO */}
                 <div className="lg:col-span-7">
-                    {selectedBarbero ? (
-                        <div className="space-y-6 animate-slide-in">
-                            <Card className="bg-neutral-900 border-neutral-800 rounded-[40px] overflow-hidden">
-                                <div className="p-8 border-b border-neutral-800 bg-neutral-800 bg-opacity-30">
-                                    <div className="flex flex-col md:flex-row justify-between gap-6">
-                                        <div className="flex items-center gap-5">
-                                            <div className="p-4 bg-primary-500 bg-opacity-20 rounded-[28px] shadow-glow-primary">
-                                                <Wallet className="text-primary-500" size={32} />
+                    <AnimatePresence mode="wait">
+                        {selectedBarbero ? (
+                            <motion.div
+                                key={selectedBarbero._id}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-6"
+                            >
+                                <Card className="p-10 shadow-sm border-none ring-1 ring-gray-100 bg-white">
+                                    <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10 pb-10 border-b border-gray-50">
+                                        <div className="flex items-center gap-6">
+                                            <div className="p-5 bg-blue-50 rounded-[24px] text-blue-600">
+                                                <CreditCard size={40} />
                                             </div>
                                             <div>
-                                                <h3 className="text-2xl font-black text-white">Resumen para {selectedBarbero.nombre}</h3>
-                                                <p className="text-neutral-500 font-bold uppercase text-[10px] tracking-widest mt-1">Corte de caja pendiente</p>
+                                                <h3 className="heading-3 text-gray-900">Corte de Caja Staff</h3>
+                                                <div className="flex items-center gap-3 mt-2">
+                                                    <Avatar src={selectedBarbero.foto} name={selectedBarbero.nombre} className="w-6 h-6" />
+                                                    <p className="body-small font-black text-gray-500">{selectedBarbero.nombre}</p>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="text-right">
-                                            <p className="text-4xl font-black text-white">{formatCurrency(selectedBarbero.balance.pendiente.totalMontoBarero || selectedBarbero.balance.pendiente.totalMontoBarbero)}</p>
-                                            <p className="text-neutral-500 font-bold uppercase text-[10px] tracking-widest">Monto total a liquidar</p>
+                                        <div className="text-right p-6 bg-gray-50 rounded-[24px] min-w-[200px] ring-1 ring-gray-100">
+                                            <p className="caption font-black text-gray-400 uppercase tracking-widest mb-1">Monto Liquidable</p>
+                                            <p className="text-4xl font-black text-gray-900 leading-tight">
+                                                {formatCurrency(selectedBarbero.balance.pendiente.totalMontoBarero || selectedBarbero.balance.pendiente.totalMontoBarbero)}
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="p-8">
-                                    <div className="mb-6 flex items-center justify-between">
-                                        <h4 className="font-black text-white uppercase text-xs tracking-widest flex items-center gap-2">
-                                            <FileText size={16} className="text-primary-500" />
-                                            Desglose de reservas ({barberoTransactions.length})
-                                        </h4>
+                                    <div className="mb-8 flex items-center justify-between">
+                                        <div className="flex flex-col">
+                                            <h4 className="heading-4 flex items-center gap-2">
+                                                <FileText size={20} className="text-blue-600" />
+                                                Ledger de Transacciones Pendientes
+                                            </h4>
+                                            <p className="caption font-bold text-gray-400 mt-1">{barberoTransactions.length} servicios realizados sin liquidar</p>
+                                        </div>
                                         {barberoTransactions.length > 0 && (
                                             <Button
-                                                variant="primary"
-                                                size="md"
-                                                className="rounded-2xl px-6"
                                                 onClick={handlePaySelection}
-                                                disabled={loadingBarbero}
+                                                disabled={procesandoPago || loadingBarbero}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-5 rounded-2xl font-black shadow-xl transition-all flex items-center gap-3 active:scale-95"
                                             >
-                                                <CheckCircle2 size={18} />
-                                                Liquidar {formatCurrency(selectedBarbero.balance.pendiente.totalMontoBarero || selectedBarbero.balance.pendiente.totalMontoBarbero)}
+                                                {procesandoPago ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={24} />}
+                                                {procesandoPago ? "Procesando..." : "Emitir Pago Completo"}
                                             </Button>
                                         )}
                                     </div>
 
-                                    <div className="max-h-[500px] overflow-y-auto space-y-4 pr-2 scrollbar-hide">
+                                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                                         {loadingBarbero ? (
-                                            [1, 2, 3].map(i => <Skeleton key={i} variant="rectangular" height="h-20" className="rounded-2xl" />)
+                                            <div className="space-y-4">
+                                                {[1, 2, 3].map(i => <div key={i} className="h-24 bg-gray-50 rounded-2xl animate-pulse" />)}
+                                            </div>
+                                        ) : errorBarbero ? (
+                                            <div className="py-10">
+                                                <ErrorAlert
+                                                    title="Error al cargar transacciones"
+                                                    message={errorBarbero}
+                                                    onRetry={() => fetchBarberoTransactions(selectedBarbero._id)}
+                                                />
+                                            </div>
                                         ) : barberoTransactions.length > 0 ? (
                                             barberoTransactions.map(tx => (
-                                                <div key={tx._id} className="p-5 bg-black bg-opacity-30 rounded-[24px] border border-neutral-800 border-opacity-50 hover:border-neutral-700 transition-all flex items-center justify-between group">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 bg-neutral-800 rounded-xl flex items-center justify-center font-black text-neutral-500 text-xs">
-                                                            {dayjs(tx.fecha).format('DD')}
+                                                <motion.div
+                                                    key={tx._id}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="p-5 bg-gray-50/50 rounded-[20px] border border-gray-100 hover:border-blue-100 hover:bg-white transition-all group flex items-center justify-between"
+                                                >
+                                                    <div className="flex items-center gap-5">
+                                                        <div className="w-14 h-14 bg-white rounded-[18px] flex flex-col items-center justify-center shadow-sm border border-gray-100 group-hover:bg-blue-600 group-hover:border-blue-500 transition-colors">
+                                                            <span className="text-xs font-black text-gray-400 uppercase group-hover:text-blue-100">{dayjs(tx.fecha).format('MMM')}</span>
+                                                            <span className="text-xl font-black text-gray-900 group-hover:text-white leading-none">{dayjs(tx.fecha).format('DD')}</span>
                                                         </div>
                                                         <div>
-                                                            <p className="font-bold text-white text-sm">{tx.servicioId?.nombre}</p>
-                                                            <p className="text-[10px] text-neutral-500 uppercase font-black tracking-tighter">Reserva: {tx.reservaId?.nombreCliente}</p>
+                                                            <p className="body-small font-black text-gray-900">{tx.servicioId?.nombre}</p>
+                                                            <div className="flex items-center gap-4 mt-1">
+                                                                <p className="caption font-black text-gray-400">Cliente: <span className="text-blue-600">{tx.reservaId?.nombreCliente}</span></p>
+                                                                <p className="caption font-black text-gray-400">Time: {tx.reservaId?.hora}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="font-black text-white">{formatCurrency(tx.montosFinales.montoBarbero)}</p>
-                                                        <p className="text-[10px] text-success-500 font-bold uppercase">Split {tx.montosFinales.porcentajeAplicado?.barbero}%</p>
+                                                        <p className="body-small font-black text-gray-900 leading-none">{formatCurrency(tx.montosFinales.montoBarbero)}</p>
+                                                        <Badge className="bg-green-50 text-green-700 border-none font-black text-[9px] mt-2 px-2 py-0.5">
+                                                            COMISIÓN {tx.montosFinales.porcentajeAplicado?.barbero}%
+                                                        </Badge>
                                                     </div>
-                                                </div>
+                                                </motion.div>
                                             ))
                                         ) : (
-                                            <div className="py-12 text-center text-neutral-500 italic">
-                                                No hay transacciones pendientes para liquidar.
+                                            <div className="py-20 text-center flex flex-col items-center">
+                                                <div className="w-20 h-20 bg-gray-50 rounded-[28px] flex items-center justify-center mb-6">
+                                                    <CheckCircle2 size={40} className="text-gray-200" />
+                                                </div>
+                                                <h4 className="heading-4 text-gray-400">Balance en Cero</h4>
+                                                <p className="body-small text-gray-400 mt-2">Este profesional ya ha sido liquidado completamente.</p>
                                             </div>
                                         )}
                                     </div>
+                                </Card>
+                            </motion.div>
+                        ) : (
+                            <div className="h-full min-h-[600px] bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-[40px] flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in-95 duration-500">
+                                <div className="w-32 h-32 bg-white rounded-[40px] shadow-sm flex items-center justify-center mb-10 ring-1 ring-gray-100">
+                                    <Users className="text-gray-200" size={64} />
                                 </div>
-                            </Card>
-                        </div>
-                    ) : (
-                        <div className="h-full min-h-[500px] border-2 border-dashed border-neutral-800 rounded-[40px] flex flex-col items-center justify-center p-12 text-center">
-                            <div className="w-24 h-24 bg-neutral-900 rounded-full flex items-center justify-center mb-6">
-                                <Users className="text-neutral-800" size={40} />
+                                <h3 className="heading-3 text-gray-400">Gestión de Staff</h3>
+                                <p className="body-large text-gray-400 max-w-sm mt-4 leading-relaxed">
+                                    Selecciona un profesional del panel izquierdo para auditar sus servicios pendientes y emitir liquidaciones.
+                                </p>
                             </div>
-                            <h3 className="text-2xl font-black text-neutral-500">Selecciona un profesional</h3>
-                            <p className="text-neutral-700 mt-2 max-w-sm">
-                                Haz clic en uno de tus barberos para ver el detalle de sus transacciones pendientes y procesar sus pagos.
-                            </p>
-                        </div>
-                    )}
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>

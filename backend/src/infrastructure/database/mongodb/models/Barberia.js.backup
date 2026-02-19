@@ -1,0 +1,185 @@
+const mongoose = require("mongoose");
+
+const barberiaSchema = new mongoose.Schema(
+  {
+    nombre: {
+      type: String,
+      required: [true, "El nombre es obligatorio"],
+      trim: true
+    },
+    slug: {
+      type: String,
+      required: true,
+
+      lowercase: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "El email es obligatorio"],
+      lowercase: true,
+      trim: true
+    },
+    telefono: {
+      type: String,
+      trim: true
+    },
+    direccion: {
+      type: String,
+      trim: true
+    },
+    rut: {
+      type: String,
+      trim: true
+    },
+
+    // MULTI-SEDE: Indica si es una marca con múltiples ubicaciones
+    esMatriz: {
+      type: Boolean,
+      default: false
+    },
+
+    // Configuración visual y funcional
+    configuracion: {
+      colorPrincipal: { type: String, default: "#cc2b2b" },
+      colorAccent: { type: String, default: "#1e3a8a" },
+      colorSuccess: { type: String, default: "#059669" },
+      colorWarning: { type: String, default: "#f59e0b" },
+      colorLight: { type: String, default: "#f8fafc" },
+      colorDark: { type: String, default: "#0a0a0b" },
+      fontFamily: { type: String, default: "Inter" },
+      fontHeading: { type: String, default: "Inter" },
+      logoUrl: { type: String },
+      bannerUrl: { type: String },
+      mensajeBienvenida: { type: String },
+      heroTitle: { type: String },
+      badge: { type: String }, // ✅ NUEVO
+      ctaPrimary: { type: String }, // ✅ NUEVO
+      ctaSecondary: { type: String }, // ✅ NUEVO
+      instagram: { type: String },
+      facebook: { type: String },
+      googleMapsUrl: { type: String },
+
+      // ✅ NUEVOS CAMPOS DE SEO Y MARKETING
+      seoTitle: { type: String },
+      seoDescription: { type: String },
+      faviconUrl: { type: String },
+      analyticsId: { type: String }, // Google Analytics ID
+      pixelId: { type: String },    // Facebook Pixel ID
+
+      template: { type: String, default: "modern" },
+
+      // Galería de portfolio
+      galeria: [{
+        type: String,
+        validate: {
+          validator: function (v) {
+            return !v || /^https?:\/\/.+/.test(v);
+          },
+          message: 'La URL de la imagen debe ser válida'
+        }
+      }],
+
+      // Configuración de Email personalizada
+      emailNotificaciones: { type: String },
+      emailPassword: {
+        encrypted: String,
+        iv: String,
+        authTag: String
+      },
+      emailProvider: { type: String, enum: ['gmail', 'outlook', 'smtp'], default: 'gmail' },
+      nombreParaEmails: { type: String },
+      smtpConfig: {
+        host: String,
+        port: Number,
+        galeria: [{ type: String }]
+      },
+
+      // MULTI-SEDE: Array de sucursales (solo si esMatriz = true)
+      sucursales: [{
+        nombre: {
+          type: String,
+          required: function () { return this.esMatriz; }
+        },
+        slug: {
+          type: String,
+          required: function () { return this.esMatriz; },
+          lowercase: true,
+          trim: true
+        },
+        direccion: { type: String },
+        telefono: { type: String },
+        email: { type: String },
+        ubicacion: {
+          lat: { type: Number },
+          lng: { type: Number },
+          ciudad: { type: String },
+          region: { type: String },
+          pais: { type: String, default: 'Chile' }
+        },
+        configuracion: {
+          colorPrincipal: { type: String },
+          logoUrl: { type: String },
+          bannerUrl: { type: String },
+          mensajeBienvenida: { type: String },
+          galeria: [{ type: String }],
+          googleMapsUrl: { type: String }
+        },
+        horarios: {
+          lunes: { inicio: String, fin: String, cerrado: { type: Boolean, default: false } },
+          martes: { inicio: String, fin: String, cerrado: { type: Boolean, default: false } },
+          miercoles: { inicio: String, fin: String, cerrado: { type: Boolean, default: false } },
+          jueves: { inicio: String, fin: String, cerrado: { type: Boolean, default: false } },
+          viernes: { inicio: String, fin: String, cerrado: { type: Boolean, default: false } },
+          sabado: { inicio: String, fin: String, cerrado: { type: Boolean, default: false } },
+          domingo: { inicio: String, fin: String, cerrado: { type: Boolean, default: true } }
+        },
+        activa: { type: Boolean, default: true },
+        createdAt: { type: Date, default: Date.now }
+      }],
+
+      // Estado de la cuenta SaaS
+      plan: {
+        type: String,
+        enum: ["trial", "basico", "premium", "pro"],
+        default: "trial"
+      },
+      estado: {
+        type: String,
+        enum: ["activa", "suspendida", "pendiente_pago", "trial"],
+        default: "trial"
+      },
+      activa: {
+        type: Boolean,
+        default: true
+      },
+
+      fechaFinTrial: { type: Date },
+      proximoPago: { type: Date },
+
+      // Para integración con Stripe
+      stripeCustomerId: { type: String },
+      stripeSubscriptionId: { type: String },
+
+      // Auditoría interna
+      historial: [
+        {
+          fecha: { type: Date, default: Date.now },
+          accion: String,
+          realizadoPor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          notas: String
+        }
+      ]
+    },
+  { timestamps: true }
+);
+
+// Índices
+barberiaSchema.index({ slug: 1 }, { unique: true });
+barberiaSchema.index({ activa: 1 });
+barberiaSchema.index({ 'sucursales.slug': 1 });
+barberiaSchema.index({ esMatriz: 1 });
+
+module.exports = mongoose.models.Barberia || mongoose.model('Barberia', barberiaSchema);
+
+
