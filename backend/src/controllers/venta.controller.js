@@ -27,17 +27,23 @@ exports.obtenerHistorialVentas = async (req, res, next) => {
         const { barberiaId } = req;
         const { barberoId, metodoPago, fechaInicio, fechaFin, limite } = req.query;
 
-        const useCase = container.listVentasUseCase; // To be implemented or used directly via repository
-        // For now, let's assume we want to implement a simple list in the controller or via repository
-        const repository = container.ventaRepository;
-        const ventas = await repository.findAll({
+        // Validate barberoId is a real ObjectId (24 hex chars) — avoid CastError
+        const mongoose = require('mongoose');
+        const filters = {
             barberiaId: barberiaId.toString(),
-            barberoId,
-            metodoPago,
-            fechaInicio,
-            fechaFin,
+            metodoPago: metodoPago || undefined,
+            fechaInicio: fechaInicio || undefined,
+            fechaFin: fechaFin || undefined,
             limite: parseInt(limite) || 50
-        });
+        };
+
+        if (barberoId && mongoose.isValidObjectId(barberoId)) {
+            filters.barberoId = barberoId;
+        }
+        // If barberoId is invalid (e.g. 'pedro'), simply omit it from filters
+
+        const repository = container.ventaRepository;
+        const ventas = await repository.findAll(filters);
 
         res.json({
             success: true,
@@ -47,3 +53,4 @@ exports.obtenerHistorialVentas = async (req, res, next) => {
         next(error);
     }
 };
+

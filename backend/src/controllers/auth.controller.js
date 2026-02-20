@@ -6,6 +6,8 @@ const container = require('../shared/Container');
 const generateToken = require('../utils/generateToken');
 const jwt = require('jsonwebtoken');
 const tokenBlacklist = require('../infrastructure/cache/TokenBlacklist');
+const requestPasswordResetUseCase = require('../application/use-cases/auth/RequestPasswordReset');
+const resetPasswordUseCase = require('../application/use-cases/auth/ResetPassword');
 
 // ==========================================
 // 1) REGISTER
@@ -96,5 +98,33 @@ exports.logout = async (req, res) => {
     } catch (error) {
         // Even if there's an error, return success (logout is idempotent)
         res.json({ message: 'Logout exitoso' });
+    }
+};
+
+// ==========================================
+// 4) REQUEST PASSWORD RESET
+// ==========================================
+exports.requestPasswordReset = async (req, res, next) => {
+    try {
+        await requestPasswordResetUseCase.execute(req.body.email);
+        // Always 200 to avoid email enumeration
+        res.json({ message: 'Si el email existe, recibirás un enlace de recuperación.' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ==========================================
+// 5) RESET PASSWORD
+// ==========================================
+exports.resetPassword = async (req, res, next) => {
+    try {
+        await resetPasswordUseCase.execute(req.body.token, req.body.newPassword);
+        res.json({ message: 'Contraseña actualizada correctamente.' });
+    } catch (error) {
+        if (error.message === 'Token inválido o expirado') {
+            return res.status(400).json({ message: error.message });
+        }
+        next(error);
     }
 };

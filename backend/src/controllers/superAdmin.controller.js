@@ -193,12 +193,22 @@ exports.obtenerHistorial = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const useCase = container.getBarberiaDetailsAdminUseCase;
-    const result = await useCase.execute(id);
+    const Barberia = require('../infrastructure/database/mongodb/models/Barberia');
+    const barberia = await Barberia.findById(id)
+      .select('nombre historial')
+      .populate('historial.realizadoPor', 'nombre email');
+
+    if (!barberia) {
+      return res.status(404).json({ message: 'Barbería no encontrada' });
+    }
+
+    const historial = (barberia.historial || []).sort(
+      (a, b) => new Date(b.fecha) - new Date(a.fecha)
+    );
 
     res.json({
-      nombre: result.nombre,
-      historial: result.historial ? result.historial.sort((a, b) => b.fecha - a.fecha) : []
+      nombre: barberia.nombre,
+      historial
     });
   } catch (error) {
     console.error('❌ [SUPERADMIN] Error al obtener historial:', error);

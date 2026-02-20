@@ -45,7 +45,11 @@ const userSchema = new mongoose.Schema(
     fechaAprobacion: { type: Date, default: null },
     aprobadoPor: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
 
-    activo: { type: Boolean, default: true }
+    activo: { type: Boolean, default: true },
+
+    // Password reset
+    passwordResetToken: { type: String, default: null },
+    passwordResetExpires: { type: Date, default: null }
   },
   { timestamps: true }
 );

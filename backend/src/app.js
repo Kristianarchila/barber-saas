@@ -79,6 +79,8 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://localhost',
   'http://127.0.0.1',
+  'https://barbersaas.duckdns.org',
+  'http://barbersaas.duckdns.org'
 ].filter(Boolean); // Remove undefined values
 
 // Add production domains from environment variable (comma-separated)

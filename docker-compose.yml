@@ -23,7 +23,7 @@ services:
       - mongo-data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: [ 'CMD', 'mongosh', '-u', '${MONGO_ROOT_USER:-barber_root}', '-p', '${MONGO_ROOT_PASSWORD}', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')" ]
+      test: [ 'CMD', 'mongosh', '--eval', "db.adminCommand('ping').ok", '--quiet' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,11 +39,10 @@ services:
     container_name: barber-backend
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - ./.env
     environment:
       NODE_ENV: production
       PORT: 4000
-      # 🔐 Authenticated connection using app-specific user (least privilege)
       MONGO_URI: mongodb://barber_app:${MONGO_APP_PASSWORD}@mongo:27017/barber-saas?authSource=barber-saas
     ports:
       - '4000:4000'
