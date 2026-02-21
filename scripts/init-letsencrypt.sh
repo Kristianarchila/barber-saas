@@ -22,9 +22,10 @@
 
 set -e
 
-# Load environment variables
+# Load only the variables we need (avoids issues with spaces in passwords)
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    export DOMAIN=$(grep '^DOMAIN=' .env | cut -d'=' -f2-)
+    export CERTBOT_EMAIL=$(grep '^CERTBOT_EMAIL=' .env | cut -d'=' -f2-)
 fi
 
 # Validate required variables
