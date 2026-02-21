@@ -13,4 +13,7 @@ router.post("/login", authLimiter, validate(loginSchema), login);
 router.post("/forgot-password", authLimiter, validate(requestPasswordResetSchema), requestPasswordReset);
 router.post("/reset-password", authLimiter, validate(resetPasswordSchema), resetPassword);
 
+// Protected routes
+router.post("/logout", protect, logout);
+
 module.exports = router;

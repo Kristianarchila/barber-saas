@@ -22,7 +22,7 @@ exports.extractBarberiaId = async (req, res, next) => {
         }
 
         // Buscar barbería por slug
-        const barberia = await Barberia.findOne({ slug, activo: true })
+        const barberia = await Barberia.findOne({ slug, activa: true })
             .select('_id nombre slug')
             .lean();
 

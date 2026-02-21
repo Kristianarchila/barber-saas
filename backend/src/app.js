@@ -91,8 +91,13 @@ if (process.env.PRODUCTION_DOMAINS) {
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, Postman, or same-origin)
+    // Allow requests with no origin only in development (Postman, curl, etc.)
+    // In production: only allow same-origin or explicitly allowlisted origins
     if (!origin) {
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      // In production, allow no-origin only for internal health checks
       return callback(null, true);
     }
 
@@ -200,7 +205,8 @@ app.use(helmet({
   // Referrer Policy
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
-app.use(morgan("dev"));
+// Use 'combined' (Apache standard) in production, 'dev' in development
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(cookieParser());
 
 // Auth rate limiting is handled in auth.routes.js
@@ -211,7 +217,10 @@ app.use(cookieParser());
  */
 app.use("/api/auth", authRoutes);
 app.use("/api/webhooks", stripeWebhook);
-app.use("/api/test", testRoutes);
+// Test routes: only expose outside production
+if (process.env.NODE_ENV !== 'production') {
+  app.use("/api/test", testRoutes);
+}
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/public/barberias", publicRoutes); // Changed to match frontend calls
 

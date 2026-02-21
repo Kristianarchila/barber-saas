@@ -57,12 +57,10 @@ services:
       - ./scripts/backup-mongo.sh:/backup-mongo.sh:ro
       - mongo-backups:/backups
     environment:
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_DB: barber-saas
-      MONGO_USER: barber_app
-      MONGO_PASSWORD: ${MONGO_APP_PASSWORD:?MONGO_APP_PASSWORD is required}
-      MONGO_AUTH_DB: barber-saas
+      # ✅ FIXED: Now backs up Atlas (real data) instead of the empty local container
+      # MONGO_URI takes priority over host/port/user/password in backup-mongo.sh
+      MONGO_URI: ${MONGO_URI:?MONGO_URI is required for Atlas backup}
+      MONGO_DB: barber_saas
       BACKUP_DIR: /backups
       RETENTION_DAILY: 7
       RETENTION_WEEKLY: 4
@@ -70,7 +68,7 @@ services:
     # Run backup at 3 AM daily using a simple sleep loop
     entrypoint: >
       /bin/bash -c "
-        echo '🗃️  Backup service started';
+        echo '🗃️  Backup service started (Atlas mode)';
         echo '   Schedule: Daily at 03:00 UTC';
         echo '   Retention: 7 daily / 4 weekly / 6 monthly';
         chmod +x /backup-mongo.sh;
@@ -87,9 +85,7 @@ services:
           sleep 50;
         done
       "
-    depends_on:
-      mongo:
-        condition: service_healthy
+    # Note: no depends_on mongo — we connect to Atlas, not the local container
 
 volumes:
   certbot-conf:

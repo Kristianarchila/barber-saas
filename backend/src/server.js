@@ -45,17 +45,16 @@ async function bootstrap() {
 process.on('uncaughtException', (err) => {
   console.error('💥 UNCAUGHT EXCEPTION!', err.name, err.message);
   console.error(err.stack);
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
+  // Always exit: Docker will restart the container automatically (restart: unless-stopped)
+  // Running in corrupted state is more dangerous than restarting
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
   console.error('💥 UNHANDLED REJECTION!', err.name, err.message);
   console.error(err.stack);
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
+  // Always exit: Docker will restart the container automatically
+  process.exit(1);
 });
 
 

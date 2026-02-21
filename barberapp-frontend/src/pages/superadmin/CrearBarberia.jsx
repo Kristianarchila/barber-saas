@@ -55,10 +55,19 @@ export default function CrearBarberia() {
         try {
             await crearBarberia(form);
             alert("✅ Barbería creada exitosamente");
-    navigate("/superadmin/dashboard/barberias");
+            navigate("/superadmin/dashboard/barberias");
         } catch (err) {
-            console.error("Error al crear barbería:", err);
-            setError(err.response?.data?.message || "Error al crear barbería");
+            console.error("Error al crear barbería:", err.response?.data);
+
+            // Extraer mensajes detallados si existen
+            if (err.response?.data?.errors) {
+                const detailedErrors = err.response.data.errors
+                    .map(e => `${e.field}: ${e.message}`)
+                    .join(" | ");
+                setError(`Detalles: ${detailedErrors}`);
+            } else {
+                setError(err.response?.data?.message || "Error al crear barbería");
+            }
         } finally {
             setLoading(false);
         }
@@ -69,11 +78,11 @@ export default function CrearBarberia() {
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-white">Crear Nueva Barbería</h1>
                 <button
-    onClick={() => navigate("/superadmin/dashboard/barberias")}
-    className="text-gray-400 hover:text-white transition-colors"
-  >
-    ← Volver
-  </button>
+                    onClick={() => navigate("/superadmin/dashboard/barberias")}
+                    className="text-gray-400 hover:text-white transition-colors"
+                >
+                    ← Volver
+                </button>
             </div>
 
             {error && (
@@ -115,7 +124,7 @@ export default function CrearBarberia() {
                                     value={form.slug}
                                     onChange={handleChange}
                                     required
-                                    pattern="[a-z0-9-]+"
+                                    pattern="[a-z0-9\-]+"
                                     className="w-full bg-gray-700 text-white pl-7 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="barberia-central"
                                 />

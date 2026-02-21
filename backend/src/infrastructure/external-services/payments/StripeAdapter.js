@@ -1,4 +1,5 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+// Stripe initialization moved into class to prevent startup crash if key is missing
+let stripe;
 
 /**
  * StripeAdapter - Hexagonal Architecture
@@ -10,6 +11,9 @@ class StripeAdapter {
     constructor() {
         if (!process.env.STRIPE_SECRET_KEY) {
             console.warn('⚠️ STRIPE_SECRET_KEY no configurada. Las operaciones de pago fallarán.');
+        } else if (!stripe) {
+            // Initialize stripe instance once
+            stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
         }
     }
 

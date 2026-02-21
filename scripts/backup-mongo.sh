@@ -3,18 +3,23 @@
 # MongoDB Automated Backup Script
 # ─────────────────────────────────────────────────────────────
 #
-# Creates compressed backups of the barber-saas database with
-# configurable retention policy (daily/weekly/monthly).
+# Supports two modes:
 #
-# Designed to run inside the backup container via cron.
+#   MODE 1 — Atlas / URI (recommended for production with Atlas)
+#     Set MONGO_URI to your full connection string, e.g.:
+#     MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
+#
+#   MODE 2 — Host/Port (for local MongoDB containers)
+#     Set MONGO_HOST, MONGO_PORT, MONGO_USER, MONGO_PASSWORD, MONGO_DB
 #
 # Environment variables:
-#   MONGO_HOST           - MongoDB host (default: mongo)
-#   MONGO_PORT           - MongoDB port (default: 27017)
-#   MONGO_DB             - Database name (default: barber-saas)
-#   MONGO_USER           - Auth username
-#   MONGO_PASSWORD       - Auth password
-#   MONGO_AUTH_DB        - Auth database (default: barber-saas)
+#   MONGO_URI            - Full MongoDB URI (Atlas SRV string) — takes priority
+#   MONGO_DB             - Database name (required in MODE 2; auto-detected in MODE 1)
+#   MONGO_HOST           - MongoDB host (MODE 2 only, default: mongo)
+#   MONGO_PORT           - MongoDB port (MODE 2 only, default: 27017)
+#   MONGO_USER           - Auth username (MODE 2 only)
+#   MONGO_PASSWORD       - Auth password (MODE 2 only)
+#   MONGO_AUTH_DB        - Auth database (MODE 2 only, default: barber-saas)
 #   BACKUP_DIR           - Backup directory (default: /backups)
 #   RETENTION_DAILY      - Days to keep daily backups (default: 7)
 #   RETENTION_WEEKLY     - Weeks to keep weekly backups (default: 4)
@@ -24,11 +29,12 @@
 set -euo pipefail
 
 # ─── Configuration ────────────────────────────────────────────
+MONGO_URI="${MONGO_URI:-}"
+MONGO_DB="${MONGO_DB:-barber-saas}"
 MONGO_HOST="${MONGO_HOST:-mongo}"
 MONGO_PORT="${MONGO_PORT:-27017}"
-MONGO_DB="${MONGO_DB:-barber-saas}"
 MONGO_USER="${MONGO_USER:-barber_app}"
-MONGO_PASSWORD="${MONGO_PASSWORD:?MONGO_PASSWORD is required}"
+MONGO_PASSWORD="${MONGO_PASSWORD:-}"
 MONGO_AUTH_DB="${MONGO_AUTH_DB:-barber-saas}"
 BACKUP_DIR="${BACKUP_DIR:-/backups}"
 RETENTION_DAILY="${RETENTION_DAILY:-7}"
@@ -49,23 +55,39 @@ mkdir -p "${BACKUP_DIR}/monthly"
 echo "═══════════════════════════════════════════════════"
 echo "  🗃️  MongoDB Backup — $(date)"
 echo "═══════════════════════════════════════════════════"
-echo "  Database: ${MONGO_DB}"
-echo "  Host:     ${MONGO_HOST}:${MONGO_PORT}"
-echo "  Output:   ${BACKUP_FILE}"
-echo ""
 
 # ─── Step 1: Create Backup ───────────────────────────────────
 echo "1️⃣  Creating backup..."
-mongodump \
-    --host="${MONGO_HOST}" \
-    --port="${MONGO_PORT}" \
-    --db="${MONGO_DB}" \
-    --username="${MONGO_USER}" \
-    --password="${MONGO_PASSWORD}" \
-    --authenticationDatabase="${MONGO_AUTH_DB}" \
-    --archive="${BACKUP_FILE}" \
-    --gzip \
-    2>&1
+
+if [ -n "${MONGO_URI}" ]; then
+    # MODE 1: Atlas / URI mode (recommended for production)
+    echo "  Mode: Atlas URI (SRV)"
+    echo "  Output: ${BACKUP_FILE}"
+    mongodump \
+        --uri="${MONGO_URI}" \
+        --archive="${BACKUP_FILE}" \
+        --gzip \
+        2>&1
+else
+    # MODE 2: Host + Port mode (local MongoDB container)
+    if [ -z "${MONGO_PASSWORD}" ]; then
+        echo "❌ ERROR: Either MONGO_URI or MONGO_PASSWORD must be set"
+        exit 1
+    fi
+    echo "  Mode: Host/Port (${MONGO_HOST}:${MONGO_PORT})"
+    echo "  Database: ${MONGO_DB}"
+    echo "  Output: ${BACKUP_FILE}"
+    mongodump \
+        --host="${MONGO_HOST}" \
+        --port="${MONGO_PORT}" \
+        --db="${MONGO_DB}" \
+        --username="${MONGO_USER}" \
+        --password="${MONGO_PASSWORD}" \
+        --authenticationDatabase="${MONGO_AUTH_DB}" \
+        --archive="${BACKUP_FILE}" \
+        --gzip \
+        2>&1
+fi
 
 BACKUP_SIZE=$(du -sh "${BACKUP_FILE}" | cut -f1)
 echo "   ✅ Backup created: ${BACKUP_SIZE}"

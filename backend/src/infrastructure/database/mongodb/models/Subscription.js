@@ -10,7 +10,11 @@ const subscriptionSchema = new mongoose.Schema(
         },
         plan: {
             type: String,
-            enum: ['FREE', 'BASIC', 'PRO', 'PREMIUM', 'basico', 'pro', 'premium'],
+            // ⚠️ FIXED: Only uppercase values allowed — 'basico'/'pro'/'premium' were legacy
+            // Run migration: db.subscriptions.updateMany({plan:'basico'},{$set:{plan:'BASIC'}})
+            //                db.subscriptions.updateMany({plan:'pro'},{$set:{plan:'PRO'}})
+            //                db.subscriptions.updateMany({plan:'premium'},{$set:{plan:'PREMIUM'}})
+            enum: ['FREE', 'BASIC', 'PRO', 'PREMIUM'],
             required: true,
             default: 'FREE'
         },

@@ -73,7 +73,6 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm certbot
     --agree-tos \
     --no-eff-email \
     -d "$DOMAIN" \
-    -d "www.$DOMAIN" \
     --force-renewal
 
 # Step 3: Reload nginx with SSL config
