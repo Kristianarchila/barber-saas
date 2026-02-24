@@ -27,9 +27,11 @@ class AvailabilityService {
         const reservasExistentes = await this.reservaRepository.findByBarberoAndDate(barberoId, fecha, barberiaId);
 
         // 3. Generate all possible time slots based on working hours
-        const allSlots = this.generateTimeSlots(horario.horaInicio, horario.horaFin, duracion);
+        // Use horario.duracionTurno as the step (slot interval), not service duration
+        const slotStep = horario.duracionTurno || duracion;
+        const allSlots = this.generateTimeSlots(horario.horaInicio, horario.horaFin, slotStep);
 
-        // 4. Filter out occupied slots
+        // 4. Filter out occupied slots (overlap check uses service duracion)
         const availableSlots = allSlots.filter(slot => {
             const timeSlot = new TimeSlot(fecha, slot, duracion);
             return !this.isSlotOccupied(timeSlot, reservasExistentes);
