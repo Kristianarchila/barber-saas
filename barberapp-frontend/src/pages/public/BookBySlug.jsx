@@ -83,6 +83,25 @@ export default function BookBySlug() {
         }));
     };
 
+    // --- FETCH AVAILABLE TURNOS ---
+    useEffect(() => {
+        const fetchTurnos = async () => {
+            if (!formData.fecha || !formData.barberoId || !formData.servicioId || !slug) return;
+            setLoadingTurnos(true);
+            setTurnosDisponibles([]);
+            try {
+                const data = await getDisponibilidadBySlug(slug, formData.barberoId, formData.fecha, formData.servicioId);
+                setTurnosDisponibles(data.turnosDisponibles || []);
+            } catch (error) {
+                console.error("Error fetching turnos:", error);
+                setTurnosDisponibles([]);
+            } finally {
+                setLoadingTurnos(false);
+            }
+        };
+        fetchTurnos();
+    }, [formData.fecha, formData.barberoId, formData.servicioId, slug]);
+
     // --- AI SUGGESTIONS LOGIC ---
     useEffect(() => {
         const fetchAISuggestions = async () => {
@@ -344,10 +363,17 @@ const DatePicker = ({ selectedDate, onSelect }) => {
     const dates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(); d.setDate(d.getDate() + i); return d;
     });
+    // Format date as YYYY-MM-DD using LOCAL timezone (not UTC)
+    const toLocalISO = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
     return (
         <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
             {dates.map(d => {
-                const iso = d.toISOString().split('T')[0];
+                const iso = toLocalISO(d);
                 const active = selectedDate === iso;
                 return (
                     <button key={iso} onClick={() => onSelect(iso)} className={`flex-shrink-0 w-16 h-24 md:w-20 md:h-28 rounded-3xl flex flex-col items-center justify-center transition-all ${active ? 'bg-black text-white scale-105' : 'bg-white border border-black/5 text-neutral-400 hover:border-black/20'}`}>

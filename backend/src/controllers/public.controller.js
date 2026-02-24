@@ -97,12 +97,18 @@ exports.getDisponibilidadBySlug = async (req, res, next) => {
         const barberiaUseCase = container.getBarberiaBySlugUseCase;
         const barberia = await barberiaUseCase.execute(slug);
 
-        // Get available slots
+        // Get service to obtain its duration
+        const servicio = await container.servicioRepository.findById(servicioId, barberia.id);
+        if (!servicio) {
+            return res.status(404).json({ message: "Servicio no encontrado" });
+        }
+
+        // Get available slots (use case expects duracion, not servicioId)
         const useCase = container.getAvailableSlotsUseCase;
         const slots = await useCase.execute({
             barberiaId: barberia.id,
             barberoId,
-            servicioId,
+            duracion: servicio.duracion,
             fecha
         });
 
