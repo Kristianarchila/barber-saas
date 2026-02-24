@@ -73,7 +73,17 @@ exports.getServiciosBySlug = async (req, res, next) => {
         const useCase = container.listServiciosUseCase;
         const servicios = await useCase.execute(barberia.id);
 
-        res.json(servicios.map(s => s.toObject()));
+        res.json(servicios.map(s => ({
+            _id: s.id,
+            nombre: s.nombre,
+            descripcion: s.descripcion,
+            duracion: s.duracion,
+            precio: s.precio.amount,
+            imagen: s.imagen,
+            categoria: s.categoria,
+            barberiaId: s.barberiaId,
+            activo: s.activo
+        })));
     } catch (error) {
         next(error);
     }
