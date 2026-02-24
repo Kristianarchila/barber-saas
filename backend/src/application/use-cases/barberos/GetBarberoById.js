@@ -8,7 +8,7 @@ class GetBarberoById {
     }
 
     async execute(id, barberiaId) {
-        const barbero = await this.barberoRepository.findById(id);
+        const barbero = await this.barberoRepository.findById(id, barberiaId);
         if (!barbero || (barberiaId && barbero.barberiaId !== barberiaId)) {
             throw new Error('Barbero no encontrado');
         }

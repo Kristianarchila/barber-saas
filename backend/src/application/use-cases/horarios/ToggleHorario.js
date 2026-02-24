@@ -16,7 +16,7 @@ class ToggleHorario {
 
         // Verify owner if barberoRepository is available
         if (this.barberoRepository) {
-            const barbero = await this.barberoRepository.findById(horario.barberoId);
+            const barbero = await this.barberoRepository.findById(horario.barberoId, authenticatedBarberiaId);
             if (!barbero || (authenticatedBarberiaId && barbero.barberiaId !== authenticatedBarberiaId)) {
                 throw new Error('No autorizado para modificar este horario');
             }

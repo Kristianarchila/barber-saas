@@ -71,7 +71,7 @@ class SendReminderEmails {
                     }
 
                     // Get barbero details
-                    const barbero = await this.barberoRepository.findById(reserva.barberoId);
+                    const barbero = await this.barberoRepository.findById(reserva.barberoId, reserva.barberiaId);
                     const barberoNombre = barbero ? barbero.nombre : 'Tu barbero';
 
                     // Get servicio details

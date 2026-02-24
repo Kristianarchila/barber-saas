@@ -15,7 +15,7 @@ class UpdateBarbero {
         }
 
         // 1. Find existing barbero
-        const barbero = await this.barberoRepository.findById(id);
+        const barbero = await this.barberoRepository.findById(id, requester?.barberiaId);
         if (!barbero) {
             throw new Error('Barbero no encontrado');
         }

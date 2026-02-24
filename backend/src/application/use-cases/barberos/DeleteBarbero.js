@@ -11,7 +11,7 @@ class DeleteBarbero {
     }
 
     async execute(id, barberiaId, userId = null, request = null) {
-        const barbero = await this.barberoRepository.findById(id);
+        const barbero = await this.barberoRepository.findById(id, barberiaId);
         if (!barbero || barbero.barberiaId !== barberiaId) {
             throw new Error('Barbero no encontrado');
         }
