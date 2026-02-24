@@ -85,12 +85,18 @@ export default function BookBySlug() {
 
     // --- FETCH AVAILABLE TURNOS ---
     useEffect(() => {
+        console.log('[DEBUG] useEffect triggered', { fecha: formData.fecha, barberoId: formData.barberoId, servicioId: formData.servicioId, slug });
         const fetchTurnos = async () => {
-            if (!formData.fecha || !formData.barberoId || !formData.servicioId || !slug) return;
+            if (!formData.fecha || !formData.barberoId || !formData.servicioId || !slug) {
+                console.log('[DEBUG] early return - missing:', { fecha: !!formData.fecha, barberoId: !!formData.barberoId, servicioId: !!formData.servicioId, slug: !!slug });
+                return;
+            }
+            console.log('[DEBUG] calling API...');
             setLoadingTurnos(true);
             setTurnosDisponibles([]);
             try {
                 const data = await getDisponibilidadBySlug(slug, formData.barberoId, formData.fecha, formData.servicioId);
+                console.log('[DEBUG] API response:', data);
                 setTurnosDisponibles(data.turnosDisponibles || []);
             } catch (error) {
                 console.error("Error fetching turnos:", error);
