@@ -14,12 +14,9 @@ class ToggleHorario {
             throw new Error('Horario no encontrado');
         }
 
-        // Verify owner if barberoRepository is available
+        // Verify owner — findById already enforces barberiaId isolation (throws if mismatch)
         if (this.barberoRepository) {
-            const barbero = await this.barberoRepository.findById(horario.barberoId, authenticatedBarberiaId);
-            if (!barbero || (authenticatedBarberiaId && barbero.barberiaId !== authenticatedBarberiaId)) {
-                throw new Error('No autorizado para modificar este horario');
-            }
+            await this.barberoRepository.findById(horario.barberoId, authenticatedBarberiaId);
         }
 
         horario.toggle();
