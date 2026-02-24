@@ -55,3 +55,15 @@ export async function toggleHorario(id) {
   const res = await api.patch(`/barberias/${slug}/admin/horarios/${id}/activar`);
   return res.data;
 }
+
+/**
+ * Elimina un horario
+ * @param {string} id - ID del horario
+ * @returns {Promise<Object>} Confirmación
+ * @endpoint DELETE /api/barberias/:slug/admin/horarios/:id
+ */
+export async function deleteHorario(id) {
+  const slug = getSlugActual();
+  const res = await api.delete(`/barberias/${slug}/admin/horarios/${id}`);
+  return res.data;
+}

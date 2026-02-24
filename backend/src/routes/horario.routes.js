@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { createHorario, getHorarios, saveHorario, toggleHorario, getHorariosByBarbero } = require("../controllers/horario.controller");
+const { createHorario, getHorarios, saveHorario, toggleHorario, getHorariosByBarbero, deleteHorario } = require("../controllers/horario.controller");
 const { protect, authorize } = require("../config/middleware/auth.middleware");
 const {
   filterByBarberia,
@@ -26,5 +26,8 @@ router.post("/barberos/:barberoId", saveHorario);
 
 // Toggle activar/desactivar horario
 router.patch("/:id/activar", toggleHorario);
+
+// Eliminar horario
+router.delete("/:id", deleteHorario);
 
 module.exports = router;

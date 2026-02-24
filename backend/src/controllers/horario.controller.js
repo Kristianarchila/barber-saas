@@ -55,7 +55,21 @@ exports.toggleHorario = async (req, res, next) => {
 };
 
 // ==========================================
+// 4) DELETE HORARIO
+// ==========================================
+exports.deleteHorario = async (req, res, next) => {
+    try {
+        const useCase = container.deleteHorarioUseCase;
+        await useCase.execute(req.params.id, req.user.barberiaId);
+        res.json({ message: 'Horario eliminado correctamente' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ==========================================
 // Aliases for compatibility
 // ==========================================
 exports.createHorario = exports.saveHorario;
 exports.getHorarios = exports.getHorariosByBarbero;
+

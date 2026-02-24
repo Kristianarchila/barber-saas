@@ -79,6 +79,7 @@ const GetEstadisticasBarbero = require('../application/use-cases/barberos/GetEst
 const SaveHorario = require('../application/use-cases/horarios/SaveHorario');
 const GetHorariosByBarbero = require('../application/use-cases/horarios/GetHorariosByBarbero');
 const ToggleHorario = require('../application/use-cases/horarios/ToggleHorario');
+const DeleteHorario = require('../application/use-cases/horarios/DeleteHorario');
 
 // Use Cases - Barberias
 const CreateBarberia = require('../application/use-cases/barberias/CreateBarberia');
@@ -616,6 +617,10 @@ class Container {
 
     get toggleHorarioUseCase() {
         return new ToggleHorario(this.horarioRepository, this.barberoRepository);
+    }
+
+    get deleteHorarioUseCase() {
+        return new DeleteHorario(this.horarioRepository, this.barberoRepository);
     }
 
     // ==========================================
