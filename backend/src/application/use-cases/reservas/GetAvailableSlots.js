@@ -37,7 +37,8 @@ class GetAvailableSlots {
             barberoId,
             fecha,
             duracion,
-            horario
+            horario,
+            barberiaId  // Required for tenant isolation in reservaRepository.findByBarberoAndDate
         );
 
         // 4. Filter out blocked time slots

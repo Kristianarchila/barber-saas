@@ -159,15 +159,13 @@ exports.reagendarPorToken = async (req, res, next) => {
 // =========================================================
 exports.obtenerHorariosDisponibles = async (req, res, next) => {
     try {
-        const barberoRepository = container.barberoRepository;
-        const horarioRepository = container.horarioRepository;
-
-        const useCase = container.getAvailableSlotsUseCase(barberoRepository, horarioRepository);
+        const useCase = container.getAvailableSlotsUseCase;
 
         const availableSlots = await useCase.execute({
             barberoId: req.query.barberoId,
             fecha: req.query.fecha,
-            duracion: parseInt(req.query.duracion)
+            duracion: parseInt(req.query.duracion),
+            barberiaId: req.user?.barberiaId || req.query.barberiaId
         });
 
         res.json({

@@ -20,10 +20,15 @@ class GetAISlotSuggestions {
     async execute(data) {
         const { barberiaId, barberoId, servicioId, fechaDeseada, horaDeseada } = data;
 
+        // 1. Validate required fields
+        if (!barberiaId) {
+            throw new Error('barberiaId es requerido');
+        }
+
         // 1. Fetch context data
         const [barbero, servicio, barberia] = await Promise.all([
             this.barberoRepository.findById(barberoId, barberiaId),
-            this.servicioRepository.findById(servicioId),
+            this.servicioRepository.findById(servicioId, barberiaId),
             this.barberiaRepository.findById(barberiaId)
         ]);
 

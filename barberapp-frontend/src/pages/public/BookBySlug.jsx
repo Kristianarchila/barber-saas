@@ -105,7 +105,7 @@ export default function BookBySlug() {
     // --- AI SUGGESTIONS LOGIC ---
     useEffect(() => {
         const fetchAISuggestions = async () => {
-            if (!loadingTurnos && turnosDisponibles.length === 0 && formData.fecha && formData.barberoId && formData.servicioId) {
+            if (!loadingTurnos && turnosDisponibles.length === 0 && formData.fecha && formData.barberoId && formData.servicioId && barberia?._id) {
                 setLoadingAI(true);
                 try {
                     const result = await getAISuggestions(
