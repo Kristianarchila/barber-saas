@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Plus, Search, Calendar, History, ShieldAlert,
   Eye, X, User, CreditCard, ExternalLink,
-  CheckCircle, ChevronDown, RefreshCw, Store
+  CheckCircle, ChevronDown, RefreshCw, Store, Monitor
 } from "lucide-react";
 import {
   getBarberias,
@@ -11,6 +11,9 @@ import {
   extenderPlazoBarberia,
   getHistorialBarberia
 } from "../../services/superAdminService";
+import { TEMPLATES } from "../../config/templateRegistry";
+import api from "../../services/api";
+import { toast } from "react-hot-toast";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -34,12 +37,28 @@ function StatusBadge({ estado }) {
 // ─── DETAIL DRAWER ────────────────────────────────────────────────────────────
 function DetailDrawer({ b, onClose, onCambiarEstado, onExtender }) {
   const [extending, setExtending] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [currentTemplate, setCurrentTemplate] = useState(b?.configuracion?.template || 'modern');
   const url = `${import.meta.env.VITE_FRONTEND_URL || 'http://localhost'}/${b.slug}`;
 
   const handleExtender = async (dias) => {
     setExtending(true);
     await onExtender(b._id, dias);
     setExtending(false);
+  };
+
+  const handleAsignarTemplate = async (templateKey) => {
+    if (templateKey === currentTemplate) return;
+    setSavingTemplate(true);
+    try {
+      await api.patch(`/barberias/${b._id}/template`, { template: templateKey });
+      setCurrentTemplate(templateKey);
+      toast.success(`Plantilla "${templateKey}" asignada ✓`);
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Error al asignar plantilla');
+    } finally {
+      setSavingTemplate(false);
+    }
   };
 
   return (
@@ -98,6 +117,35 @@ function DetailDrawer({ b, onClose, onCambiarEstado, onExtender }) {
                 </button>
               ))}
             </div>
+          </Section>
+
+          {/* 🎨 Plantilla Web */}
+          <Section title="🎨 Plantilla Web">
+            <div className="grid grid-cols-7 gap-1">
+              {TEMPLATES.map(t => {
+                const isActive = currentTemplate === t.key;
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => handleAsignarTemplate(t.key)}
+                    disabled={savingTemplate}
+                    title={t.name}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all text-center ${isActive
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-400 bg-white'
+                      } disabled:opacity-50`}
+                  >
+                    <span className="text-lg">{t.emoji}</span>
+                    <span className={`text-[9px] font-black leading-tight ${isActive ? 'text-blue-600' : 'text-gray-500'
+                      }`}>{t.name.split(' ')[0]}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-gray-400 mt-1">
+              Activa: <strong className="text-gray-700">{currentTemplate}</strong>
+              {savingTemplate && ' · guardando...'}
+            </p>
           </Section>
         </div>
 

@@ -51,6 +51,23 @@ const servicioSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: ""
+    },
+
+    categoria: {
+      type: String,
+      trim: true,
+      default: 'General',
+      enum: ['Cortes', 'Barbas', 'Colorimetría', 'Químicos', 'Faciales', 'General', 'Otros']
+    },
+
+    destacado: {
+      type: Boolean,
+      default: false
+    },
+
+    orden: {
+      type: Number,
+      default: 0
     }
   },
 

@@ -47,4 +47,16 @@ router.get("/tendencias",
     reportesController.obtenerTendenciasIngresos
 );
 
+// ── Reporte Financiero Unificado (Ingresos + Egresos + Vales) ──────────────
+// IMPORTANT: /pdf must be before /financiero to avoid route conflict
+router.get("/financiero/pdf",
+    filterByBarberia,
+    reportesController.descargarReporteFinancieroPDF
+);
+
+router.get("/financiero",
+    filterByBarberia,
+    reportesController.obtenerReporteFinanciero
+);
+
 module.exports = router;

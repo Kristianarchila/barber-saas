@@ -8,7 +8,7 @@ const { ReservationConflictError, handleDuplicateKeyError } = require('../../../
  * Orchestrates the creation of a new reservation
  */
 class CreateReserva {
-    constructor(reservaRepository, servicioRepository, availabilityService, emailService, checkBloqueos, checkClienteStatus, incrementReserva) {
+    constructor(reservaRepository, servicioRepository, availabilityService, emailService, checkBloqueos, checkClienteStatus, incrementReserva, barberoRepository) {
         this.reservaRepository = reservaRepository;
         this.servicioRepository = servicioRepository;
         this.availabilityService = availabilityService;
@@ -16,6 +16,7 @@ class CreateReserva {
         this.checkBloqueos = checkBloqueos;
         this.checkClienteStatus = checkClienteStatus;
         this.incrementReserva = incrementReserva;
+        this.barberoRepository = barberoRepository;
     }
 
     /**
@@ -28,20 +29,11 @@ class CreateReserva {
             // Execute within transaction to prevent race conditions (double booking)
             const savedReserva = await TransactionManager.executeInTransaction(
                 async (session) => {
-                    // 1. Validate that the reservation date is not in the past
-                    const reservationDate = new Date(dto.fecha);
-                    reservationDate.setHours(0, 0, 0, 0);
-
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    if (reservationDate < today) {
-                        const error = new Error('No se pueden crear reservas en fechas pasadas');
-                        error.statusCode = 400;
-                        throw error;
-                    }
-
-                    // 2. Validate that the service exists
+                    // 1. Validate service belongs to the tenant
+                    // NOTE: Past-date validation is intentionally deferred to TimeSlot.isPast()
+                    // inside isTimeSlotAvailable(), which uses the correct tenant IANA timezone.
+                    // A naive new Date() check here would use the server's TZ, causing false
+                    // rejections for tenants in timezones ahead of the server.
                     const servicio = await this.servicioRepository.findById(dto.servicioId, dto.barberiaId);
                     if (!servicio) {
                         throw new Error('Servicio no encontrado');
@@ -49,6 +41,16 @@ class CreateReserva {
 
                     if (!servicio.isAvailable()) {
                         throw new Error('El servicio no está disponible');
+                    }
+
+                    // 3. Validate barbero belongs to this tenant (cross-tenant isolation)
+                    if (this.barberoRepository) {
+                        const barbero = await this.barberoRepository.findById(dto.barberoId, dto.barberiaId);
+                        if (!barbero) {
+                            const err = new Error('Barbero no encontrado en esta barbería');
+                            err.statusCode = 403;
+                            throw err;
+                        }
                     }
 
                     // 3. Check if date/time is blocked (CRITICAL: before availability check)
@@ -71,12 +73,16 @@ class CreateReserva {
 
                     // 5. Check availability (CRITICAL: within transaction to prevent race condition)
                     const duracion = servicio.duracion;
+                    // timezone comes from DTO — provided by the controller which has the barbería context
+                    const tzName = dto.timezone || 'America/Santiago';
                     const isAvailable = await this.availabilityService.isTimeSlotAvailable(
                         dto.barberoId,
                         dto.fecha,
                         dto.hora,
                         duracion,
-                        dto.barberiaId
+                        dto.barberiaId,
+                        null,
+                        tzName
                     );
 
                     if (!isAvailable) {
@@ -95,6 +101,7 @@ class CreateReserva {
                         hora: dto.hora,
                         duracion: duracion,
                         precio: servicio.precio.amount,
+                        timezone: tzName,
                         cancelToken: crypto.randomBytes(32).toString('hex'),
                         createdAt: new Date(),
                         updatedAt: new Date()

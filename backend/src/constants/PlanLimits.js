@@ -12,11 +12,21 @@ const PLAN_LEVELS = {
     PREMIUM: 'premium'
 };
 
+// USDT prices per plan (USD equivalent, TRC-20 network)
+// Competitive pricing vs Weibook ($13.7/$35.5/$90) and Fresha ($29/$69)
+const PLAN_USDT_PRICES = {
+    FREE: 0,
+    basico: 15,   // vs Weibook Home Studio $13.7 — slightly above but more features
+    pro: 29,      // vs Weibook Ultra $35.5 — $6 más barato
+    premium: 49   // vs Weibook Unlimited $90 — $41 más barato
+};
+
 const PLAN_LIMITS = {
     [PLAN_LEVELS.FREE]: {
         name: 'FREE',
         displayName: 'Plan Gratuito',
         precio: 0,
+        precioUsdt: PLAN_USDT_PRICES.FREE,
         limites: {
             maxBarberos: 1,
             maxReservasMes: 50,
@@ -33,13 +43,15 @@ const PLAN_LIMITS = {
             integracionWhatsApp: false,
             personalizacion: false,
             soportePrioritario: false,
-            multipleAdmins: false
+            multipleAdmins: false,
+            marketplace: false
         }
     },
     [PLAN_LEVELS.BASICO]: {
         name: 'BASICO',
         displayName: 'Plan Básico',
         precio: 29990,
+        precioUsdt: PLAN_USDT_PRICES.basico,
         limites: {
             maxBarberos: 3,
             maxReservasMes: 100,
@@ -56,13 +68,15 @@ const PLAN_LIMITS = {
             integracionWhatsApp: false,
             personalizacion: false,
             soportePrioritario: false,
-            multipleAdmins: false
+            multipleAdmins: false,
+            marketplace: false
         }
     },
     [PLAN_LEVELS.PRO]: {
         name: 'PRO',
         displayName: 'Plan Pro',
         precio: 59990,
+        precioUsdt: PLAN_USDT_PRICES.pro,
         limites: {
             maxBarberos: 10,
             maxReservasMes: 500,
@@ -79,13 +93,15 @@ const PLAN_LIMITS = {
             integracionWhatsApp: true,
             personalizacion: true,
             soportePrioritario: false,
-            multipleAdmins: true
+            multipleAdmins: true,
+            marketplace: true
         }
     },
     [PLAN_LEVELS.PREMIUM]: {
         name: 'PREMIUM',
         displayName: 'Plan Premium',
         precio: 99990,
+        precioUsdt: PLAN_USDT_PRICES.premium,
         limites: {
             maxBarberos: -1, // Ilimitado
             maxReservasMes: -1,
@@ -102,7 +118,8 @@ const PLAN_LIMITS = {
             integracionWhatsApp: true,
             personalizacion: true,
             soportePrioritario: true,
-            multipleAdmins: true
+            multipleAdmins: true,
+            marketplace: true
         }
     }
 };

@@ -9,46 +9,21 @@ const {
     obtenerBloqueosPorFecha,
     eliminarBloqueo
 } = require('../controllers/bloqueos.controller');
+const validateJoi = require('../middleware/joiValidation.middleware');
+const { bloqueoSchema, mongoIdParamsSchema } = require('../validators/common.joi');
 
 // All routes require authentication and admin role
 router.use(protect);
 router.use(authorize('BARBERIA_ADMIN', 'SUPER_ADMIN'));
 
-/**
- * @route   GET /api/barberias/:slug/admin/bloqueos
- * @desc    Get all bloqueos for a barberia
- * @access  Private (Admin)
- */
 router.get('/', extractBarberiaId, validateTenantAccess, obtenerBloqueos);
-
-/**
- * @route   GET /api/barberias/:slug/admin/bloqueos/rango
- * @desc    Get bloqueos for a date range
- * @access  Private (Admin)
- * @query   fechaInicio, fechaFin, barberoId (optional)
- */
 router.get('/rango', extractBarberiaId, validateTenantAccess, obtenerBloqueosPorRango);
-
-/**
- * @route   GET /api/barberias/:slug/admin/bloqueos/fecha/:fecha
- * @desc    Get bloqueos for a specific date
- * @access  Private (Admin)
- * @query   barberoId (optional)
- */
 router.get('/fecha/:fecha', extractBarberiaId, validateTenantAccess, obtenerBloqueosPorFecha);
 
-/**
- * @route   POST /api/barberias/:slug/admin/bloqueos
- * @desc    Create a new bloqueo
- * @access  Private (Admin)
- */
-router.post('/', extractBarberiaId, validateTenantAccess, crearBloqueo);
+// Crear bloqueo — con validación de body
+router.post('/', extractBarberiaId, validateTenantAccess, validateJoi(bloqueoSchema), crearBloqueo);
 
-/**
- * @route   DELETE /api/barberias/:slug/admin/bloqueos/:id
- * @desc    Delete (deactivate) a bloqueo
- * @access  Private (Admin)
- */
-router.delete('/:id', extractBarberiaId, validateTenantAccess, eliminarBloqueo);
+// Eliminar bloqueo — con validación de :id
+router.delete('/:id', validateJoi(mongoIdParamsSchema, 'params'), extractBarberiaId, validateTenantAccess, eliminarBloqueo);
 
 module.exports = router;

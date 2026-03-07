@@ -3,13 +3,15 @@ const router = express.Router();
 const { protect, authorize } = require('../config/middleware/auth.middleware');
 const { extractBarberiaId, validateTenantAccess } = require('../middleware/tenantValidation.middleware');
 const container = require('../shared/Container');
+const validateJoi = require('../middleware/joiValidation.middleware');
+const { joinWaitingListSchema } = require('../validators/common.joi');
 
 /**
  * @route   POST /api/waiting-list/join
  * @desc    Join the waiting list
  * @access  Public
  */
-router.post('/join', async (req, res, next) => {
+router.post('/join', validateJoi(joinWaitingListSchema), async (req, res, next) => {
     try {
         const joinWaitingListUseCase = container.joinWaitingListUseCase;
         const result = await joinWaitingListUseCase.execute(req.body);
@@ -38,23 +40,23 @@ router.post('/convert/:token', async (req, res, next) => {
 });
 
 /**
- * @route   GET /api/waiting-list/:barberiaId
- * @desc    Get waiting list for a barberia
+ * @route   GET /api/waiting-list/:slug
+ * @desc    Get waiting list for a barberia (by slug)
  * @access  Private (Admin)
  */
 router.get(
-    '/:barberiaId',
+    '/:slug',
     protect,
     authorize('BARBERIA_ADMIN', 'SUPER_ADMIN'),
     extractBarberiaId,
     validateTenantAccess,
     async (req, res, next) => {
         try {
-            const { barberiaId } = req.params;
+            // req.barberiaId is set by extractBarberiaId middleware
             const { estado, barberoId, servicioId } = req.query;
 
             const getWaitingListUseCase = container.getWaitingListByBarberiaUseCase;
-            const result = await getWaitingListUseCase.execute(barberiaId, {
+            const result = await getWaitingListUseCase.execute(req.barberiaId, {
                 estado,
                 barberoId,
                 servicioId
@@ -68,18 +70,20 @@ router.get(
 );
 
 /**
- * @route   DELETE /api/waiting-list/:entryId
+ * @route   DELETE /api/waiting-list/:slug/:entryId
  * @desc    Cancel a waiting list entry
  * @access  Private (Admin or Owner)
  */
 router.delete(
-    '/:entryId',
+    '/:slug/:entryId',
     protect,
     authorize('BARBERIA_ADMIN', 'SUPER_ADMIN', 'CLIENTE'),
+    extractBarberiaId,
+    validateTenantAccess,
     async (req, res, next) => {
         try {
             const { entryId } = req.params;
-            const cancelledBy = req.user.rol === 'CLIENTE' ? 'CLIENT' : 'ADMIN';
+            const cancelledBy = (req.user && req.user.rol === 'CLIENTE') ? 'CLIENT' : 'ADMIN';
 
             const cancelUseCase = container.cancelWaitingListEntryUseCase;
             const result = await cancelUseCase.execute(entryId, cancelledBy);
@@ -92,12 +96,12 @@ router.delete(
 );
 
 /**
- * @route   POST /api/waiting-list/:entryId/notify
+ * @route   POST /api/waiting-list/:slug/:entryId/notify
  * @desc    Manually notify a waiting list entry (admin only)
  * @access  Private (Admin)
  */
 router.post(
-    '/:entryId/notify',
+    '/:slug/:entryId/notify',
     protect,
     authorize('BARBERIA_ADMIN', 'SUPER_ADMIN'),
     extractBarberiaId,

@@ -33,6 +33,9 @@ function initSentry(app) {
         // Release tracking (use git commit hash or version)
         release: process.env.SENTRY_RELEASE || `barber-saas@${process.env.npm_package_version || '1.0.0'}`,
 
+        // Send default PII (IP address, user context set via setUser())
+        sendDefaultPii: true,
+
         // Performance Monitoring
         tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0, // 10% in prod, 100% in dev
 

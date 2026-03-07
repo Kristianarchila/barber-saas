@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Scissors, ShoppingBag, MapPin, ChevronDown, Calendar, Menu, X, Instagram, Facebook } from 'lucide-react';
 import { useBarberiaTheme } from '../../context/BarberiaThemeContext';
 import { useBarberia } from '../../context/BarberiaContext';

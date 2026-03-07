@@ -75,6 +75,7 @@ exports.validateTenantAccess = async (req, res, next) => {
         const userBarberiaId = req.user.barberiaId?.toString();
         const requestBarberiaId = req.barberiaId.toString();
 
+
         // SUPERADMIN tiene acceso a todas las barberías
         if (req.user.rol === 'SUPER_ADMIN') {
             logger.info('Acceso SUPER_ADMIN permitido', {
@@ -94,28 +95,32 @@ exports.validateTenantAccess = async (req, res, next) => {
                 url: req.originalUrl,
                 method: req.method,
                 ip: req.ip,
-                userAgent: req.headers['user-agent']
+                userAgent: req.headers?.['user-agent']
             });
 
-            // 📝 REGISTRAR EN AUDIT LOG
+            // 📝 REGISTRAR EN AUDIT LOG — fire-and-forget (non-blocking)
             const AuditLog = require('../infrastructure/database/mongodb/models/AuditLog');
-            await AuditLog.logCrossTenantAttempt({
+            AuditLog.logCrossTenantAttempt({
                 userId: req.user._id,
                 userBarberiaId,
                 attemptedBarberiaId: requestBarberiaId,
                 request: {
                     ip: req.ip,
-                    userAgent: req.headers['user-agent'],
+                    userAgent: req.headers?.['user-agent'],
                     method: req.method,
                     url: req.originalUrl,
                     params: req.params,
                     query: req.query
                 }
+            }).catch(auditErr => {
+                logger.error('Error registrando audit log de cross-tenant', { error: auditErr.message });
             });
 
-            throw new TenantIsolationError(
-                'No tienes permiso para acceder a los datos de esta barbería'
-            );
+            // Responder directamente con 403 — sin lanzar excepción
+            return res.status(403).json({
+                message: 'No tienes permiso para acceder a los datos de esta barbería',
+                code: 'TENANT_ISOLATION_VIOLATION'
+            });
         }
 
         // ✅ Acceso permitido
@@ -126,12 +131,6 @@ exports.validateTenantAccess = async (req, res, next) => {
 
         next();
     } catch (error) {
-        if (error instanceof TenantIsolationError) {
-            return res.status(403).json({
-                message: error.message,
-                code: 'TENANT_ISOLATION_VIOLATION'
-            });
-        }
         next(error);
     }
 };

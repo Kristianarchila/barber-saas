@@ -9,27 +9,56 @@ const mongoose = require('mongoose');
 const TransactionError = require('../domain/errors/TransactionError');
 
 class TransactionManager {
+    // Cached result of replica-set detection.
+    // null  = not yet tested | true = transactions OK | false = standalone
+    static _replicaSetAvailable = null;
+
     /**
-     * Execute an operation within a MongoDB transaction
-     * 
-     * @param {Function} operation - Async function that receives a session parameter
-     * @param {Object} options - Transaction options
-     * @param {number} options.maxRetries - Maximum retry attempts for transient errors (default: 3)
-     * @param {number} options.retryDelay - Base delay between retries in ms (default: 100)
-     * @param {string} options.operationName - Name for logging purposes
-     * @returns {Promise<any>} - Result from the operation
-     * 
-     * @example
-     * const result = await TransactionManager.executeInTransaction(
-     *   async (session) => {
-     *     const reserva = await reservaRepo.save(reservaData, session);
-     *     await clienteRepo.update(clienteId, updateData, session);
-     *     return reserva;
-     *   },
-     *   { operationName: 'CompleteReservation' }
-     * );
+     * Detect once whether MongoDB supports multi-document transactions.
+     * Called lazily on first executeInTransaction call.
+     */
+    static async _detectReplicaSet() {
+        if (TransactionManager._replicaSetAvailable !== null) {
+            return TransactionManager._replicaSetAvailable;
+        }
+        try {
+            const session = await mongoose.startSession();
+            session.startTransaction();
+            await session.abortTransaction();
+            await session.endSession();
+            TransactionManager._replicaSetAvailable = true;
+            console.log('[TransactionManager] Replica set detected — transactions enabled');
+        } catch {
+            TransactionManager._replicaSetAvailable = false;
+            console.warn(
+                '[TransactionManager] No replica set — running without transactions. ' +
+                'Double-booking protection relies on unique index {barberoId,fecha,hora}.'
+            );
+        }
+        return TransactionManager._replicaSetAvailable;
+    }
+
+    /**
+     * Execute an operation within a MongoDB transaction (or directly if no replica set).
+     *
+     * When MongoDB is in standalone mode, `session` will be null and the operation
+     * runs without a transaction. The unique index on {barberoId,fecha,hora} is the
+     * safety net — concurrent duplicates throw code 11000 → handleDuplicateKeyError
+     * converts it to ReservationConflictError (409).
      */
     static async executeInTransaction(operation, options = {}) {
+        const useTransactions = await TransactionManager._detectReplicaSet();
+
+        // ── No-transaction path (standalone MongoDB) ──────────────────────────
+        if (!useTransactions) {
+            try {
+                return await operation(null); // null session → repo saves without session
+            } catch (error) {
+                throw error; // bubble up: customErrors / errorHandler will classify it
+            }
+        }
+
+        // ── Transaction path (replica set available) ──────────────────────────
         const {
             maxRetries = 3,
             retryDelay = 100,
@@ -79,6 +108,31 @@ class TransactionManager {
                 }
 
                 // Non-transient error or max retries reached
+
+                // ── 1. Already-typed errors (ReservationConflictError, etc.) ──
+                // These have a statusCode set by the original thrower (e.g. 409).
+                // Re-throw directly: wrapping them in TransactionError loses the statusCode
+                // and the errorHandler falls back to 500.
+                if (error.statusCode) {
+                    throw error;
+                }
+
+                // ── 2. WriteConflict after retries exhausted → treat as 409 ──
+                // MongoDB code 112 means two concurrent transactions tried to write the
+                // same document; the loser should retry or get a conflict response.
+                const { ReservationConflictError, handleDuplicateKeyError } = require('../utils/customErrors');
+                if (error.code === 112) {
+                    throw new ReservationConflictError(
+                        'Otro usuario reservó este horario al mismo tiempo. Por favor elige otro.'
+                    );
+                }
+
+                // ── 3. Duplicate key (unique index fired) → convert to 409 ──
+                // e.g. concurrent inserts that pass the availability check but hit the index.
+                const converted = handleDuplicateKeyError(error);
+                if (converted !== error) throw converted;
+
+                // ── 4. Unknown / infrastructure error → wrap and log ──
                 console.error(`[Transaction] Failed: ${operationName}`, {
                     error: error.message,
                     attempt: attempt + 1,
@@ -90,12 +144,6 @@ class TransactionManager {
                     error,
                     { operationName, attempt: attempt + 1 }
                 );
-
-                // Preserve statusCode from original error for proper HTTP responses
-                if (error.statusCode) {
-                    transactionError.statusCode = error.statusCode;
-                }
-
                 throw transactionError;
 
             } finally {

@@ -51,8 +51,8 @@ const subscriptionSchema = new mongoose.Schema(
         },
         paymentMethod: {
             type: String,
-            enum: ['STRIPE', 'MANUAL', 'FLOW', 'TRANSBANK', 'MERCADOPAGO'],
-            default: 'STRIPE'
+            enum: ['STRIPE', 'MANUAL', 'FLOW', 'TRANSBANK', 'MERCADOPAGO', 'CRYPTO'],
+            default: 'CRYPTO'
         },
         manualPayments: [{
             amount: {

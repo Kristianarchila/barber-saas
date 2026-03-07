@@ -57,6 +57,7 @@ const barberiaSchema = new mongoose.Schema(
       badge: { type: String }, // ✅ NUEVO
       ctaPrimary: { type: String }, // ✅ NUEVO
       ctaSecondary: { type: String }, // ✅ NUEVO
+      yearEstablished: { type: String, default: '2026' }, // ✅ NUEVO: Año de fundación
       instagram: { type: String },
       facebook: { type: String },
       googleMapsUrl: { type: String },
@@ -115,7 +116,15 @@ const barberiaSchema = new mongoose.Schema(
         calificacionMinima: { type: Number, default: 1, min: 1, max: 5 },
         permitirRespuestas: { type: Boolean, default: true },
         mostrarEnWeb: { type: Boolean, default: true }
-      }
+      },
+
+      // ✅ Categorías de servicios personalizadas por barberia
+      categorias: [
+        {
+          nombre: { type: String, trim: true },
+          orden: { type: Number, default: 0 }
+        }
+      ]
     }, // ✅ CIERRE de configuracion
 
     // MULTI-SEDE: Array de sucursales (solo si esMatriz = true)
@@ -175,6 +184,18 @@ const barberiaSchema = new mongoose.Schema(
     activa: {
       type: Boolean,
       default: true
+    },
+
+    /**
+     * IANA timezone identifier for this barbería.
+     * All TimeSlot evaluations (isPast, isFuture, available slots) use this timezone.
+     * Critical for multitenant correctness — do NOT fall back to server TZ.
+     * @example 'America/Santiago' | 'America/Buenos_Aires' | 'America/Bogota'
+     */
+    timezone: {
+      type: String,
+      default: 'America/Santiago',
+      trim: true
     },
 
     fechaFinTrial: { type: Date },
@@ -246,7 +267,16 @@ const barberiaSchema = new mongoose.Schema(
         realizadoPor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         notas: String
       }
-    ]
+    ],
+
+    // ✅ MARKETPLACE: Tienda online de la barbería
+    marketplace: {
+      activo: { type: Boolean, default: false },
+      descripcion: { type: String, default: 'Productos de cuidado y estilo' },
+      bannerUrl: { type: String },
+      whatsapp: { type: String }, // número para recibir pedidos
+      categorias: [{ type: String, trim: true }] // categorías custom por barbería
+    }
   },
   { timestamps: true }
 );

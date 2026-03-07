@@ -27,6 +27,7 @@ const authRoutes = require("./routes/auth.routes");
 const subscriptionRoutes = require("./routes/subscription.routes");
 const bloqueosRoutes = require("./routes/bloqueos.routes");
 const clienteStatsRoutes = require("./routes/clienteStats.routes");
+const pushRoutes = require("./routes/push.routes");
 const stripeWebhook = require("./webhooks/stripe.webhook");
 const { errorHandler } = require("./config/middleware/errorHandler");
 // Note: generalLimiter removed — rate limiting is handled by globalLimiter in middleware/rateLimit.middleware.js
@@ -165,7 +166,9 @@ if (process.env.NODE_ENV === 'development') {
 const { sanitizeInputs } = require("./middleware/sanitization.middleware");
 app.use(sanitizeInputs());
 
-// 🔒 Trust proxy (Nginx) so express-rate-limit can read X-Forwarded-For correctly
+// 🔒 S-04 FIX: Trust only the immediate nginx proxy (hop = 1).
+// Using the numeric value prevents clients from spoofing X-Forwarded-For
+// to bypass rate limiting. Change to 2 if behind 2 proxies (e.g. nginx + CDN).
 app.set('trust proxy', 1);
 
 const { globalLimiter } = require("./middleware/rateLimit.middleware");
@@ -178,11 +181,14 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for React
+      // S-CSP FIX: Eliminado 'unsafe-inline'. React con Vite no genera estilos inline
+      // en producción — los estilos son CSS puro inyectado por el bundle.
+      // Se mantiene 'unsafe-inline' solo si se detecta que Tailwind lo requiere en runtime.
+      styleSrc: ["'self'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"], // Allow Cloudinary images
-      connectSrc: ["'self'"], // API calls
-      fontSrc: ["'self'", "data:"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+      connectSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"]
@@ -226,14 +232,16 @@ app.use("/api/public/barberias", publicRoutes); // Changed to match frontend cal
 
 
 app.use("/public", require("./routes/public.turnos.routes"));
-app.use("/api/public", resenasRoutes); // Public reseñas routes (/:slug/resenas/*)
+app.use("/api/public/barberias", resenasRoutes); // Public reseñas routes (/api/public/barberias/:slug/resenas/*)
 app.use("/api", resenasRoutes); // Admin reseñas routes (/admin/resenas/*)
-app.use("/api/reservas", reservasRoutes);
+app.use("/api/public/reservas", reservasRoutes); // Solo para tokens y endpoints públicos
+// app.use("/api/reservas", reservasRoutes); // ⛔ DEPRECATED: Usar rutas con :slug para admin y tenant validation
 
 app.use("/api/superadmin", superAdminRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/sse", require("./routes/sse.routes")); // SSE real-time notifications
+app.use("/api/push", pushRoutes); // PWA Push Notifications
 app.use("/api/cache", require("./routes/cache.routes")); // Cache management
 app.use("/api/barberias/:slug/notifications", require("./routes/notifications.routes"));
 
@@ -254,15 +262,20 @@ app.use("/api/barberias/:slug/admin/reservas", tenantAdminMiddleware, reservasRo
 
 // ✅ FIXED: Bloqueos ahora tiene validación multi-tenant completa
 app.use("/api/barberias/:slug/admin/bloqueos", tenantAdminMiddleware, bloqueosRoutes);
-
+app.use("/api/barberias/:slug/admin/cliente-stats",
+  tenantAdminMiddleware,
+  clienteStatsRoutes
+);
 app.use("/api/barberias/:slug/admin/dashboard", tenantAdminMiddleware, dashboardRoutes);
 app.use("/api/barberias/:slug/admin/finanzas", tenantAdminMiddleware, finanzasRoutes);
 app.use("/api/barberias/:slug/admin/clientes", tenantAdminMiddleware, userRoutes);
 
 app.use("/api/barberias/:slug/admin/pagos", tenantAdminMiddleware, require("./routes/pagos.routes"));
 app.use("/api/barberias/:slug/admin/egresos", tenantAdminMiddleware, require("./routes/egresos.routes"));
+app.use("/api/barberias/:slug/admin/vales", tenantAdminMiddleware, require("./routes/vales.routes"));
 app.use("/api/barberias/:slug/admin/caja", tenantAdminMiddleware, require("./routes/caja.routes"));
 app.use("/api/barberias/:slug/admin/reportes", tenantAdminMiddleware, require("./routes/reportes.routes"));
+
 
 app.use("/api/barberias/:slug/admin/revenue-config", tenantAdminMiddleware, revenueConfigRoutes);
 app.use("/api/barberias/:slug/transactions", tenantAdminMiddleware, transactionRoutes);

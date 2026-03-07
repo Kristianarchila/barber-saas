@@ -88,7 +88,7 @@ class Subscription {
             throw new Error(`Invalid status: ${this._status}`);
         }
 
-        const validPaymentMethods = ['STRIPE', 'MANUAL', 'FLOW', 'TRANSBANK', 'MERCADOPAGO'];
+        const validPaymentMethods = ['STRIPE', 'MANUAL', 'FLOW', 'TRANSBANK', 'MERCADOPAGO', 'CRYPTO'];
         if (!validPaymentMethods.includes(this._paymentMethod)) {
             throw new Error(`Invalid payment method: ${this._paymentMethod}`);
         }

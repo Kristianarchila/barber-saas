@@ -12,19 +12,14 @@ const container = require('../shared/Container');
 exports.getClienteStats = async (req, res, next) => {
     try {
         const { barberiaId } = req;
-        const { bloqueado, email, limit = 100 } = req.query;
+        const { bloqueado, email, limit = 200, fechaInicio, fechaFin } = req.query;
 
-        const filters = {
-            limit: parseInt(limit)
-        };
+        const filters = { limit: parseInt(limit) };
 
-        if (bloqueado !== undefined) {
-            filters.bloqueado = bloqueado === 'true';
-        }
-
-        if (email) {
-            filters.email = email;
-        }
+        if (bloqueado !== undefined) filters.bloqueado = bloqueado === 'true';
+        if (email) filters.email = email;
+        if (fechaInicio) filters.fechaInicio = fechaInicio;
+        if (fechaFin) filters.fechaFin = fechaFin;
 
         const clienteStatsRepo = container.clienteStatsRepository;
         const stats = await clienteStatsRepo.findByBarberiaId(barberiaId, filters);

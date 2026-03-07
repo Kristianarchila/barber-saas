@@ -36,7 +36,10 @@ export default function VentaRapida() {
     const [selectedBarbero, setSelectedBarbero] = useState("");
     const [metodoPago, setMetodoPago] = useState("EFECTIVO");
     const [showConfirm, setShowConfirm] = useState(false);
-    const [descuento, setDescuento] = useState(0);
+    const [descuentoTipo, setDescuentoTipo] = useState("monto"); // 'monto' | 'porcentaje'
+    const [descuentoValor, setDescuentoValor] = useState("");
+    const [showMobileCart, setShowMobileCart] = useState(false);
+
 
     // Hook para cargar datos iniciales
     const { execute: fetchData, loading, error } = useApiCall(
@@ -71,6 +74,11 @@ export default function VentaRapida() {
     };
 
     const subtotal = carrito.reduce((acc, item) => acc + (item.precio || item.precioVenta || 0), 0);
+    const descuento = (() => {
+        const v = parseFloat(descuentoValor) || 0;
+        if (descuentoTipo === "porcentaje") return Math.round(subtotal * (Math.min(v, 100) / 100));
+        return Math.min(v, subtotal);
+    })();
     const iva = Math.round(subtotal * 0.19);
     const total = subtotal - descuento;
     const neto = total - iva;
@@ -112,7 +120,8 @@ export default function VentaRapida() {
             onSuccess: () => {
                 setCarrito([]);
                 setShowConfirm(false);
-                setDescuento(0);
+                setDescuentoValor("");
+                setDescuentoTipo("monto");
                 setSelectedBarbero("");
             }
         }
@@ -137,13 +146,13 @@ export default function VentaRapida() {
         <div className="max-w-5xl mx-auto space-y-6 pb-24 lg:pb-8">
             {/* HEADER BUSQUEDA */}
             <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="text-gray-400 group-focus-within:text-blue-600 transition-colors" size={24} />
+                <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                    <Search className="text-gray-400 group-focus-within:text-blue-600 transition-colors" size={20} />
                 </div>
                 <input
                     type="text"
-                    placeholder="Busca servicios por nombre o productos por código..."
-                    className="w-full bg-white border border-gray-200 rounded-2xl py-6 pl-14 pr-6 text-gray-900 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none text-xl shadow-sm"
+                    placeholder="Busca servicios o productos..."
+                    className="w-full bg-white border border-gray-200 rounded-xl md:rounded-2xl py-3.5 md:py-6 pl-10 md:pl-14 pr-4 text-gray-900 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none text-sm md:text-xl shadow-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -152,11 +161,11 @@ export default function VentaRapida() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* COLUMNA IZQUIERDA: SELECTOR */}
                 <div className="lg:col-span-12">
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                        <span className="badge badge-primary px-5 py-2.5 cursor-pointer">Todos los Items</span>
-                        <span className="badge px-5 py-2.5 cursor-pointer bg-white border-gray-200 text-gray-600 hover:bg-gray-50">Servicios</span>
-                        <span className="badge px-5 py-2.5 cursor-pointer bg-white border-gray-200 text-gray-600 hover:bg-gray-50">Productos</span>
-                        <span className="badge px-5 py-2.5 cursor-pointer bg-white border-gray-200 text-gray-600 hover:bg-gray-50">Tratamientos</span>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <span className="badge badge-primary px-3 py-1.5 md:px-5 md:py-2.5 text-xs md:text-sm cursor-pointer whitespace-nowrap">Todos</span>
+                        <span className="badge px-3 py-1.5 md:px-5 md:py-2.5 text-xs md:text-sm cursor-pointer bg-white border-gray-200 text-gray-600 hover:bg-gray-50 whitespace-nowrap">Servicios</span>
+                        <span className="badge px-3 py-1.5 md:px-5 md:py-2.5 text-xs md:text-sm cursor-pointer bg-white border-gray-200 text-gray-600 hover:bg-gray-50 whitespace-nowrap">Productos</span>
+                        <span className="badge px-3 py-1.5 md:px-5 md:py-2.5 text-xs md:text-sm cursor-pointer bg-white border-gray-200 text-gray-600 hover:bg-gray-50 whitespace-nowrap">Tratamientos</span>
                     </div>
                 </div>
 
@@ -184,8 +193,8 @@ export default function VentaRapida() {
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: CARRITO Y RESUMEN */}
-                <div className="lg:col-span-5 space-y-6">
+                {/* COLUMNA DERECHA: CARRITO Y RESUMEN — hidden on mobile, shown in bottom sheet */}
+                <div className="hidden lg:block lg:col-span-5 space-y-6">
                     <div className="card shadow-2xl border-none overflow-hidden flex flex-col sticky top-8">
                         <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                             <div className="flex items-center gap-3">
@@ -227,6 +236,39 @@ export default function VentaRapida() {
                             )}
                         </div>
 
+                        {/* DESCUENTO */}
+                        <div className="px-6 py-4 border-t border-gray-100 bg-white">
+                            <h4 className="caption text-gray-400 font-bold uppercase tracking-widest mb-3">Descuento</h4>
+                            <div className="flex gap-2">
+                                <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDescuentoTipo("monto")}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${descuentoTipo === "monto" ? 'bg-white text-blue-700 shadow' : 'text-gray-500'}`}
+                                    >$</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDescuentoTipo("porcentaje")}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${descuentoTipo === "porcentaje" ? 'bg-white text-blue-700 shadow' : 'text-gray-500'}`}
+                                    >%</button>
+                                </div>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={descuentoTipo === "porcentaje" ? 100 : subtotal}
+                                    value={descuentoValor}
+                                    onChange={e => setDescuentoValor(e.target.value)}
+                                    placeholder={descuentoTipo === "porcentaje" ? "Ej: 10" : "Ej: 2000"}
+                                    className="input flex-1 text-sm"
+                                />
+                            </div>
+                            {descuento > 0 && (
+                                <p className="caption text-green-600 font-bold mt-1.5">
+                                    Descuento aplicado: -${descuento.toLocaleString()}
+                                </p>
+                            )}
+                        </div>
+
                         {/* RESUMEN PRECIOS (ESTILO RECIBO) */}
                         <div className="p-6 bg-gray-900 space-y-4 rounded-t-3xl shadow-2xl relative">
                             <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-700 rounded-full"></div>
@@ -241,7 +283,7 @@ export default function VentaRapida() {
                                     <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Ajustes / Descuentos</span>
                                     <Percent size={12} className="text-blue-500" />
                                 </div>
-                                <span className="text-red-400 font-bold font-mono">-$0</span>
+                                <span className="text-red-400 font-bold font-mono">-${descuento.toLocaleString()}</span>
                             </div>
 
                             <div className="flex justify-between items-center text-sm py-4 border-y border-gray-800 border-dashed">
@@ -311,6 +353,143 @@ export default function VentaRapida() {
                     </div>
                 </div>
             </div>
+
+            {/* ── MOBILE ONLY: Fixed bottom cart bar ────────────────── */}
+            <div className="lg:hidden fixed bottom-[72px] left-0 right-0 z-40 px-4">
+                <button
+                    onClick={() => setShowMobileCart(true)}
+                    className="w-full flex items-center justify-between bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl active:scale-95 transition-transform"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <ShoppingCart size={20} />
+                            {carrito.length > 0 && (
+                                <span className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full text-[9px] font-black flex items-center justify-center">
+                                    {carrito.length}
+                                </span>
+                            )}
+                        </div>
+                        <span className="text-sm font-bold">
+                            {carrito.length === 0 ? 'Carrito vacío' : `${carrito.length} item${carrito.length > 1 ? 's' : ''}`}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-lg font-black font-mono">${total.toLocaleString()}</span>
+                        <span className={`text-xs font-black px-4 py-1.5 rounded-xl ${carrito.length > 0 ? 'bg-blue-600' : 'bg-gray-700'}`}>
+                            {carrito.length > 0 ? 'PAGAR' : 'VER'}
+                        </span>
+                    </div>
+                </button>
+            </div>
+
+            {/* ── MOBILE CART BOTTOM SHEET ─────────────────────────────── */}
+            {showMobileCart && (
+                <div className="lg:hidden fixed inset-0 z-50">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMobileCart(false)} />
+                    <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[90vh] pb-8">
+                        <div className="flex justify-center pt-3 pb-1">
+                            <div className="w-10 h-1 bg-gray-200 rounded-full" />
+                        </div>
+                        <div className="px-5 py-3 flex items-center justify-between border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <ShoppingCart size={18} className="text-blue-600" />
+                                <h2 className="font-bold text-gray-900">Detalle de Venta</h2>
+                                <span className="badge badge-primary text-xs">{carrito.length} items</span>
+                            </div>
+                            <button onClick={() => setShowMobileCart(false)} className="text-gray-400 text-2xl leading-none">&times;</button>
+                        </div>
+                        <div className="p-4 space-y-3 min-h-[80px]">
+                            {carrito.length === 0 ? (
+                                <div className="py-8 text-center text-gray-400">
+                                    <ShoppingCart size={28} className="mx-auto mb-2 opacity-20" />
+                                    <p className="text-sm font-semibold">Carrito vacío</p>
+                                    <p className="text-xs">Agrega servicios o productos</p>
+                                </div>
+                            ) : carrito.map((item) => (
+                                <div key={item.id_carrito} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-gray-900 truncate">{item.nombre}</p>
+                                        <p className="text-[10px] text-blue-600 font-bold uppercase">{item.type}</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                        <span className="font-bold font-mono text-sm">${(item.precio || item.precioVenta || 0).toLocaleString()}</span>
+                                        <button onClick={() => removeFromCart(item.id_carrito)} className="p-1.5 text-gray-300 hover:text-red-500 transition-colors">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="px-4 pb-3 border-t border-gray-100 pt-3">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Descuento</p>
+                            <div className="flex gap-2">
+                                <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+                                    <button type="button" onClick={() => setDescuentoTipo("monto")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${descuentoTipo === "monto" ? 'bg-white text-blue-700 shadow' : 'text-gray-500'}`}>$</button>
+                                    <button type="button" onClick={() => setDescuentoTipo("porcentaje")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${descuentoTipo === "porcentaje" ? 'bg-white text-blue-700 shadow' : 'text-gray-500'}`}>%</button>
+                                </div>
+                                <input type="number" min={0} value={descuentoValor} onChange={e => setDescuentoValor(e.target.value)} placeholder={descuentoTipo === "porcentaje" ? "Ej: 10" : "Ej: 2000"} className="input flex-1 text-sm" />
+                            </div>
+                        </div>
+                        {barberos.length > 0 && (
+                            <div className="px-4 pb-3">
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Barbero</p>
+                                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                                    {barberos.map(b => (
+                                        <button key={b._id} onClick={() => setSelectedBarbero(b._id)}
+                                            className={`flex flex-col items-center gap-1.5 p-2 min-w-[64px] rounded-xl border-2 transition-all flex-shrink-0 ${selectedBarbero === b._id ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-100 opacity-60'}`}>
+                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                                                {b.foto ? <img src={b.foto} alt={b.nombre} className="w-full h-full object-cover" /> : <User size={16} className="text-gray-400" />}
+                                            </div>
+                                            <span className="text-[9px] font-bold truncate w-full text-center">{b.nombre.split(' ')[0]}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        <div className="mx-4 bg-gray-900 rounded-2xl p-4 space-y-2 mb-4">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">Subtotal</span>
+                                <span className="text-gray-200 font-mono font-bold">${subtotal.toLocaleString()}</span>
+                            </div>
+                            {descuento > 0 && (
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-400">Descuento</span>
+                                    <span className="text-red-400 font-mono font-bold">-${descuento.toLocaleString()}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between pt-2 border-t border-gray-800">
+                                <span className="text-white font-black text-lg">Total</span>
+                                <span className="text-blue-400 font-black text-2xl font-mono">${total.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <div className="px-4 mb-3">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Método de Pago</p>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { id: 'EFECTIVO', icon: <Banknote size={18} />, label: 'Efectivo' },
+                                    { id: 'TARJETA', icon: <CreditCard size={18} />, label: 'Tarjeta' },
+                                    { id: 'TRANSFERENCIA', icon: <Smartphone size={18} />, label: 'Transf.' }
+                                ].map(m => (
+                                    <button key={m.id} onClick={() => setMetodoPago(m.id)}
+                                        className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${metodoPago === m.id ? 'bg-white border-blue-600 text-blue-600 shadow-md' : 'bg-gray-50 border-transparent text-gray-400'}`}>
+                                        {m.icon}
+                                        <span className="text-[10px] font-black uppercase">{m.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="px-4">
+                            <button
+                                disabled={carrito.length === 0}
+                                onClick={() => { setShowMobileCart(false); setShowConfirm(true); }}
+                                className="w-full bg-blue-600 text-white font-black text-base py-4 rounded-2xl shadow-lg disabled:opacity-40 active:scale-95 transition-all"
+                            >
+                                PROCEDER AL PAGO →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL CONFIRMACION */}
             {showConfirm && (

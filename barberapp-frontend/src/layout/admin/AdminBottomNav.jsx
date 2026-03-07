@@ -1,46 +1,165 @@
 import { Link } from "react-router-dom";
-import { Home, Calendar as CalendarIcon, ShoppingCart, DollarSign as MoneyIcon, Menu as MenuIcon } from "lucide-react";
+import {
+    LayoutDashboard,
+    Calendar,
+    ShoppingCart,
+    BarChart2,
+    Grid3X3,
+} from "lucide-react";
 
+/**
+ * AdminBottomNav — Mobile-first bottom navigation bar
+ *
+ * Pattern: 5-tab bar with a visually elevated center CTA action.
+ * Follows iOS/Android HIG guidelines:
+ *  - Safe-area inset for home-indicator on iPhone X+
+ *  - 44px+ tap targets
+ *  - Active state: top pill + color change
+ */
 export default function AdminBottomNav({ slug, isActive, setIsMobileMenuOpen }) {
+    const tabs = [
+        {
+            label: "Inicio",
+            icon: LayoutDashboard,
+            path: `/${slug}/admin/dashboard`,
+            type: "link",
+        },
+        {
+            label: "Agenda",
+            icon: Calendar,
+            path: `/${slug}/admin/reservas`,
+            type: "link",
+        },
+        {
+            label: "Venta",
+            icon: ShoppingCart,
+            path: `/${slug}/admin/venta-rapida`,
+            type: "cta",         // visually elevated center action
+        },
+        {
+            label: "Finanzas",
+            icon: BarChart2,
+            path: `/${slug}/admin/finanzas`,
+            type: "link",
+        },
+        {
+            label: "Menú",
+            icon: Grid3X3,
+            path: null,
+            type: "menu",       // opens the full-screen drawer
+        },
+    ];
+
     return (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-neutral-900 border-t border-neutral-800 flex items-center justify-around px-2 z-40 backdrop-blur-lg bg-opacity-90">
-            <Link
-                to={`/${slug}/admin/dashboard`}
-                className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${isActive(`/${slug}/admin/dashboard`) ? "text-primary-500" : "text-neutral-500"}`}
+        /* 
+         * Safe area: `pb-safe` relies on @tailwindcss/vite which supports env(safe-area-inset-bottom).
+         * Fallback `pb-2` ensures usability on devices without safe-area env support.
+         */
+        <nav
+            aria-label="Navegación principal"
+            className="lg:hidden fixed bottom-0 inset-x-0 z-50"
+        >
+            {/* Glass bar */}
+            <div
+                className="
+                    bg-white/90 dark:bg-neutral-900/95
+                    backdrop-blur-2xl
+                    border-t border-black/5 dark:border-white/5
+                    shadow-[0_-1px_0_0_rgba(0,0,0,0.06),0_-16px_40px_rgba(0,0,0,0.12)]
+                    pb-safe
+                "
             >
-                <Home size={20} className={isActive(`/${slug}/admin/dashboard`) ? "animate-bounce-subtle" : ""} />
-                <span className="text-[10px] font-bold">Inicio</span>
-            </Link>
-            <Link
-                to={`/${slug}/admin/reservas`}
-                className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${isActive(`/${slug}/admin/reservas`) ? "text-primary-500" : "text-neutral-500"}`}
-            >
-                <CalendarIcon size={20} />
-                <span className="text-[10px] font-bold">Agenda</span>
-            </Link>
-            <Link
-                to={`/${slug}/admin/venta-rapida`}
-                className="flex flex-col items-center gap-1 -mt-8"
-            >
-                <div className="w-14 h-14 gradient-primary rounded-full flex items-center justify-center text-white shadow-glow-primary border-4 border-neutral-900">
-                    <ShoppingCart size={24} />
+                <div className="grid grid-cols-5 h-[3.75rem] px-1">
+                    {tabs.map((tab) => {
+                        const active =
+                            tab.type !== "menu" && tab.path && isActive(tab.path);
+
+                        /* ── CTA center button ── */
+                        if (tab.type === "cta") {
+                            return (
+                                <Link
+                                    key="cta"
+                                    to={tab.path}
+                                    aria-label={tab.label}
+                                    className="flex flex-col items-center justify-center -mt-5 z-10"
+                                >
+                                    {/* Floating circle */}
+                                    <span
+                                        className={`
+                                            w-14 h-14 rounded-2xl flex items-center justify-center
+                                            shadow-lg shadow-amber-500/40
+                                            transition-all duration-200 active:scale-90
+                                            ${active
+                                                ? "bg-amber-600"
+                                                : "bg-amber-500 hover:bg-amber-400"
+                                            }
+                                        `}
+                                    >
+                                        <tab.icon size={24} strokeWidth={2} className="text-white" />
+                                    </span>
+                                    <span className="text-[10px] font-semibold mt-1.5 text-amber-500 tracking-wide">
+                                        {tab.label}
+                                    </span>
+                                </Link>
+                            );
+                        }
+
+                        /* ── Menu button ── */
+                        if (tab.type === "menu") {
+                            return (
+                                <button
+                                    key="menu"
+                                    onClick={() => setIsMobileMenuOpen(true)}
+                                    aria-label="Abrir menú completo"
+                                    className="relative flex flex-col items-center justify-center gap-1 transition-all duration-150 active:scale-90 text-neutral-400 dark:text-neutral-500"
+                                >
+                                    <tab.icon size={20} strokeWidth={1.8} />
+                                    <span className="text-[10px] font-semibold tracking-wide">{tab.label}</span>
+                                </button>
+                            );
+                        }
+
+                        /* ── Regular tab ── */
+                        return (
+                            <Link
+                                key={tab.path}
+                                to={tab.path}
+                                aria-label={tab.label}
+                                aria-current={active ? "page" : undefined}
+                                className={`
+                                    relative flex flex-col items-center justify-center gap-1
+                                    transition-all duration-150 active:scale-90
+                                    ${active
+                                        ? "text-amber-500"
+                                        : "text-neutral-400 dark:text-neutral-500"
+                                    }
+                                `}
+                            >
+                                {/* Active pill (top) */}
+                                <span
+                                    className={`
+                                        absolute top-0 left-1/2 -translate-x-1/2
+                                        h-0.5 rounded-full
+                                        transition-all duration-300
+                                        ${active
+                                            ? "w-8 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.7)]"
+                                            : "w-0 bg-transparent"
+                                        }
+                                    `}
+                                />
+                                <tab.icon
+                                    size={active ? 22 : 20}
+                                    strokeWidth={active ? 2.5 : 1.8}
+                                    className="transition-all duration-200"
+                                />
+                                <span className={`text-[10px] font-semibold tracking-wide transition-all ${active ? "font-bold" : ""}`}>
+                                    {tab.label}
+                                </span>
+                            </Link>
+                        );
+                    })}
                 </div>
-                <span className="text-[10px] font-black text-primary-500 mt-1">VENTA</span>
-            </Link>
-            <Link
-                to={`/${slug}/admin/finanzas`}
-                className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${isActive(`/${slug}/admin/finanzas`) ? "text-primary-500" : "text-neutral-500"}`}
-            >
-                <MoneyIcon size={20} />
-                <span className="text-[10px] font-bold">Finanzas</span>
-            </Link>
-            <button
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="flex flex-col items-center gap-1 px-3 py-1 text-neutral-500"
-            >
-                <MenuIcon size={20} />
-                <span className="text-[10px] font-bold">Más</span>
-            </button>
+            </div>
         </nav>
     );
 }

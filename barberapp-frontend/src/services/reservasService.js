@@ -90,3 +90,16 @@ export async function getHistorialReservas(filters = {}) {
   const res = await api.get(`/barberias/${slug}/admin/reservas${params ? `?${params}` : ''}`);
   return res.data.reservas || [];
 }
+
+/**
+ * Reagenda una reserva existente a una nueva fecha/hora
+ * @param {string} id - ID de la reserva
+ * @param {Object} data - { fecha: 'YYYY-MM-DD', hora: 'HH:MM' }
+ * @returns {Promise<Object>} Reserva actualizada
+ * @endpoint PATCH /api/barberias/:slug/admin/reservas/:id/reagendar
+ */
+export async function reagendarReserva(id, data) {
+  const slug = getSlugActual();
+  const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/reagendar`, data);
+  return res.data.reserva || res.data;
+}

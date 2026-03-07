@@ -14,7 +14,6 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
-    "@tanstack/react-query-devtools": "^5.91.3",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -34,12 +33,15 @@
     "react-parallax-tilt": "^1.7.317",
     "react-router-dom": "^7.13.0",
     "recharts": "^3.7.0",
+    "sonner": "^1.2.4",
+    "sweetalert2": "^11.10.1",
     "swiper": "^12.0.3",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "yet-another-react-lightbox": "^3.28.0"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.91.3",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.58.2",
     "@types/react": "^19.2.5",

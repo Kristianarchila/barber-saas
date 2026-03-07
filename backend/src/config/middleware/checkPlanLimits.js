@@ -5,11 +5,11 @@
  * when creating resources (barberos, reservas, servicios, etc)
  */
 
-const Barberia = require("../infrastructure/database/mongodb/models/Barberia");
-const Barbero = require("../infrastructure/database/mongodb/models/Barbero");
-const Reserva = require("../infrastructure/database/mongodb/models/Reserva");
-const Servicio = require("../infrastructure/database/mongodb/models/Servicio");
-const { isLimitExceeded, getLimit, getPlan } = require("../constants/plansCatalog");
+const Barberia = require("../../infrastructure/database/mongodb/models/Barberia");
+const Barbero = require("../../infrastructure/database/mongodb/models/Barbero");
+const Reserva = require("../../infrastructure/database/mongodb/models/Reserva");
+const Servicio = require("../../infrastructure/database/mongodb/models/Servicio");
+const { isLimitExceeded, getLimit, getPlan } = require("../../constants/plansCatalog");
 
 /**
  * Check if barbería can add more barberos

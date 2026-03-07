@@ -3,6 +3,7 @@ const emailService = require("../notifications/email/email.service");
 const { getInstance: getSSEManager } = require("../infrastructure/sse/SSEManager");
 const Barbero = require("../infrastructure/database/mongodb/models/Barbero");
 const container = require("../shared/Container");
+const pushService = require("../notifications/push/pushService");
 
 console.log("📡 reservas.events cargado");
 
@@ -28,6 +29,19 @@ events.on("reserva.creada", async (reserva) => {
             hora: reserva.hora,
             servicio: reserva.servicioId?.nombre || 'Servicio',
             timestamp: new Date().toISOString()
+          });
+        }
+
+        // 🔔 Enviar Notificación PWA (Push)
+        if (barbero?.usuarioId) {
+          const dayjs = require("dayjs");
+          await pushService.sendToUser(barbero.usuarioId.toString(), {
+            title: '¡Nueva Reserva! ✂️',
+            body: `${reserva.nombreCliente} reservó ${reserva.servicioId?.nombre || 'un servicio'} para el ${dayjs(reserva.fecha).format('DD/MM')} a las ${reserva.hora}`,
+            data: {
+              url: '/agenda',
+              reservaId: reserva._id?.toString() || reserva.id
+            }
           });
         }
       } catch (error) {

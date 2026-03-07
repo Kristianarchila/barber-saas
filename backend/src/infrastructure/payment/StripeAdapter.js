@@ -10,12 +10,20 @@ const Stripe = require('stripe');
 class StripeAdapter {
     constructor() {
         if (!process.env.STRIPE_SECRET_KEY) {
-            throw new Error('STRIPE_SECRET_KEY is not configured');
+            // Log warning but don't throw — server can start without Stripe
+            // when using alternative payment methods (USDT/Manual)
+            console.warn('[StripeAdapter] STRIPE_SECRET_KEY not configured. Stripe features will be unavailable.');
+            this.stripe = null;
+            return;
         }
 
         this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
             apiVersion: '2023-10-16'
         });
+    }
+
+    _requireStripe() {
+        if (!this.stripe) throw new Error('Stripe is not configured. Set STRIPE_SECRET_KEY in .env to use Stripe features.');
     }
 
     /**

@@ -26,6 +26,8 @@ const MongoBloqueoRepository = require('../infrastructure/database/mongodb/repos
 const MongoClienteStatsRepository = require('../infrastructure/database/mongodb/repositories/MongoClienteStatsRepository');
 const MongoVentaRepository = require('../infrastructure/database/mongodb/repositories/MongoVentaRepository');
 const MongoWaitingListRepository = require('../infrastructure/database/mongodb/repositories/MongoWaitingListRepository');
+const MongoValeRepository = require('../infrastructure/database/mongodb/repositories/MongoValeRepository');
+
 
 
 // Domain Services
@@ -115,6 +117,7 @@ const UpdateInventario = require('../application/use-cases/inventario/UpdateInve
 const RegistrarMovimiento = require('../application/use-cases/inventario/RegistrarMovimiento');
 const GetMovimientos = require('../application/use-cases/inventario/GetMovimientos');
 const GetAlertasStock = require('../application/use-cases/inventario/GetAlertasStock');
+const DeleteInventario = require('../application/use-cases/inventario/DeleteInventario');
 
 // Use Cases - Proveedores
 const ListProveedores = require('../application/use-cases/proveedores/ListProveedores');
@@ -137,6 +140,11 @@ const ObtenerEgresos = require('../application/use-cases/egresos/ObtenerEgresos'
 const ObtenerResumenEgresos = require('../application/use-cases/egresos/ObtenerResumenEgresos');
 const ActualizarEgreso = require('../application/use-cases/egresos/ActualizarEgreso');
 const EliminarEgreso = require('../application/use-cases/egresos/EliminarEgreso');
+
+// Use Cases - Reportes
+const GetReporteFinancieroBarberia = require('../application/use-cases/reportes/GetReporteFinanciero');
+
+
 
 // Use Cases - Caja
 const AbrirCaja = require('../application/use-cases/caja/AbrirCaja');
@@ -167,6 +175,9 @@ const GetReporteFinanciero = require('../application/use-cases/transactions/GetR
 
 // Use Cases - Public
 const GetBarberiaBySlug = require('../application/use-cases/public/GetBarberiaBySlug');
+
+// Use Cases - Marketplace (Public tienda)
+const GetProductosTienda = require('../application/use-cases/marketplace/GetProductosTienda');
 
 // Use Cases - Pedidos
 const CreatePedido = require('../application/use-cases/pedidos/CreatePedido');
@@ -470,7 +481,8 @@ class Container {
             this._instances.emailServiceWrapper,
             this._instances.checkBloqueosUseCase,
             this._instances.checkClienteStatusUseCase,
-            this._instances.incrementReservaUseCase
+            this._instances.incrementReservaUseCase,
+            this.barberoRepository  // Validates barberoId belongs to the tenant
         );
     }
 
@@ -709,6 +721,18 @@ class Container {
 
     get getAlertasStockUseCase() {
         return new GetAlertasStock(this.inventarioRepository);
+    }
+
+    get deleteInventarioUseCase() {
+        return new DeleteInventario(this.inventarioRepository);
+    }
+
+    // ==========================================
+    // USE CASES - MARKETPLACE (TIENDA PÚBLICA)
+    // ==========================================
+
+    get getProductosTiendaUseCase() {
+        return new GetProductosTienda(this.barberiaRepository, this.productoRepository);
     }
 
     // ==========================================
@@ -1228,6 +1252,26 @@ class Container {
     get getAuditLogsUseCase() {
         return new GetAuditLogs();
     }
+
+    // ==========================================
+    // VALE REPOSITORY
+    // ==========================================
+
+    get valeRepository() {
+        if (!this._instances.valeRepository) {
+            this._instances.valeRepository = new MongoValeRepository();
+        }
+        return this._instances.valeRepository;
+    }
+
+    // ==========================================
+    // USE CASES - REPORTES FINANCIEROS
+    // ==========================================
+
+    get getReporteFinancieroUseCase() {
+        return new GetReporteFinancieroBarberia();
+    }
+
 }
 
 // Export singleton instance

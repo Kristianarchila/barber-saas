@@ -12,11 +12,11 @@ class GetAvailableSlots {
 
     /**
      * Execute the use case
-     * @param {Object} query - { barberoId, fecha, duracion, barberiaId }
+     * @param {Object} query - { barberoId, fecha, duracion, barberiaId, timezone? }
      * @returns {Promise<string[]>} Array of available time slots
      */
     async execute(query) {
-        const { barberoId, fecha, duracion, barberiaId } = query;
+        const { barberoId, fecha, duracion, barberiaId, timezone = 'America/Santiago' } = query;
 
         // 1. Validate barbero exists
         const barbero = await this.barberoRepository.findById(barberoId, barberiaId);
@@ -32,13 +32,14 @@ class GetAvailableSlots {
             return []; // Barbero doesn't work on this day
         }
 
-        // 3. Get available slots using domain service
+        // 3. Get available slots — pass timezone so past-slot filtering uses barbería's local time
         let availableSlots = await this.availabilityService.getAvailableSlots(
             barberoId,
             fecha,
             duracion,
             horario,
-            barberiaId  // Required for tenant isolation in reservaRepository.findByBarberoAndDate
+            barberiaId,
+            timezone
         );
 
         // 4. Filter out blocked time slots

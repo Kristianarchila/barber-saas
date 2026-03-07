@@ -28,10 +28,9 @@ const createServicioSchema = z.object({
         .min(5, 'Duration must be at least 5 minutes')
         .max(480, 'Duration cannot exceed 8 hours'),
     activo: z.boolean().default(true),
-    categoria: z.string()
-        .trim()
-        .max(50, 'Category too long')
-        .optional()
+    categoria: z.string().trim().max(50).optional(),
+    destacado: z.boolean().optional(),
+    orden: z.number().int().min(0).optional()
 }).passthrough();
 
 // ==================== Update Servicio ====================
@@ -51,10 +50,9 @@ const updateServicioSchema = z.object({
         .max(480, 'Duration cannot exceed 8 hours')
         .optional(),
     activo: z.boolean().optional(),
-    categoria: z.string()
-        .trim()
-        .max(50, 'Category too long')
-        .optional()
+    categoria: z.string().trim().max(50).optional(),
+    destacado: z.boolean().optional(),
+    orden: z.number().int().min(0).optional()
 }).passthrough();
 
 // ==================== Servicio Params ====================

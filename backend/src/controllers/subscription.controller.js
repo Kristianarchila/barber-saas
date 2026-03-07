@@ -167,16 +167,96 @@ exports.getPlans = async (req, res) => {
 };
 
 /**
- * Get invoices/payment history
+ * Get invoices/payment history — now returns USDT manual payments
  */
 exports.getInvoices = async (req, res) => {
     try {
-        // TODO: Implement Stripe invoice fetching
-        // For now, return empty array to prevent 404 errors
-        res.json({ invoices: [] });
+        const barberiaId = req.user.barberiaId;
+        const subscription = await subscriptionRepo.findByBarberiaId(barberiaId);
+        // Return crypto/manual payments as invoice history
+        const payments = subscription?.manualPayments || [];
+        res.json({ invoices: payments });
     } catch (error) {
         console.error('Error getting invoices:', error);
-        res.status(500).json({ message: 'Error al obtener facturas' });
+        res.status(500).json({ message: 'Error al obtener historial de pagos' });
+    }
+};
+
+/**
+ * 💎 Get USDT wallet info and plan pricing
+ * GET /api/subscriptions/wallet-info?plan=BASIC
+ */
+exports.getWalletInfo = async (req, res) => {
+    const { getPlanConfig, normalizePlan } = require('../constants/PlanLimits');
+    const requestedPlan = req.query.plan || 'BASIC';
+    const normalizedPlan = normalizePlan(requestedPlan);
+    const planConfig = getPlanConfig(normalizedPlan);
+
+    if (!process.env.USDT_WALLET_ADDRESS || process.env.USDT_WALLET_ADDRESS === 'TU_WALLET_USDT_TRC20_AQUI') {
+        return res.status(503).json({ message: 'Wallet address not configured. Contact support.' });
+    }
+
+    res.json({
+        walletAddress: process.env.USDT_WALLET_ADDRESS,
+        network: process.env.USDT_NETWORK || 'TRC20',
+        plan: normalizedPlan,
+        planDisplayName: planConfig?.displayName || requestedPlan,
+        amountUsdt: planConfig?.precioUsdt || 0,
+        contactWhatsApp: process.env.USDT_CONTACT_WHATSAPP || null,
+        instructions: [
+            `Envía exactamente ${planConfig?.precioUsdt} USDT a la dirección TRC-20`,
+            'Guarda el screenshot o hash de la transacción',
+            'Haz clic en "Ya Pagué" y notifica al soporte',
+            'Tu plan se activará en menos de 24 horas'
+        ]
+    });
+};
+
+/**
+ * 💎 Request payment — barbería notifies they sent USDT
+ * POST /api/subscriptions/request-payment
+ */
+exports.requestPayment = async (req, res) => {
+    try {
+        const barberiaId = req.user.barberiaId;
+        const { plan, txHash, notes } = req.body;
+
+        if (!plan) return res.status(400).json({ message: 'plan requerido' });
+
+        // Upsert subscription in INCOMPLETE state (pending verification)
+        let subscription = await subscriptionRepo.findByBarberiaId(barberiaId);
+
+        if (!subscription) {
+            // Create new pending subscription
+            const { normalizePlan } = require('../constants/PlanLimits');
+            const Subscription = require('../domain/entities/Subscription');
+            subscription = new Subscription({
+                barberiaId,
+                plan: normalizePlan(plan),
+                status: 'INCOMPLETE',
+                paymentMethod: 'CRYPTO',
+                stripeCustomerId: null,
+                metadata: { txHash, notes, requestedAt: new Date() }
+            });
+        } else {
+            subscription._status = 'INCOMPLETE';
+            subscription._plan = plan;
+            subscription._paymentMethod = 'CRYPTO';
+            subscription._metadata = { ...subscription._metadata, txHash, notes, requestedAt: new Date() };
+        }
+
+        await subscriptionRepo.save(subscription);
+
+        // Log for SuperAdmin visibility
+        console.log(`[CRYPTO PAYMENT] Barbería ${barberiaId} reported USDT payment for plan ${plan}. TxHash: ${txHash || 'not provided'}`);
+
+        res.json({
+            message: '¡Pago notificado! Tu plan se activará en menos de 24 horas una vez verfiquemos la transacción.',
+            status: 'PENDING_VERIFICATION'
+        });
+    } catch (error) {
+        console.error('[Crypto] Error requesting payment:', error);
+        res.status(500).json({ message: 'Error al registrar solicitud de pago', details: error.message });
     }
 };
 

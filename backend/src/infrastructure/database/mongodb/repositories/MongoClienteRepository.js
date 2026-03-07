@@ -19,7 +19,7 @@ class MongoClienteRepository extends IClienteRepository {
     }
 
     async findById(id, barberiaId = null) {
-        const query = { _id: id, role: 'CLIENTE' };
+        const query = { _id: id, rol: 'CLIENTE' };
 
         // If barberiaId provided, enforce ownership validation
         if (barberiaId) {
@@ -39,7 +39,7 @@ class MongoClienteRepository extends IClienteRepository {
         const cliente = await UserModel.findOne({
             email: email.toLowerCase(),
             barberiaId,
-            role: 'CLIENTE'
+            rol: 'CLIENTE'
         });
 
         return cliente ? this.toDomain(cliente) : null;
@@ -48,7 +48,7 @@ class MongoClienteRepository extends IClienteRepository {
     async findByBarberiaId(barberiaId, filters = {}) {
         const query = {
             barberiaId,
-            role: 'CLIENTE',
+            rol: 'CLIENTE',
             ...filters
         };
 
@@ -57,7 +57,7 @@ class MongoClienteRepository extends IClienteRepository {
     }
 
     async update(id, data, barberiaId = null, session = null) {
-        const query = { _id: id, role: 'CLIENTE' };
+        const query = { _id: id, rol: 'CLIENTE' };
 
         // If barberiaId provided, enforce ownership validation
         if (barberiaId) {
@@ -77,7 +77,7 @@ class MongoClienteRepository extends IClienteRepository {
     }
 
     async delete(id, barberiaId = null) {
-        const query = { _id: id, role: 'CLIENTE' };
+        const query = { _id: id, rol: 'CLIENTE' };
 
         // If barberiaId provided, enforce ownership validation
         if (barberiaId) {
@@ -95,7 +95,7 @@ class MongoClienteRepository extends IClienteRepository {
         const regex = new RegExp(searchTerm, 'i');
         const clientes = await UserModel.find({
             barberiaId,
-            role: 'CLIENTE',
+            rol: 'CLIENTE',
             $or: [
                 { nombre: regex },
                 { email: regex }
@@ -135,7 +135,7 @@ class MongoClienteRepository extends IClienteRepository {
             email: cliente.email.value,
             telefono: cliente.telefono ? cliente.telefono.value : null,
             barberiaId: cliente.barberiaId,
-            role: 'CLIENTE',
+            rol: 'CLIENTE',
             notas: cliente.notas,
             preferencias: cliente.preferencias,
             historialVisitas: cliente.historialVisitas,

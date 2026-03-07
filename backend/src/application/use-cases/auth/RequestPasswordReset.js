@@ -28,8 +28,17 @@ class RequestPasswordResetUseCase {
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
         const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
 
-        // 5. Send email
-        await emailService.sendPasswordReset(user.email, resetUrl);
+        // 5. Send email — wrapped: if SMTP isn't configured we still return 200
+        try {
+            await emailService.sendPasswordReset(user.email, resetUrl);
+        } catch (emailError) {
+            // Dev-only warning — never expose to client
+            console.warn('[RequestPasswordReset] Email no enviado (revisa EMAIL_USER / EMAIL_PASS en .env):', emailError.message);
+            // In dev: log the reset link so the superadmin can use it directly
+            if (process.env.NODE_ENV !== 'production') {
+                console.info(`[DEV] Reset link para ${user.email}: ${resetUrl}`);
+            }
+        }
     }
 }
 

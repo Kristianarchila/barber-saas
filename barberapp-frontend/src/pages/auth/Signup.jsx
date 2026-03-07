@@ -34,9 +34,38 @@ const Signup = () => {
 
     const [success, setSuccess] = useState(false);
 
+    // Password strength helper
+    const getPwStrength = (pw) => {
+        if (!pw) return { score: 0, label: '', color: '' };
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (score === 1) return { score: 1, label: 'Débil', color: 'bg-red-500' };
+        if (score === 2) return { score: 2, label: 'Media', color: 'bg-amber-400' };
+        return { score: 3, label: 'Fuerte', color: 'bg-emerald-500' };
+    };
+    const pwStrength = getPwStrength(formData.password);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        // Client-side password validation
+        const pw = formData.password;
+        if (pw.length < 8) {
+            setError('La contraseña debe tener al menos 8 caracteres.');
+            return;
+        }
+        if (!/[A-Z]/.test(pw)) {
+            setError('La contraseña debe contener al menos una letra mayúscula.');
+            return;
+        }
+        if (!/[0-9]/.test(pw)) {
+            setError('La contraseña debe contener al menos un número.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -293,9 +322,31 @@ const Signup = () => {
                                             className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
                                         />
                                     </div>
-                                    <p className="text-xs text-slate-500 px-1 leading-relaxed">
-                                        Mínimo 8 caracteres, debe incluir: mayúscula, minúscula y número
-                                    </p>
+                                    {/* Password strength meter */}
+                                    {formData.password && (
+                                        <div className="px-1 space-y-1">
+                                            <div className="flex gap-1">
+                                                {[1, 2, 3].map((bar) => (
+                                                    <div
+                                                        key={bar}
+                                                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${pwStrength.score >= bar
+                                                                ? pwStrength.color
+                                                                : 'bg-white/10'
+                                                            }`}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <p className={`text-xs transition-colors ${pwStrength.score === 1 ? 'text-red-400' :
+                                                    pwStrength.score === 2 ? 'text-amber-400' :
+                                                        'text-emerald-400'
+                                                }`}>
+                                                {pwStrength.label} — 8+ caracteres, mayúscula y número
+                                            </p>
+                                        </div>
+                                    )}
+                                    {!formData.password && (
+                                        <p className="text-xs text-slate-500 px-1">8+ caracteres, mayúscula y número</p>
+                                    )}
                                 </div>
                             </div>
 

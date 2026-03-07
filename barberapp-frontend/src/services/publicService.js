@@ -52,7 +52,7 @@ export async function reagendarReservaByToken(token, datos) {
 
 // 9. Obtener reseñas aprobadas de la barbería
 export async function getResenasBySlug(slug) {
-  const res = await api.get(`/public/${slug}/resenas`);
+  const res = await api.get(`/public/barberias/${slug}/resenas`);
   return res.data;
 }
 

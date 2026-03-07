@@ -123,3 +123,23 @@ exports.getAlertasStock = async (req, res, next) => {
         next(error);
     }
 };
+
+// ==========================================
+// 8) ELIMINAR REGISTRO DE INVENTARIO
+// ==========================================
+exports.deleteInventario = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const barberiaId = req.user.barberiaId;
+
+        // 🏛️ Delegates through use case — no direct model access
+        await container.deleteInventarioUseCase.execute(id, barberiaId);
+
+        res.json({ success: true, message: 'Item eliminado del inventario' });
+    } catch (error) {
+        if (error.message?.includes('no encontrado')) {
+            return res.status(404).json({ message: error.message });
+        }
+        next(error);
+    }
+};

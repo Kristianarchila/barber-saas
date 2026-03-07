@@ -26,11 +26,14 @@ export const BarberiaProvider = ({ children }) => {
         slug = null;
     }
 
-    // React Query: Barberia data con caché automático
+    // React Query: Barberia data — staleTime: 0 para que los cambios desde el admin
+    // (template, colores, etc.) sean visibles de inmediato al recargar la página
     const { data: barberia, isLoading: loadingBarberia, error: errorBarberia } = useQuery({
         queryKey: ['barberia', slug],
         queryFn: () => getBarberiaBySlug(slug),
-        enabled: !!slug, // Solo ejecutar si hay slug
+        enabled: !!slug,
+        staleTime: 0,          // siempre re-fetch al montar
+        cacheTime: 60 * 1000,  // mantiene en memoria 1 min entre navegaciones
     });
 
     // React Query: Servicios con caché

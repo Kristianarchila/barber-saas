@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     DollarSign,
@@ -6,20 +6,17 @@ import {
     TrendingDown,
     Users,
     Download,
-    Calendar,
     Award,
     PieChart as PieChartIcon,
     BarChart3,
-    CalendarDays,
-    ChevronRight,
     ArrowUpRight,
     Target,
     Briefcase,
     Crown,
-    CheckCircle2,
     Loader2,
     FileText,
-    Percent
+    Eye,
+    X
 } from "lucide-react";
 import {
     obtenerResumenGeneral,
@@ -28,55 +25,48 @@ import {
     obtenerAnalisisPagos,
     obtenerTendenciasIngresos
 } from "../../../services/reportesService";
-import { Card, Button, Badge, Skeleton, Avatar } from "../../../components/ui";
-import jsPDF from "jspdf";
+import { descargarReportePDF } from "../../../services/valesService";
+import { Card, Button, Badge } from "../../../components/ui";
+import DateRangePicker from "../../../components/ui/DateRangePicker";
 import dayjs from "dayjs";
+
 
 export default function ReportesCompleto() {
     const [resumen, setResumen] = useState(null);
     const [barberos, setBarberos] = useState([]);
     const [servicios, setServicios] = useState(null);
     const [analisisPagos, setAnalisisPagos] = useState(null);
-    const [tendencias, setTendencias] = useState([]);
     const [loading, setLoading] = useState(true);
     const [generatingPDF, setGeneratingPDF] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState(null);
+    const [loadingPreview, setLoadingPreview] = useState(false);
 
-    // Estados para filtros
-    const [tipoFiltro, setTipoFiltro] = useState('mes'); // 'mes', 'rango'
-    const [mes, setMes] = useState(dayjs().format('YYYY-MM'));
     const [fechaInicio, setFechaInicio] = useState(dayjs().startOf('month').format('YYYY-MM-DD'));
     const [fechaFin, setFechaFin] = useState(dayjs().format('YYYY-MM-DD'));
 
     useEffect(() => {
         cargarDatos();
-    }, [mes, fechaInicio, fechaFin, tipoFiltro]);
+    }, [fechaInicio, fechaFin]);
+
 
     const cargarDatos = async () => {
         try {
             setLoading(true);
-            const params = tipoFiltro === 'mes'
-                ? [mes, null, null]
-                : [null, fechaInicio, fechaFin];
-
             const [
                 resumenData,
                 barberosData,
                 serviciosData,
                 pagosData,
-                tendenciasData
             ] = await Promise.all([
-                obtenerResumenGeneral(...params),
-                obtenerRendimientoBarberos(...params),
-                obtenerServiciosVendidos(...params),
-                obtenerAnalisisPagos(...params),
-                obtenerTendenciasIngresos(...params)
+                obtenerResumenGeneral(null, fechaInicio, fechaFin),
+                obtenerRendimientoBarberos(null, fechaInicio, fechaFin),
+                obtenerServiciosVendidos(null, fechaInicio, fechaFin),
+                obtenerAnalisisPagos(null, fechaInicio, fechaFin),
             ]);
-
             setResumen(resumenData);
             setBarberos(barberosData);
             setServicios(serviciosData);
             setAnalisisPagos(pagosData);
-            setTendencias(tendenciasData);
         } catch (error) {
             console.error("Error al cargar reportes:", error);
         } finally {
@@ -84,104 +74,42 @@ export default function ReportesCompleto() {
         }
     };
 
+
     const generarPDF = async () => {
         try {
             setGeneratingPDF(true);
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            let yPos = 20;
-
-            // Header corporativo en el PDF
-            pdf.setFillColor(243, 244, 246);
-            pdf.rect(0, 0, pageWidth, 40, 'F');
-
-            pdf.setFontSize(22);
-            pdf.setTextColor(17, 24, 39);
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('REPORTE FINANCIERO', 20, 25);
-
-            pdf.setFontSize(10);
-            pdf.setTextColor(107, 114, 128);
-            pdf.setFont('helvetica', 'normal');
-            const periodo = tipoFiltro === 'mes' ? dayjs(mes).format('MMMM YYYY') : `${fechaInicio} al ${fechaFin}`;
-            pdf.text(`PERIODO: ${periodo.toUpperCase()}`, 20, 32);
-
-            yPos = 55;
-
-            // Resumen Ejecutivo
-            if (resumen) {
-                pdf.setFontSize(14);
-                pdf.setTextColor(31, 41, 55);
-                pdf.text('RESUMEN DE INDICADORES', 20, yPos);
-                yPos += 12;
-
-                const cardWidth = (pageWidth - 50) / 2;
-                const cardHeight = 35;
-
-                // Card 1: Ingresos
-                pdf.setDrawColor(229, 231, 235);
-                pdf.setFillColor(255, 255, 255);
-                pdf.roundedRect(20, yPos, cardWidth, cardHeight, 3, 3, 'FD');
-                pdf.setFontSize(9);
-                pdf.setTextColor(107, 114, 128);
-                pdf.text('INGRESOS TOTALES', 25, yPos + 10);
-                pdf.setFontSize(14);
-                pdf.setTextColor(22, 163, 74);
-                pdf.text(formatearMonto(resumen.ingresosTotales), 25, yPos + 22);
-
-                // Card 2: Egresos
-                pdf.roundedRect(pageWidth - 20 - cardWidth, yPos, cardWidth, cardHeight, 3, 3, 'FD');
-                pdf.setFontSize(9);
-                pdf.setTextColor(107, 114, 128);
-                pdf.text('EGRESOS TOTALES', pageWidth - 15 - cardWidth, yPos + 10);
-                pdf.setFontSize(14);
-                pdf.setTextColor(220, 38, 38);
-                pdf.text(formatearMonto(resumen.egresosTotales), pageWidth - 15 - cardWidth, yPos + 22);
-
-                yPos += cardHeight + 15;
-            }
-
-            // Rendimiento Staff
-            if (barberos.length > 0) {
-                pdf.setFontSize(14);
-                pdf.setTextColor(31, 41, 55);
-                pdf.text('RENDIMIENTO DEL EQUIPO', 20, yPos);
-                yPos += 10;
-
-                // Cabecera Tabla
-                pdf.setFillColor(249, 250, 251);
-                pdf.rect(20, yPos, pageWidth - 40, 10, 'F');
-                pdf.setFontSize(9);
-                pdf.setTextColor(107, 114, 128);
-                pdf.text('BARBERO', 25, yPos + 6);
-                pdf.text('CORTES', 100, yPos + 6);
-                pdf.text('PRODUCCIÓN', 140, yPos + 6);
-                yPos += 10;
-
-                barberos.forEach((b) => {
-                    if (yPos > pageHeight - 20) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-                    pdf.setFontSize(10);
-                    pdf.setTextColor(31, 41, 55);
-                    pdf.text(b.nombre, 25, yPos + 8);
-                    pdf.text(String(b.cortesRealizados), 100, yPos + 8);
-                    pdf.text(formatearMonto(b.ingresosTotales), 140, yPos + 8);
-                    yPos += 12;
-                    pdf.setDrawColor(243, 244, 246);
-                    pdf.line(20, yPos, pageWidth - 20, yPos);
-                });
-            }
-
-            pdf.save(`Reporte_Financiero_${dayjs().format('YYYY-MM-DD')}.pdf`);
+            await descargarReportePDF(fechaInicio, fechaFin);
         } catch (error) {
             console.error('Error PDF:', error);
-            alert("Error al generar el documento");
+            alert('Error al generar el reporte');
         } finally {
             setGeneratingPDF(false);
         }
+    };
+
+    const verReporte = async () => {
+        try {
+            setLoadingPreview(true);
+            const slug = window.location.pathname.split('/')[1];
+            const api = (await import('../../../services/api')).default;
+            const res = await api.get(
+                `/barberias/${slug}/admin/reportes/financiero/pdf?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
+                { responseType: 'blob' }
+            );
+            const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+            setPdfUrl(url);
+        } catch (error) {
+            console.error('Error al cargar preview:', error);
+            alert('Error al cargar la vista previa');
+        } finally {
+            setLoadingPreview(false);
+        }
+    };
+
+    const cerrarPreview = () => {
+        if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        setPdfUrl(null);
     };
 
     const formatearMonto = (monto) => {
@@ -192,24 +120,6 @@ export default function ReportesCompleto() {
         }).format(monto || 0);
     };
 
-    const setRangoHoy = () => {
-        const hoy = dayjs().format('YYYY-MM-DD');
-        setFechaInicio(hoy);
-        setFechaFin(hoy);
-        setTipoFiltro('rango');
-    };
-
-    const setRangoSemana = () => {
-        setFechaInicio(dayjs().subtract(7, 'day').format('YYYY-MM-DD'));
-        setFechaFin(dayjs().format('YYYY-MM-DD'));
-        setTipoFiltro('rango');
-    };
-
-    const setRangoMes = () => {
-        setFechaInicio(dayjs().startOf('month').format('YYYY-MM-DD'));
-        setFechaFin(dayjs().format('YYYY-MM-DD'));
-        setTipoFiltro('rango');
-    };
 
     return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 pb-24 lg:pb-8">
@@ -223,82 +133,24 @@ export default function ReportesCompleto() {
                         Auditoría financiera y métricas de rendimiento operativo
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap items-center">
+                    <DateRangePicker
+                        fechaInicio={fechaInicio}
+                        fechaFin={fechaFin}
+                        onChange={({ fechaInicio: i, fechaFin: f }) => { setFechaInicio(i); setFechaFin(f); }}
+                        label="Período del reporte"
+                    />
                     <Button
-                        onClick={generarPDF}
-                        disabled={generatingPDF}
-                        className="bg-gray-900 border-none hover:bg-black text-white px-8 py-4 rounded-2xl font-black shadow-lg flex items-center gap-3 active:scale-95"
+                        onClick={verReporte}
+                        disabled={loadingPreview}
+                        className="bg-blue-600 border-none hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black shadow-lg flex items-center gap-2 active:scale-95"
                     >
-                        {generatingPDF ? <Loader2 className="animate-spin" size={20} /> : <Download size={20} />}
-                        Exportar Auditoría PDF
+                        {loadingPreview ? <Loader2 className="animate-spin" size={18} /> : <Eye size={18} />}
+                        Ver Reporte
                     </Button>
                 </div>
+
             </header>
-
-            {/* FILTROS ESTRATÉGICOS */}
-            <Card className="p-8 shadow-sm border-none ring-1 ring-gray-100 bg-white">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-                    <div className="flex bg-gray-50 p-1.5 rounded-[20px] ring-1 ring-gray-100 flex-wrap sm:flex-nowrap">
-                        {[
-                            { id: 'hoy', label: 'Hoy', action: setRangoHoy },
-                            { id: 'semana', label: '7 Días', action: setRangoSemana },
-                            { id: 'mes_rango', label: 'Este Mes', action: setRangoMes },
-                            { id: 'mes_select', label: 'Histórico', action: () => setTipoFiltro('mes') }
-                        ].map((btn) => (
-                            <button
-                                key={btn.id}
-                                onClick={btn.action}
-                                className={`px-6 py-3 rounded-[14px] text-xs font-black uppercase tracking-widest transition-all ${(btn.id === 'mes_select' && tipoFiltro === 'mes') || (btn.id !== 'mes_select' && tipoFiltro === 'rango')
-                                        ? "bg-white text-blue-600 shadow-sm ring-1 ring-gray-100"
-                                        : "text-gray-400 hover:text-gray-600"
-                                    }`}
-                            >
-                                {btn.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-                        {tipoFiltro === 'mes' ? (
-                            <div className="relative w-full sm:w-auto">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                                <input
-                                    type="month"
-                                    value={mes}
-                                    onChange={(e) => setMes(e.target.value)}
-                                    className="w-full sm:w-56 bg-gray-50 border-none rounded-2xl pl-12 pr-4 py-4 body-small font-black focus:ring-2 focus:ring-blue-100"
-                                />
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-3 w-full sm:w-auto">
-                                <div className="relative flex-1 sm:w-44">
-                                    <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                                    <input
-                                        type="date"
-                                        value={fechaInicio}
-                                        onChange={(e) => setFechaInicio(e.target.value)}
-                                        className="w-full bg-gray-50 border-none rounded-2xl pl-11 pr-4 py-4 body-small font-black focus:ring-2 focus:ring-blue-100"
-                                    />
-                                </div>
-                                <div className="w-4 h-px bg-gray-200"></div>
-                                <div className="relative flex-1 sm:w-44">
-                                    <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-                                    <input
-                                        type="date"
-                                        value={fechaFin}
-                                        onChange={(e) => setFechaFin(e.target.value)}
-                                        className="w-full bg-gray-50 border-none rounded-2xl pl-11 pr-4 py-4 body-small font-black focus:ring-2 focus:ring-blue-100"
-                                    />
-                                </div>
-                            </div>
-                        )}
-                        <Button variant="outline" className="px-6 py-4 rounded-2xl font-black gap-2 border-gray-200 hover:bg-gray-50">
-                            <Target size={18} />
-                            Definir Objetivos
-                        </Button>
-                    </div>
-                </div>
-            </Card>
 
             {/* DASHBOARD EJECUTIVO */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -527,6 +379,47 @@ export default function ReportesCompleto() {
                     </Card>
                 </div>
             </div>
+
+            {/* ─── PDF Viewer (inline, menu stays visible) ─── */}
+            <AnimatePresence>
+                {pdfUrl && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="rounded-2xl overflow-hidden ring-1 ring-gray-200 shadow-xl"
+                    >
+                        {/* Top bar */}
+                        <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900 text-white">
+                            <span className="text-xs font-bold flex items-center gap-2">
+                                <FileText size={14} />
+                                Reporte {fechaInicio} — {fechaFin}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={generarPDF}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
+                                >
+                                    <Download size={13} /> Descargar
+                                </button>
+                                <button
+                                    onClick={cerrarPreview}
+                                    className="p-1 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
+                        {/* PDF iframe */}
+                        <iframe
+                            src={pdfUrl}
+                            className="w-full bg-white"
+                            title="Reporte PDF"
+                            style={{ border: 'none', height: '70vh' }}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

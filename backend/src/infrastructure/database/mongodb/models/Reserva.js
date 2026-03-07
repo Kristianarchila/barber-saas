@@ -1,4 +1,3 @@
-const { parse } = require("dotenv");
 const mongoose = require("mongoose");
 
 const reservaSchema = new mongoose.Schema(
@@ -29,9 +28,6 @@ const reservaSchema = new mongoose.Schema(
       required: true
     },
 
-    cancelToken: {
-      type: String
-    },
 
     emailCliente: {  // ⬅️ AGREGAR ESTE CAMPO
       type: String,
@@ -59,6 +55,18 @@ const reservaSchema = new mongoose.Schema(
       required: true
     },
 
+
+    duracion: {
+      type: Number // Minutos — requerido para reconstruir TimeSlot; validado en dominio
+    },
+
+    // IANA timezone de la barbería al momento de crear la reserva.
+    // Crítico para ispast()/isFuture() en contexto multitenant.
+    timezone: {
+      type: String,
+      default: 'America/Santiago'
+    },
+
     estado: {
       type: String,
       enum: ["RESERVADA", "CANCELADA", "COMPLETADA"],
@@ -67,8 +75,8 @@ const reservaSchema = new mongoose.Schema(
 
     cancelToken: {
       type: String,
-      required: true,
-      unique: true
+      required: true
+      // unique index defined in schema.index below — avoid duplicate index warning
     },
 
     // Tracking de recordatorios
@@ -186,6 +194,8 @@ reservaSchema.index(
 
 // Otros índices para optimizar queries frecuentes
 reservaSchema.index({ barberiaId: 1, fecha: 1 }); // Búsquedas por barbería y fecha
+reservaSchema.index({ barberiaId: 1, createdAt: -1 }); // ultimasReservas (dashboard tabla)
+reservaSchema.index({ barberiaId: 1, estado: 1, fecha: 1 }); // Filtrado por estado+fecha
 reservaSchema.index({ emailCliente: 1 }); // Búsqueda por email de cliente
 reservaSchema.index({ cancelToken: 1 }, { unique: true, sparse: true }); // Token único para cancelación
 reservaSchema.index({ reviewToken: 1 }, { unique: true, sparse: true }); // Token único para reseñas

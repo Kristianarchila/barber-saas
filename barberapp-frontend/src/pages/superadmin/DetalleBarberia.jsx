@@ -6,6 +6,9 @@ import {
   extenderPlazoBarberia,
   getHistorialBarberia
 } from "../../services/superAdminService";
+import { TEMPLATES } from "../../config/templateRegistry";
+import api from "../../services/api";
+import { toast } from "react-hot-toast";
 
 export default function DetalleBarberia() {
   const { id } = useParams();
@@ -44,6 +47,16 @@ export default function DetalleBarberia() {
   const verHistorial = async () => {
     const data = await getHistorialBarberia(id);
     setHistorial(data);
+  };
+
+  const asignarTemplate = async (templateKey) => {
+    try {
+      await api.patch(`/barberias/${id}/template`, { template: templateKey });
+      toast.success(`Plantilla "${templateKey}" asignada correctamente`);
+      cargarBarberia();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Error al asignar plantilla');
+    }
   };
 
   if (loading) return <p className="p-6">Cargando...</p>;
@@ -155,6 +168,33 @@ export default function DetalleBarberia() {
         <div className="bg-gray-800 p-4 rounded">
           <b>Completadas</b>
           <div className="text-xl">{barberia.stats.reservasCompletadas}</div>
+        </div>
+      </div>
+
+      {/* 🎨 PLANTILLA WEB */}
+      <div className="bg-gray-800 rounded p-4">
+        <h2 className="font-bold mb-3">🎨 Plantilla Web</h2>
+        <p className="text-gray-400 text-sm mb-4">
+          Plantilla actual: <strong className="text-white">{barberia?.configuracion?.template || 'modern'}</strong>
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {TEMPLATES.map(t => {
+            const isActive = (barberia?.configuracion?.template || 'modern') === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => asignarTemplate(t.key)}
+                className={`p-3 rounded text-left transition-all text-sm ${isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                  }`}
+              >
+                <div className="text-2xl mb-1">{t.emoji}</div>
+                <div className="font-bold text-xs">{t.name}</div>
+                <div className="text-[10px] opacity-60 mt-0.5">{t.plan === 'free' ? 'FREE' : t.plan.toUpperCase()}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -43,10 +43,24 @@ export default function Cupones() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Client-side validations
+        const val = parseFloat(formData.valor);
+        if (isNaN(val) || val <= 0) {
+            alert('El valor del cupón debe ser mayor que 0');
+            return;
+        }
+        if (formData.tipo === 'porcentaje' && val > 100) {
+            alert('El descuento en porcentaje no puede superar el 100%');
+            return;
+        }
+        if (!formData.codigo.trim()) {
+            alert('El código del cupón es obligatorio');
+            return;
+        }
         try {
             const cuponData = {
                 ...formData,
-                valor: parseFloat(formData.valor),
+                valor: val,
                 usoMaximo: formData.usoMaximo ? parseInt(formData.usoMaximo) : null,
                 usosPorUsuario: parseInt(formData.usosPorUsuario),
                 montoMinimo: formData.montoMinimo ? parseFloat(formData.montoMinimo) : 0
@@ -62,7 +76,7 @@ export default function Cupones() {
             resetForm();
             loadCupones();
         } catch (error) {
-            alert(error.response?.data?.message || "Error al guardar cupón");
+            alert(error.response?.data?.message || 'Error al guardar cupón');
         }
     };
 
@@ -330,13 +344,17 @@ export default function Cupones() {
                                     <input
                                         type="number"
                                         required
-                                        min="0"
+                                        min="0.01"
+                                        max={formData.tipo === 'porcentaje' ? 100 : undefined}
                                         step="0.01"
                                         value={formData.valor}
                                         onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
                                         className="input-primary"
                                         placeholder={formData.tipo === "porcentaje" ? "10" : "1000"}
                                     />
+                                    {formData.tipo === 'porcentaje' && (
+                                        <p className="text-xs text-neutral-500 mt-1">Máximo 100%</p>
+                                    )}
                                 </div>
 
                                 <div>

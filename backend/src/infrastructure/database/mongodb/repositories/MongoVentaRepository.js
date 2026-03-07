@@ -10,7 +10,8 @@ class MongoVentaRepository extends IVentaRepository {
         const query = { _id: id };
         if (barberiaId) query.barberiaId = barberiaId;
 
-        const doc = await VentaModel.findOne(query);
+        const doc = await VentaModel.findOne(query)
+            .populate('barberoId', 'nombre apellido');
         return doc ? this.toDomain(doc) : null;
     }
 
@@ -24,6 +25,7 @@ class MongoVentaRepository extends IVentaRepository {
         }
 
         const results = await VentaModel.find(query)
+            .populate('barberoId', 'nombre apellido')
             .sort({ fecha: -1, createdAt: -1 })
             .limit(filtros.limite || 50);
 
@@ -58,10 +60,16 @@ class MongoVentaRepository extends IVentaRepository {
 
         const doc = mongoDoc.toObject ? mongoDoc.toObject() : mongoDoc;
 
+        // barberoId may be populated (object) or raw ObjectId
+        const barberoRaw = doc.barberoId;
+        const barberoId = barberoRaw?._id
+            ? { _id: barberoRaw._id.toString(), nombre: barberoRaw.nombre, apellido: barberoRaw.apellido }
+            : (barberoRaw ? { _id: barberoRaw.toString() } : null);
+
         return new Venta({
             id: doc._id.toString(),
             barberiaId: doc.barberiaId.toString(),
-            barberoId: doc.barberoId ? doc.barberoId.toString() : null,
+            barberoId,
             items: doc.items,
             subtotal: doc.subtotal,
             descuento: doc.descuento,

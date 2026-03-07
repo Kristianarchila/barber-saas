@@ -34,16 +34,16 @@ const waitingListService = {
     /**
      * Cancel a waiting list entry
      */
-    cancel: async (entryId) => {
-        const response = await api.delete(`/waiting-list/${entryId}`);
+    cancel: async (slug, entryId) => {
+        const response = await api.delete(`/waiting-list/${slug}/${entryId}`);
         return response.data;
     },
 
     /**
      * Manually notify a waiting list entry (admin only)
      */
-    manualNotify: async (entryId) => {
-        const response = await api.post(`/waiting-list/${entryId}/notify`);
+    manualNotify: async (slug, entryId) => {
+        const response = await api.post(`/waiting-list/${slug}/${entryId}/notify`);
         return response.data;
     }
 };

@@ -49,7 +49,26 @@ const userSchema = new mongoose.Schema(
 
     // Password reset
     passwordResetToken: { type: String, default: null },
-    passwordResetExpires: { type: Date, default: null }
+    passwordResetExpires: { type: Date, default: null },
+
+    // 🔒 S-01 FIX: Track password change time to invalidate old JWTs
+    passwordChangedAt: { type: Date, default: null },
+
+    // 📊 CLIENTE: Historial de visitas (solo relevante para rol CLIENTE)
+    historialVisitas: { type: Number, default: 0 },
+    ultimaVisita: { type: Date, default: null },
+
+    // 📱 Teléfono (para contacto WhatsApp)
+    telefono: { type: String, default: null, trim: true },
+
+    // 🔔 WEB PUSH: Suscripciones push por dispositivo (soporta múltiples dispositivos)
+    pushSubscriptions: [{
+      endpoint: { type: String, required: true },
+      keys: {
+        p256dh: { type: String, required: true },
+        auth: { type: String, required: true }
+      }
+    }]
   },
   { timestamps: true }
 );
@@ -60,6 +79,12 @@ userSchema.pre("save", async function () {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+
+  // 🔒 S-01 FIX: Record when password changes so protect() can invalidate old tokens
+  // Skip on first save (new user creation)
+  if (!this.isNew) {
+    this.passwordChangedAt = new Date(Date.now() - 1000); // 1s buffer for token iat precision
+  }
 });
 
 // Índices para optimizar queries frecuentes

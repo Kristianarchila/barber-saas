@@ -128,3 +128,71 @@ exports.resetPassword = async (req, res, next) => {
         next(error);
     }
 };
+
+// ==========================================
+// 6) GET MY PROFILE
+// ==========================================
+exports.getProfile = async (req, res, next) => {
+    try {
+        const User = require('../infrastructure/database/mongodb/models/User');
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+        res.json({ user });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ==========================================
+// 7) UPDATE MY PROFILE (nombre, telefono)
+// ==========================================
+exports.updateProfile = async (req, res, next) => {
+    try {
+        const User = require('../infrastructure/database/mongodb/models/User');
+        const { nombre, telefono } = req.body;
+        const updates = {};
+        if (nombre && nombre.trim()) updates.nombre = nombre.trim();
+        if (telefono !== undefined) updates.telefono = telefono.trim() || null;
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            updates,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+        res.json({ message: 'Perfil actualizado', user });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ==========================================
+// 8) CHANGE MY PASSWORD
+// ==========================================
+exports.changePassword = async (req, res, next) => {
+    try {
+        const User = require('../infrastructure/database/mongodb/models/User');
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Se requieren la contraseña actual y la nueva' });
+        }
+        if (newPassword.length < 8) {
+            return res.status(400).json({ message: 'La nueva contraseña debe tener al menos 8 caracteres' });
+        }
+
+        const user = await User.findById(req.user.id).select('+password');
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+        const match = await user.comparePassword(currentPassword);
+        if (!match) return res.status(400).json({ message: 'La contraseña actual es incorrecta' });
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ message: 'Contraseña actualizada correctamente' });
+    } catch (error) {
+        next(error);
+    }
+};

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { protect } = require("../config/middleware/auth.middleware");
 const { reservaLimiter, cancelLimiter } = require("../config/middleware/publicRateLimiter");
+const { publicApiLimiter } = require("../middleware/rateLimit.middleware");
 const validateJoi = require("../middleware/joiValidation.middleware");
 const {
   crearReservaSchema,
@@ -71,6 +72,14 @@ router.patch(
   reservasController.cancelarReserva
 );
 
+// Reagendar reserva (Admin) - mover a nueva fecha/hora
+router.patch(
+  "/:id/reagendar",
+  protect,
+  validateJoi(reservaParamsSchema, 'params'),
+  reservasController.reagendarReserva
+);
+
 // --- RUTAS PÚBLICAS POR TOKEN (SIN AUTH) ---
 router.get("/token/:token", reservasController.obtenerIdDeToken);
 router.get("/token/:token/data", reservasController.getReservaParaReagendar);
@@ -93,6 +102,6 @@ router.get(
   reservasController.obtenerReserva
 );
 
-router.post("/ai-suggestions", reservasController.getAISuggestions);
+router.post("/ai-suggestions", publicApiLimiter, reservasController.getAISuggestions);
 
 module.exports = router;

@@ -39,22 +39,25 @@ class MongoClienteStatsRepository extends IClienteStatsRepository {
             throw new Error('barberiaId es requerido para el aislamiento de datos');
         }
 
-        let stats = await ClienteStatsModel.findOne({
-            email: email.toLowerCase(),
-            barberiaId
-        });
-
-        if (!stats) {
-            stats = await ClienteStatsModel.create({
-                email: email.toLowerCase(),
-                telefono,
-                barberiaId,
-                totalReservas: 0,
-                reservasCompletadas: 0,
-                reservasCanceladas: 0,
-                cancelacionesEsteMes: 0
-            });
-        }
+        // Use findOneAndUpdate with upsert instead of create() to avoid
+        // triggering the pre('save') Mongoose hook, which breaks inside a
+        // MongoDB session (next is not a function in that context).
+        const stats = await ClienteStatsModel.findOneAndUpdate(
+            { email: email.toLowerCase(), barberiaId },
+            {
+                $setOnInsert: {
+                    email: email.toLowerCase(),
+                    telefono,
+                    barberiaId,
+                    totalReservas: 0,
+                    reservasCompletadas: 0,
+                    reservasCanceladas: 0,
+                    cancelacionesEsteMes: 0,
+                    bloqueado: false,
+                }
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
 
         return this.toDomain(stats);
     }
@@ -260,9 +263,20 @@ class MongoClienteStatsRepository extends IClienteStatsRepository {
             query.email = { $regex: filters.email, $options: 'i' };
         }
 
+        // Filtro por rango de fechas (usa ultimaReserva o createdAt)
+        if (filters.fechaInicio || filters.fechaFin) {
+            query.ultimaReserva = {};
+            if (filters.fechaInicio) query.ultimaReserva.$gte = new Date(filters.fechaInicio);
+            if (filters.fechaFin) {
+                const fin = new Date(filters.fechaFin);
+                fin.setHours(23, 59, 59, 999); // incluir todo el último día
+                query.ultimaReserva.$lte = fin;
+            }
+        }
+
         const stats = await ClienteStatsModel.find(query)
-            .sort({ totalReservas: -1 })
-            .limit(filters.limit || 100);
+            .sort({ ultimaReserva: -1 })
+            .limit(filters.limit || 200);
 
         return stats.map(s => this.toDomain(s));
     }

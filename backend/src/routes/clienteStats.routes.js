@@ -19,6 +19,9 @@ router.use(authMiddleware.esAdmin);
  */
 router.get('/summary', clienteStatsController.getSummary);
 
+// Alias en español para compatibilidad con el frontend
+router.get('/resumen', clienteStatsController.getSummary);
+
 /**
  * GET /api/:slug/admin/cliente-stats/bloqueados
  * Get all blocked clients

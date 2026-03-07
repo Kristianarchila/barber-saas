@@ -6,15 +6,20 @@ import {
     Calendar,
     Save,
     Camera,
-    Trash2,
     FileText,
     Scissors,
     Clock,
-    Plus
+    Plus,
+    Phone,
+    Mail,
+    MessageCircle,
+    Loader2,
+    Edit3,
+    X
 } from "lucide-react";
-import { Card, Button, Input, Badge } from "../../../components/ui";
 import { getFichaTecnica, updateNotasGenerales, agregarRegistroHistorial } from "../../../services/crmService";
 import { getClienteById } from "../../../services/clientesService";
+import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 
 export default function FichaTecnica() {
@@ -26,20 +31,15 @@ export default function FichaTecnica() {
     const [ficha, setFicha] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Estados para formularios
     const [notasGenerales, setNotasGenerales] = useState("");
     const [isEditingNotas, setIsEditingNotas] = useState(false);
+    const [savingNotas, setSavingNotas] = useState(false);
 
-    // Estado para nueva entrada historial
     const [showNewEntry, setShowNewEntry] = useState(false);
-    const [newEntryData, setNewEntryData] = useState({
-        notaTecnica: "",
-        fotos: []
-    });
+    const [savingEntry, setSavingEntry] = useState(false);
+    const [newEntryData, setNewEntryData] = useState({ notaTecnica: "", fotos: [] });
 
-    useEffect(() => {
-        fetchData();
-    }, [id]);
+    useEffect(() => { fetchData(); }, [id]);
 
     const fetchData = async () => {
         try {
@@ -48,233 +48,294 @@ export default function FichaTecnica() {
                 getClienteById(id),
                 getFichaTecnica(id)
             ]);
-
             setCliente(clienteData);
             setFicha(fichaData);
             setNotasGenerales(fichaData?.notasGenerales || "");
         } catch (error) {
             console.error("Error cargando ficha:", error);
+            toast.error("Error al cargar la ficha del cliente");
         } finally {
             setLoading(false);
         }
     };
 
     const handleSaveNotas = async () => {
+        setSavingNotas(true);
         try {
             await updateNotasGenerales(id, notasGenerales);
+            toast.success("Preferencias guardadas");
             setIsEditingNotas(false);
-            fetchData(); // Recargar para asegurar consistencia
         } catch (error) {
-            console.error("Error guardando notas:", error);
+            toast.error("Error al guardar preferencias");
+        } finally {
+            setSavingNotas(false);
         }
     };
 
     const handleSaveEntry = async () => {
+        if (!newEntryData.notaTecnica.trim()) {
+            toast.error("Escribe al menos una nota técnica");
+            return;
+        }
+        setSavingEntry(true);
         try {
-            // Simulamos datos de servicio/barbero por ahora
             await agregarRegistroHistorial(id, {
                 notaTecnica: newEntryData.notaTecnica,
                 fotos: newEntryData.fotos
             });
+            toast.success("Registro guardado");
             setShowNewEntry(false);
             setNewEntryData({ notaTecnica: "", fotos: [] });
             fetchData();
         } catch (error) {
-            console.error("Error agregando entrada:", error);
+            toast.error("Error al guardar registro");
+        } finally {
+            setSavingEntry(false);
         }
     };
 
-    if (loading) return <div className="p-8 text-white text-center">Cargando perfil...</div>;
+    const whatsappUrl = (tel) => `https://wa.me/${tel?.replace(/\D/g, "")}`;
+
+    if (loading) return (
+        <div className="flex items-center justify-center py-32">
+            <Loader2 className="animate-spin text-blue-600" size={32} />
+        </div>
+    );
 
     return (
-        <div className="max-w-6xl mx-auto pb-24 lg:pb-8 space-y-8">
-            {/* HEADER CON BOTÓN VOLVER */}
-            <div className="flex items-center gap-4">
+        <div className="max-w-6xl mx-auto pb-24 lg:pb-8 space-y-8 animate-slide-in">
+
+            {/* HEADER */}
+            <header className="flex items-center gap-4">
                 <button
                     onClick={() => navigate(`/${slug}/admin/clientes`)}
-                    className="p-2 rounded-xl bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-all"
+                    className="p-2 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900 transition-all"
                 >
-                    <ArrowLeft size={24} />
+                    <ArrowLeft size={22} />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-black text-white">{cliente?.nombre}</h1>
-                    <p className="text-neutral-500">Ficha Técnica & Historial</p>
+                    <h1 className="heading-2 text-gray-900">{cliente?.nombre}</h1>
+                    <p className="body text-gray-400">Ficha Técnica & Historial de Cortes</p>
                 </div>
-            </div>
+            </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* COLUMNA IZQUIERDA: RESUMEN Y NOTAS GENERALES */}
-                <div className="space-y-8">
+
+                {/* ── COLUMNA IZQUIERDA ── */}
+                <div className="space-y-6">
+
                     {/* INFO CLIENTE */}
-                    <Card className="bg-neutral-900 border-neutral-800 p-6">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-neutral-800 to-black border-2 border-neutral-700 flex items-center justify-center mb-4 shadow-xl">
-                                <span className="text-4xl font-black text-primary-500">
+                    <div className="card card-padding shadow-sm ring-1 ring-gray-100">
+                        {/* Avatar */}
+                        <div className="flex flex-col items-center text-center pb-6 border-b border-gray-100">
+                            <div className="w-20 h-20 rounded-2xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center mb-4 shadow">
+                                <span className="text-3xl font-black text-blue-600">
                                     {cliente?.nombre?.charAt(0)}
                                 </span>
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-1">{cliente?.nombre}</h2>
-                            <p className="text-neutral-500 text-sm mb-4">{cliente?.email}</p>
+                            <h2 className="heading-3 text-gray-900">{cliente?.nombre}</h2>
 
-                            <div className="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-neutral-800">
-                                <div>
-                                    <p className="text-[10px] uppercase font-black text-neutral-600">Visitas</p>
-                                    <p className="text-lg font-bold text-white">{ficha?.historialServicios?.length || 0}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] uppercase font-black text-neutral-600">Miembro desde</p>
-                                    <p className="text-lg font-bold text-white">{dayjs(cliente?.createdAt).format('YYYY')}</p>
-                                </div>
+                            {/* Email */}
+                            <div className="flex items-center gap-2 mt-2 text-gray-500 body-small">
+                                <Mail size={14} className="text-gray-400 flex-shrink-0" />
+                                <span className="truncate">{cliente?.email}</span>
+                            </div>
+
+                            {/* Teléfono / WhatsApp */}
+                            {cliente?.telefono ? (
+                                <a
+                                    href={whatsappUrl(cliente.telefono)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 mt-2 body-small text-green-600 hover:text-green-700 font-semibold transition-colors"
+                                >
+                                    <Phone size={14} />
+                                    {cliente.telefono}
+                                </a>
+                            ) : (
+                                <p className="body-small text-gray-300 mt-2 italic flex items-center gap-2">
+                                    <Phone size={14} />
+                                    Sin teléfono
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 gap-4 pt-5">
+                            <div className="text-center">
+                                <p className="caption text-gray-400 font-bold uppercase tracking-widest">Visitas</p>
+                                <p className="text-2xl font-black text-gray-900">{ficha?.historialServicios?.length || 0}</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="caption text-gray-400 font-bold uppercase tracking-widest">Desde</p>
+                                <p className="text-2xl font-black text-gray-900">{dayjs(cliente?.createdAt).format('YYYY')}</p>
                             </div>
                         </div>
-                    </Card>
+
+                        {/* Botón WhatsApp grande */}
+                        {cliente?.telefono && (
+                            <a
+                                href={whatsappUrl(cliente.telefono)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-sm transition-all shadow-sm"
+                            >
+                                <MessageCircle size={18} />
+                                Contactar por WhatsApp
+                            </a>
+                        )}
+                    </div>
 
                     {/* PREFERENCIAS / NOTAS GENERALES */}
-                    <Card className="bg-neutral-900 border-neutral-800 p-6">
+                    <div className="card card-padding shadow-sm ring-1 ring-gray-100">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                <FileText size={18} className="text-primary-500" />
+                            <h3 className="heading-4 flex items-center gap-2">
+                                <FileText size={18} className="text-blue-600" />
                                 Preferencias
                             </h3>
                             {!isEditingNotas ? (
                                 <button
                                     onClick={() => setIsEditingNotas(true)}
-                                    className="text-xs font-bold text-primary-500 hover:underline"
+                                    className="flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors"
                                 >
-                                    EDITAR
+                                    <Edit3 size={14} /> Editar
                                 </button>
                             ) : (
-                                <button
-                                    onClick={handleSaveNotas}
-                                    className="text-xs font-bold text-success-500 hover:underline flex items-center gap-1"
-                                >
-                                    <Save size={12} /> GUARDAR
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setIsEditingNotas(false)}
+                                        className="text-gray-400 hover:text-gray-600 p-1"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <button
+                                        onClick={handleSaveNotas}
+                                        disabled={savingNotas}
+                                        className="flex items-center gap-1 text-sm font-bold text-green-600 hover:text-green-700"
+                                    >
+                                        {savingNotas ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                                        Guardar
+                                    </button>
+                                </div>
                             )}
                         </div>
 
                         {isEditingNotas ? (
                             <textarea
-                                className="w-full bg-black border border-neutral-800 rounded-xl p-3 text-white text-sm min-h-[150px] focus:border-primary-500 outline-none"
+                                className="input resize-none min-h-[140px] text-sm"
                                 value={notasGenerales}
                                 onChange={(e) => setNotasGenerales(e.target.value)}
-                                placeholder="Ej: Piel sensible, prefiere navaja 0.5, café sin azúcar..."
+                                placeholder="Ej: Piel sensible, prefiere navaja 0.5, no gel..."
                             />
                         ) : (
-                            <div className="bg-black/30 rounded-xl p-4 min-h-[100px] border border-neutral-800/50">
+                            <div className="bg-gray-50 rounded-xl p-4 min-h-[100px] border border-gray-100">
                                 {notasGenerales ? (
-                                    <p className="text-neutral-300 text-sm whitespace-pre-wrap leading-relaxed">
-                                        {notasGenerales}
-                                    </p>
+                                    <p className="body-small text-gray-700 whitespace-pre-wrap leading-relaxed">{notasGenerales}</p>
                                 ) : (
-                                    <p className="text-neutral-600 text-sm italic">
-                                        No hay notas generales registradas.
-                                    </p>
+                                    <p className="body-small text-gray-400 italic">Sin preferencias anotadas aún.</p>
                                 )}
                             </div>
                         )}
-                    </Card>
+                    </div>
                 </div>
 
-                {/* COLUMNA DERECHA: HISTORIAL TÉCNICO VIRTUAL */}
+                {/* ── COLUMNA DERECHA: HISTORIAL ── */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                            <Scissors className="text-primary-500" />
+                        <h3 className="heading-3 flex items-center gap-2">
+                            <Scissors className="text-blue-600" size={22} />
                             Historial de Cortes
                         </h3>
-                        <Button
+                        <button
                             onClick={() => setShowNewEntry(!showNewEntry)}
-                            variant="primary"
-                            className="rounded-xl shadow-glow-primary text-xs"
+                            className="btn btn-primary"
                         >
-                            <Plus size={16} className="mr-2" />
+                            <Plus size={16} />
                             Nuevo Registro
-                        </Button>
+                        </button>
                     </div>
 
                     {/* FORMULARIO NUEVA ENTRADA */}
                     {showNewEntry && (
-                        <Card className="bg-neutral-900 border border-primary-500/30 p-6 animate-in fade-in slide-in-from-top-4">
-                            <h4 className="font-bold text-white mb-4">Registrar Servicio de Hoy</h4>
+                        <div className="card card-padding ring-2 ring-blue-200 shadow-sm animate-slide-in">
+                            <h4 className="heading-4 mb-4">Registrar Servicio de Hoy</h4>
                             <textarea
-                                className="w-full bg-black border border-neutral-800 rounded-xl p-3 text-white text-sm min-h-[100px] mb-4"
+                                className="input resize-none min-h-[100px] mb-4"
                                 placeholder="Detalles técnicos del corte realizado hoy..."
                                 value={newEntryData.notaTecnica}
                                 onChange={(e) => setNewEntryData({ ...newEntryData, notaTecnica: e.target.value })}
                             />
-
                             <div className="flex justify-end gap-3">
-                                <Button variant="ghost" onClick={() => setShowNewEntry(false)} className="text-neutral-400">
+                                <button className="btn btn-ghost" onClick={() => setShowNewEntry(false)}>
                                     Cancelar
-                                </Button>
-                                <Button variant="primary" onClick={handleSaveEntry}>
-                                    Guardar Historial
-                                </Button>
+                                </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleSaveEntry}
+                                    disabled={savingEntry}
+                                >
+                                    {savingEntry ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                    {savingEntry ? "Guardando..." : "Guardar"}
+                                </button>
                             </div>
-                        </Card>
+                        </div>
                     )}
 
                     {/* TIMELINE */}
                     <div className="space-y-6">
                         {ficha?.historialServicios?.length > 0 ? (
                             ficha.historialServicios.map((servicio, idx) => (
-                                <div key={idx} className="relative pl-8 border-l-2 border-neutral-800 hover:border-primary-500/50 transition-colors pb-8 last:pb-0">
-                                    {/* PUNTO DE TIEMPO */}
-                                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-neutral-900 border-2 border-primary-500 shadow-[0_0_10px_rgba(234,179,8,0.3)]"></div>
+                                <div key={idx} className="relative pl-8 border-l-2 border-gray-200 hover:border-blue-300 transition-colors pb-8 last:pb-0">
+                                    {/* Punto de línea de tiempo */}
+                                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-blue-500 shadow" />
 
-                                    {/* HEADER DEL EVENTO */}
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
                                         <div className="flex items-center gap-3">
-                                            <Badge variant="outline" className="bg-neutral-800 border-neutral-700 text-white font-bold">
+                                            <span className="badge bg-blue-50 text-blue-700 ring-1 ring-blue-200 font-bold">
                                                 {dayjs(servicio.fecha).format('DD MMM YYYY')}
-                                            </Badge>
-                                            <span className="text-neutral-500 text-sm flex items-center gap-1">
-                                                <Clock size={14} />
+                                            </span>
+                                            <span className="body-small text-gray-400 flex items-center gap-1">
+                                                <Clock size={13} />
                                                 {dayjs(servicio.fecha).format('HH:mm')}
                                             </span>
                                         </div>
-                                        <div className="text-xs font-bold text-primary-500 mt-2 sm:mt-0 uppercase tracking-widest bg-primary-500/10 px-2 py-1 rounded-lg">
+                                        <span className="caption text-blue-600 font-bold uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg">
                                             {servicio.servicioId?.nombre || "Corte General"}
-                                        </div>
+                                        </span>
                                     </div>
 
-                                    {/* CARD DE DETALLES */}
-                                    <Card className="bg-neutral-900 border-neutral-800 p-5 hover:border-neutral-700 transition-all">
-                                        <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                                            {servicio.notaTecnica || "Sin notas técnicas registradas."}
+                                    <div className="card card-padding shadow-sm hover:shadow-md transition-all">
+                                        <p className="body text-gray-700 leading-relaxed mb-4">
+                                            {servicio.notaTecnica || <span className="italic text-gray-400">Sin notas técnicas.</span>}
                                         </p>
 
-                                        {/* GALERÍA DE FOTOS (Placeholder hasta integrar Cloudinary) */}
-                                        {servicio.fotos && servicio.fotos.length > 0 ? (
+                                        {servicio.fotos?.length > 0 ? (
                                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                                                 {servicio.fotos.map((foto, i) => (
-                                                    <div key={i} className="aspect-square rounded-lg bg-neutral-800 overflow-hidden relative group cursor-pointer">
+                                                    <div key={i} className="aspect-square rounded-xl overflow-hidden group cursor-pointer border border-gray-100">
                                                         <img src={foto} alt="Corte" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className="mt-4 pt-4 border-t border-neutral-800 flex items-center gap-2 text-neutral-600 text-xs italic">
-                                                <Camera size={14} />
+                                            <div className="flex items-center gap-2 text-gray-300 caption italic border-t border-gray-100 pt-3 mt-2">
+                                                <Camera size={13} />
                                                 Sin fotos adjuntas
                                             </div>
                                         )}
 
-                                        <div className="mt-4 pt-4 border-t border-neutral-800 flex justify-between items-center">
-                                            <span className="text-xs text-neutral-500 flex items-center gap-1">
-                                                <User size={12} />
-                                                Realizado por <strong className="text-white">{servicio.barberoId?.nombre || "Barbero"}</strong>
-                                            </span>
+                                        <div className="flex items-center gap-2 body-small text-gray-400 border-t border-gray-100 pt-3 mt-3">
+                                            <User size={13} />
+                                            Realizado por <strong className="text-gray-700">{servicio.barberoId?.nombre || "Barbero"}</strong>
                                         </div>
-                                    </Card>
+                                    </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="text-center py-12 bg-neutral-900/50 rounded-2xl border border-neutral-800 border-dashed">
-                                <Scissors size={48} className="mx-auto text-neutral-800 mb-4" />
-                                <p className="text-neutral-500 font-bold">No hay historial registrado</p>
-                                <p className="text-neutral-600 text-sm mt-1">Registra el primer corte para empezar el seguimiento.</p>
+                            <div className="card card-padding py-20 text-center shadow-sm">
+                                <Scissors size={44} className="mx-auto text-gray-200 mb-4" />
+                                <h4 className="heading-4 text-gray-600 mb-1">Sin historial aún</h4>
+                                <p className="body text-gray-400">Registra el primer corte para empezar el seguimiento.</p>
                             </div>
                         )}
                     </div>

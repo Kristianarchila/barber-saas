@@ -8,11 +8,15 @@ const vapidDetails = {
 };
 
 if (vapidDetails.publicKey && vapidDetails.privateKey) {
-    webpush.setVapidDetails(
-        vapidDetails.subject,
-        vapidDetails.publicKey,
-        vapidDetails.privateKey
-    );
+    try {
+        webpush.setVapidDetails(
+            vapidDetails.subject,
+            vapidDetails.publicKey,
+            vapidDetails.privateKey
+        );
+    } catch (e) {
+        console.warn('[Push] Invalid VAPID keys — push notifications disabled:', e.message);
+    }
 }
 
 /**

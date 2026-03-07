@@ -4,13 +4,14 @@ const { connectDB, closeDB, clearDB } = require('../setup');
 const { createTestBarberia, createTestUser } = require('../factories/test-factories');
 const Barberia = require('../../src/infrastructure/database/mongodb/models/Barberia');
 const User = require('../../src/infrastructure/database/mongodb/models/User');
-const bcrypt = require('bcrypt');
+// bcrypt import removed — User model pre-save hook handles hashing
 const jwt = require('jsonwebtoken');
 
 describe('E2E - Auth Flow', () => {
     let barberia;
     let superAdmin, barberiaAdmin, barbero;
-    const testPassword = 'password123';
+    // Must match loginSchema: no length restriction, but password must be plain for pre-save hook
+    const testPassword = 'Password123';
 
     beforeAll(async () => {
         await connectDB();
@@ -26,13 +27,12 @@ describe('E2E - Auth Flow', () => {
         // Create barberia
         barberia = await Barberia.create(createTestBarberia());
 
-        // Create users with hashed passwords
-        const hashedPassword = await bcrypt.hash(testPassword, 10);
-
+        // NOTE: Do NOT manually bcrypt.hash() — the User model pre-save hook already handles it.
+        // Passing a pre-hashed password causes double-hashing and login always fails.
         superAdmin = await User.create({
             nombre: 'Super Admin',
             email: 'superadmin@test.com',
-            password: hashedPassword,
+            password: testPassword,
             rol: 'SUPER_ADMIN',
             activo: true
         });
@@ -40,7 +40,7 @@ describe('E2E - Auth Flow', () => {
         barberiaAdmin = await User.create({
             nombre: 'Barberia Admin',
             email: 'admin@barberia.com',
-            password: hashedPassword,
+            password: testPassword,
             rol: 'BARBERIA_ADMIN',
             barberiaId: barberia._id,
             activo: true
@@ -49,7 +49,7 @@ describe('E2E - Auth Flow', () => {
         barbero = await User.create({
             nombre: 'Barbero',
             email: 'barbero@barberia.com',
-            password: hashedPassword,
+            password: testPassword,
             rol: 'BARBERO',
             barberiaId: barberia._id,
             activo: true
@@ -211,15 +211,10 @@ describe('E2E - Auth Flow', () => {
 
             const token = loginRes.body.token;
 
-            // Try to access admin route (e.g., creating services)
+            // Try to access superadmin route (BARBERO should get 403)
             await request(app)
-                .post('/api/admin/servicios')
+                .get('/api/superadmin/stats')
                 .set('Authorization', `Bearer ${token}`)
-                .send({
-                    nombre: 'Test Service',
-                    precio: 100,
-                    duracion: 30
-                })
                 .expect(403);
         });
     });

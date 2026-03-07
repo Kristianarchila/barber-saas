@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import { getBarberos } from "../../services/barberosService";
-import { getReservasPorBarberoDia, completarReserva, cancelarReserva } from "../../services/reservasService";
+import { getReservasPorBarberoDia, completarReserva, cancelarReserva, crearReserva, reagendarReserva } from "../../services/reservasService";
+import { getServicios } from "../../services/serviciosService";
 import { Card, Stat, Badge, Button, Skeleton, Avatar } from "../../components/ui";
-import { Calendar, Users, Clock, DollarSign, CheckCircle, XCircle } from "lucide-react";
+import { Calendar, Users, Clock, DollarSign, CheckCircle, XCircle, Plus, X, Save, Loader2, CalendarClock } from "lucide-react";
 import { useApiCall } from "../../hooks/useApiCall";
 import { useAsyncAction } from "../../hooks/useAsyncAction";
 import { ErrorAlert } from "../../components/ErrorComponents";
 import { ensureArray } from "../../utils/validateData";
 import WhatsAppButton from "../../components/WhatsAppButton";
+import { toast } from "react-hot-toast";
 
 dayjs.locale('es');
 
@@ -19,6 +21,29 @@ export default function ReservasAdmin() {
   const [fecha, setFecha] = useState(dayjs().format("YYYY-MM-DD"));
   const [turnos, setTurnos] = useState([]);
   const [resumen, setResumen] = useState({});
+
+  // Estado del modal de nueva reserva
+  const [showModal, setShowModal] = useState(false);
+  const [servicios, setServicios] = useState([]);
+  const [slotsDisponibles, setSlotsDisponibles] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [savingReserva, setSavingReserva] = useState(false);
+  const [formReserva, setFormReserva] = useState({
+    barberoId: '',
+    servicioId: '',
+    fecha: dayjs().format('YYYY-MM-DD'),
+    hora: '',
+    nombreCliente: '',
+    telefonoCliente: '',
+    emailCliente: '',
+  });
+
+  // Estado del modal de reagendar
+  const [reagendarModal, setReagendarModal] = useState(null); // reserva seleccionada
+  const [reagendarForm, setReagendarForm] = useState({ fecha: '', hora: '' });
+  const [reagendarSlots, setReagendarSlots] = useState([]);
+  const [loadingReagendarSlots, setLoadingReagendarSlots] = useState(false);
+  const [savingReagendar, setSavingReagendar] = useState(false);
 
   // Hook para cargar barberos
   const { execute: loadBarberos, error: barberosError } = useApiCall(
@@ -40,6 +65,14 @@ export default function ReservasAdmin() {
       onSuccess: (reservas) => {
         const safeReservas = ensureArray(reservas);
 
+        // Calcular horasTrabajadas a partir de duraciones reales
+        const minutosTrabajados = safeReservas
+          .filter(r => r.estado === 'COMPLETADA')
+          .reduce((sum, r) => sum + (r.servicioId?.duracion || 0), 0);
+        const horas = Math.floor(minutosTrabajados / 60);
+        const mins = minutosTrabajados % 60;
+        const horasTrabajadas = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+
         // Calcular resumen desde las reservas
         const resumenCalculado = {
           totalTurnos: safeReservas.length,
@@ -48,7 +81,7 @@ export default function ReservasAdmin() {
           ingresosGenerados: safeReservas
             .filter(r => r.estado === 'COMPLETADA')
             .reduce((sum, r) => sum + (r.precioTotal || 0), 0),
-          horasTrabajadas: "00:00" // Placeholder
+          horasTrabajadas
         };
 
         setResumen(resumenCalculado);
@@ -85,12 +118,118 @@ export default function ReservasAdmin() {
 
   useEffect(() => {
     loadBarberos();
+    // Cargar servicios para el modal de nueva reserva
+    getServicios().then(setServicios).catch(console.error);
   }, []);
 
   useEffect(() => {
     if (!selectedBarbero) return;
     fetchTurnos();
   }, [selectedBarbero, fecha]);
+
+  // Cargar slots disponibles para el modal de REAGENDAR
+  useEffect(() => {
+    if (!reagendarModal || !reagendarForm.fecha) {
+      setReagendarSlots([]);
+      return;
+    }
+    const duracion = reagendarModal.servicioId?.duracion || 30;
+    const barberoId = reagendarModal.barberoId?._id || reagendarModal.barberoId || selectedBarbero?._id;
+    if (!barberoId) return;
+
+    setLoadingReagendarSlots(true);
+    setReagendarSlots([]);
+    setReagendarForm(prev => ({ ...prev, hora: '' }));
+
+    const slug = window.location.pathname.split('/')[1];
+    import('../../services/api').then(({ default: api }) => {
+      api.get(`/barberias/${slug}/admin/reservas/horarios-disponibles`, {
+        params: { barberoId, fecha: reagendarForm.fecha, duracion }
+      }).then(res => {
+        setReagendarSlots(ensureArray(res.data?.horariosDisponibles || res.data || []));
+      }).catch(() => setReagendarSlots([]))
+        .finally(() => setLoadingReagendarSlots(false));
+    });
+  }, [reagendarModal, reagendarForm.fecha]);
+
+  const handleReagendar = async (e) => {
+    e.preventDefault();
+    if (!reagendarForm.fecha || !reagendarForm.hora) {
+      toast.error('Elige una fecha y una hora');
+      return;
+    }
+    setSavingReagendar(true);
+    try {
+      await reagendarReserva(reagendarModal._id, { fecha: reagendarForm.fecha, hora: reagendarForm.hora });
+      toast.success('Reserva reagendada exitosamente');
+      setReagendarModal(null);
+      setReagendarForm({ fecha: '', hora: '' });
+      fetchTurnos();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Error al reagendar');
+    } finally {
+      setSavingReagendar(false);
+    }
+  };
+
+  // Cargar slots disponibles cuando cambian barbero/servicio/fecha en el modal
+  useEffect(() => {
+    const { barberoId, servicioId, fecha: fechaModal } = formReserva;
+    if (!barberoId || !servicioId || !fechaModal) {
+      setSlotsDisponibles([]);
+      return;
+    }
+    const servicio = servicios.find(s => s._id === servicioId);
+    if (!servicio) return;
+
+    setLoadingSlots(true);
+    setSlotsDisponibles([]);
+    setFormReserva(prev => ({ ...prev, hora: '' }));
+
+    const slug = window.location.pathname.split('/')[1];
+    import('../../services/api').then(({ default: api }) => {
+      api.get(`/barberias/${slug}/admin/reservas/horarios-disponibles`, {
+        params: { barberoId, fecha: fechaModal, duracion: servicio.duracion }
+      }).then(res => {
+        const slots = res.data?.horariosDisponibles || res.data || [];
+        setSlotsDisponibles(ensureArray(slots));
+      }).catch(() => {
+        setSlotsDisponibles([]);
+      }).finally(() => {
+        setLoadingSlots(false);
+      });
+    });
+  }, [formReserva.barberoId, formReserva.servicioId, formReserva.fecha]);
+
+  const handleCrearReserva = async (e) => {
+    e.preventDefault();
+    if (!formReserva.barberoId || !formReserva.servicioId || !formReserva.fecha || !formReserva.hora || !formReserva.nombreCliente) {
+      toast.error('Completa todos los campos obligatorios');
+      return;
+    }
+    setSavingReserva(true);
+    try {
+      await crearReserva(formReserva.barberoId, {
+        servicioId: formReserva.servicioId,
+        fecha: formReserva.fecha,
+        hora: formReserva.hora,
+        nombreCliente: formReserva.nombreCliente,
+        emailCliente: formReserva.emailCliente,
+        telefonoCliente: formReserva.telefonoCliente,
+      });
+      toast.success('Reserva creada exitosamente');
+      setShowModal(false);
+      setFormReserva({ barberoId: '', servicioId: '', fecha: dayjs().format('YYYY-MM-DD'), hora: '', nombreCliente: '', telefonoCliente: '', emailCliente: '' });
+      // Si el barbero del modal es el mismo que el seleccionado, recargar agenda
+      if (formReserva.barberoId === selectedBarbero?._id) {
+        fetchTurnos();
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Error al crear la reserva');
+    } finally {
+      setSavingReserva(false);
+    }
+  };
 
   const getEstadoBadge = (estado) => {
     const estados = {
@@ -125,6 +264,13 @@ export default function ReservasAdmin() {
             Control operativo de citas y disponibilidad de tus barberos
           </p>
         </div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="btn btn-primary self-start md:self-center"
+        >
+          <Plus size={18} />
+          Nueva Reserva
+        </button>
       </header>
 
       {/* ERROR ALERTS */}
@@ -314,6 +460,17 @@ export default function ReservasAdmin() {
                                   {completando ? '...' : <CheckCircle size={18} />}
                                 </button>
                                 <button
+                                  onClick={() => {
+                                    setReagendarModal(t);
+                                    setReagendarForm({ fecha: dayjs().format('YYYY-MM-DD'), hora: '' });
+                                  }}
+                                  className="btn btn-ghost btn-sm text-blue-600 hover:bg-blue-50"
+                                  title="Reagendar"
+                                  disabled={completando || cancelando}
+                                >
+                                  <CalendarClock size={18} />
+                                </button>
+                                <button
                                   onClick={() => handleCancelar(t._id)}
                                   className="btn btn-ghost btn-sm text-red-600 hover:bg-red-50"
                                   title="Cancelar"
@@ -336,6 +493,96 @@ export default function ReservasAdmin() {
       )
       }
 
+      {/* MODAL REAGENDAR */}
+      {reagendarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="card card-padding w-full max-w-lg relative shadow-2xl animate-slide-in">
+            <button
+              type="button"
+              onClick={() => { setReagendarModal(null); setReagendarForm({ fecha: '', hora: '' }); }}
+              className="absolute top-5 right-5 p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-800"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <CalendarClock className="text-blue-600" size={22} />
+              </div>
+              <div>
+                <h3 className="heading-3">Reagendar Cita</h3>
+                <p className="body-small text-gray-500">
+                  {reagendarModal.clienteNombre} · {reagendarModal.servicioId?.nombre || 'Servicio'}
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleReagendar} className="space-y-5">
+              {/* Nueva fecha */}
+              <div className="space-y-2">
+                <label className="label">Nueva fecha</label>
+                <input
+                  type="date"
+                  min={dayjs().format('YYYY-MM-DD')}
+                  value={reagendarForm.fecha}
+                  onChange={e => setReagendarForm(prev => ({ ...prev, fecha: e.target.value }))}
+                  className="input"
+                />
+              </div>
+
+              {/* Slots disponibles */}
+              <div className="space-y-2">
+                <label className="label">
+                  Hora disponible
+                  {loadingReagendarSlots && <Loader2 size={14} className="animate-spin inline ml-2 text-gray-400" />}
+                </label>
+                {!reagendarForm.fecha ? (
+                  <p className="caption text-gray-400 italic">Elige una fecha para ver los horarios</p>
+                ) : loadingReagendarSlots ? (
+                  <p className="caption text-gray-400">Buscando horarios...</p>
+                ) : reagendarSlots.length === 0 ? (
+                  <p className="caption text-amber-600 font-semibold">Sin horarios disponibles para esa fecha</p>
+                ) : (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {reagendarSlots.map(slot => (
+                      <button
+                        type="button"
+                        key={slot}
+                        onClick={() => setReagendarForm(prev => ({ ...prev, hora: slot }))}
+                        className={`py-2 rounded-xl text-sm font-bold border transition-all ${reagendarForm.hora === slot
+                          ? 'bg-blue-600 text-white border-blue-600 shadow'
+                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300'
+                          }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => { setReagendarModal(null); setReagendarForm({ fecha: '', hora: '' }); }}
+                  className="btn btn-ghost flex-1"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingReagendar || !reagendarForm.fecha || !reagendarForm.hora}
+                  className="btn btn-primary flex-1"
+                >
+                  {savingReagendar ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                  {savingReagendar ? 'Guardando...' : 'Confirmar Reagendado'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* MENSAJE INICIAL */}
       {
         !selectedBarbero && (
@@ -350,6 +597,174 @@ export default function ReservasAdmin() {
           </div>
         )
       }
-    </div >
+
+      {/* MODAL NUEVA RESERVA */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="card card-padding w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="absolute top-5 right-5 p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-900"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <Plus className="text-blue-600" size={22} />
+              </div>
+              <div>
+                <h3 className="heading-3">Nueva Reserva</h3>
+                <p className="body text-gray-500">Agenda una cita para un cliente</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleCrearReserva} className="space-y-5">
+              {/* Barbero */}
+              <div className="space-y-2">
+                <label className="label flex items-center gap-2 required">
+                  <Users size={15} className="text-blue-600" /> Barbero *
+                </label>
+                <select
+                  className="input"
+                  value={formReserva.barberoId}
+                  onChange={e => setFormReserva(prev => ({ ...prev, barberoId: e.target.value, hora: '' }))}
+                  required
+                >
+                  <option value="">Selecciona un barbero</option>
+                  {ensureArray(barberos).map(b => (
+                    <option key={b._id} value={b._id}>{b.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Servicio */}
+              <div className="space-y-2">
+                <label className="label flex items-center gap-2">
+                  <Clock size={15} className="text-blue-600" /> Servicio *
+                </label>
+                <select
+                  className="input"
+                  value={formReserva.servicioId}
+                  onChange={e => setFormReserva(prev => ({ ...prev, servicioId: e.target.value, hora: '' }))}
+                  required
+                >
+                  <option value="">Selecciona un servicio</option>
+                  {ensureArray(servicios).map(s => (
+                    <option key={s._id} value={s._id}>{s.nombre} — {s.duracion} min — {formatCurrency(s.precio)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Fecha */}
+              <div className="space-y-2">
+                <label className="label flex items-center gap-2">
+                  <Calendar size={15} className="text-blue-600" /> Fecha *
+                </label>
+                <input
+                  type="date"
+                  className="input"
+                  value={formReserva.fecha}
+                  min={dayjs().format('YYYY-MM-DD')}
+                  onChange={e => setFormReserva(prev => ({ ...prev, fecha: e.target.value, hora: '' }))}
+                  required
+                />
+              </div>
+
+              {/* Hora */}
+              <div className="space-y-2">
+                <label className="label flex items-center gap-2">
+                  <Clock size={15} className="text-blue-600" /> Hora *
+                </label>
+                {loadingSlots ? (
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Loader2 className="animate-spin" size={18} />
+                    <span className="body-small">Cargando horarios...</span>
+                  </div>
+                ) : slotsDisponibles.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                    {slotsDisponibles.map(slot => (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => setFormReserva(prev => ({ ...prev, hora: slot }))}
+                        className={`py-2 px-1 rounded-lg text-sm font-bold transition-all ${formReserva.hora === slot
+                          ? 'bg-blue-600 text-white shadow'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                          }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="caption text-gray-400 italic">
+                    {formReserva.barberoId && formReserva.servicioId
+                      ? 'Sin horarios disponibles para este día'
+                      : 'Selecciona barbero y servicio primero'}
+                  </p>
+                )}
+              </div>
+
+              {/* Cliente */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="label">Nombre del cliente *</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Ej: Juan Pérez"
+                    value={formReserva.nombreCliente}
+                    onChange={e => setFormReserva(prev => ({ ...prev, nombreCliente: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Teléfono (opcional)</label>
+                  <input
+                    type="tel"
+                    className="input"
+                    placeholder="+56 9 ..."
+                    value={formReserva.telefonoCliente}
+                    onChange={e => setFormReserva(prev => ({ ...prev, telefonoCliente: e.target.value }))}
+                  />
+                </div>
+                <div className="sm:col-span-2 space-y-2">
+                  <label className="label">Email (opcional)</label>
+                  <input
+                    type="email"
+                    className="input"
+                    placeholder="cliente@correo.com"
+                    value={formReserva.emailCliente}
+                    onChange={e => setFormReserva(prev => ({ ...prev, emailCliente: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Botones */}
+              <div className="flex gap-3 pt-4 border-t border-gray-100">
+                <button
+                  type="button"
+                  className="btn btn-ghost flex-1"
+                  onClick={() => setShowModal(false)}
+                  disabled={savingReserva}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary flex-[2]"
+                  disabled={savingReserva || !formReserva.hora}
+                >
+                  {savingReserva ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                  {savingReserva ? 'Guardando...' : 'Crear Reserva'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

@@ -15,6 +15,7 @@ import { ensureArray } from "../../utils/validateData";
 import ViewSwitcher from "../../components/calendar/ViewSwitcher";
 import WeeklyView from "../../components/calendar/WeeklyView";
 import MonthlyView from "../../components/calendar/MonthlyView";
+import ReservaDetalleModal from "../../components/barbero/ReservaDetalleModal";
 import {
   Users,
   Scissors,
@@ -46,6 +47,7 @@ export default function Agenda() {
   const [reservas, setReservas] = useState([]);
   const [stats, setStats] = useState({ total: 0, compl: 0, pend: 0 });
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, reservaId: null });
+  const [selectedReserva, setSelectedReserva] = useState(null);
 
   // Calculate date range based on current view
   const dateRange = useMemo(() => {
@@ -157,8 +159,7 @@ export default function Agenda() {
   };
 
   const handleReservaClick = (reserva) => {
-    // Could open a modal or navigate to detail view
-    console.log('Reserva clicked:', reserva);
+    setSelectedReserva(reserva);
   };
 
   const handleCancelar = () => {
@@ -412,6 +413,24 @@ export default function Agenda() {
             </div>
           )}
         </>
+      )}
+
+      {/* MODAL DETALLE RESERVA */}
+      {selectedReserva && (
+        <ReservaDetalleModal
+          reserva={selectedReserva}
+          onClose={() => setSelectedReserva(null)}
+          onCompletar={(id) => {
+            onCompletar(id);
+            setSelectedReserva(null);
+          }}
+          onCancelar={(id) => {
+            setConfirmModal({ isOpen: true, reservaId: id });
+            setSelectedReserva(null);
+          }}
+          completando={completando}
+          cancelando={cancelando}
+        />
       )}
 
       {/* CONFIRMATION MODAL */}

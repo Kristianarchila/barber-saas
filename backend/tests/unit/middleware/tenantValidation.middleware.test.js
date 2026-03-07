@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { connectDB, closeDB, clearDB } = require('../../setup');
 const { createTestBarberia, createTestUser, generateAuthToken } = require('../../factories/test-factories');
 const {
@@ -102,7 +103,7 @@ describe('TenantValidation Middleware', () => {
         });
 
         it('should return 404 when barberia is inactive', async () => {
-            await Barberia.findByIdAndUpdate(barberia1._id, { activo: false });
+            await Barberia.findByIdAndUpdate(barberia1._id, { activa: false });
 
             const req = {
                 params: { slug: 'barberia-1' }
@@ -187,10 +188,15 @@ describe('TenantValidation Middleware', () => {
             });
         });
 
-        it('should return 403 when user tries to access different barberia', () => {
+        it('should return 403 when user tries to access different barberia', async () => {
             const req = {
-                user: admin1,
-                barberiaId: barberia2._id // Admin1 trying to access Barberia2
+                user: {
+                    _id: admin1._id,
+                    barberiaId: barberia1._id, // Admin1 belongs to Barberia1
+                    rol: 'BARBERIA_ADMIN',
+                    email: admin1.email
+                },
+                barberiaId: barberia2._id // but is trying to access Barberia2
             };
             const res = {
                 status: jest.fn().mockReturnThis(),
@@ -198,20 +204,26 @@ describe('TenantValidation Middleware', () => {
             };
             const next = jest.fn();
 
-            validateTenantAccess(req, res, next);
+            await validateTenantAccess(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(403);
             expect(res.json).toHaveBeenCalledWith({
-                message: 'No tienes permiso para acceder a los datos de esta barbería'
+                message: 'No tienes permiso para acceder a los datos de esta barbería',
+                code: 'TENANT_ISOLATION_VIOLATION'
             });
         });
 
-        it('should log warning on cross-tenant access attempt', () => {
+        it('should log warning on cross-tenant access attempt', async () => {
             const loggerSpy = jest.spyOn(require('../../../src/config/logger'), 'warn');
 
             const req = {
-                user: admin1,
-                barberiaId: barberia2._id,
+                user: {
+                    _id: admin1._id,
+                    barberiaId: barberia1._id, // belongs to barberia1
+                    rol: 'BARBERIA_ADMIN',
+                    email: admin1.email
+                },
+                barberiaId: barberia2._id, // but requesting barberia2
                 originalUrl: '/api/test',
                 method: 'GET'
             };
@@ -221,10 +233,10 @@ describe('TenantValidation Middleware', () => {
             };
             const next = jest.fn();
 
-            validateTenantAccess(req, res, next);
+            await validateTenantAccess(req, res, next);
 
             expect(loggerSpy).toHaveBeenCalledWith(
-                'Intento de acceso cross-tenant bloqueado',
+                '🚨 INTENTO DE ACCESO CROSS-TENANT BLOQUEADO',
                 expect.objectContaining({
                     userId: admin1._id,
                     requestedBarberiaId: barberia2._id.toString()
@@ -251,7 +263,8 @@ describe('TenantValidation Middleware', () => {
                 horaFin: '10:30',
                 duracion: 30,
                 precio: 100,
-                estado: 'RESERVADA'
+                estado: 'RESERVADA',
+                cancelToken: crypto.randomBytes(32).toString('hex')
             });
 
             reserva2 = await Reserva.create({
@@ -265,7 +278,8 @@ describe('TenantValidation Middleware', () => {
                 horaFin: '11:30',
                 duracion: 30,
                 precio: 100,
-                estado: 'RESERVADA'
+                estado: 'RESERVADA',
+                cancelToken: crypto.randomBytes(32).toString('hex')
             });
         });
 

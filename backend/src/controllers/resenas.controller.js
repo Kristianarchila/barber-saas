@@ -6,6 +6,11 @@ const Resena = require("../infrastructure/database/mongodb/models/Resena");
 const Reserva = require("../infrastructure/database/mongodb/models/Reserva");
 const { recalcularEstadisticasResenas } = require("../services/resenas.service");
 const { detectarSpam, tokenExpirado } = require("../services/antiSpam.service");
+const cacheService = require("../infrastructure/cache/CacheService");
+
+// TTL de caché para reseñas públicas (60 segundos).
+// Corto para que cambios de moderación se reflejen pronto sin golpear Mongo en cada request.
+const RESENAS_CACHE_TTL = 60;
 
 /**
  * ========================================
@@ -182,7 +187,7 @@ exports.crearResena = async (req, res) => {
     }
 };
 
-// Obtener reseñas públicas
+// Obtener reseñas públicas (con caché de 60s por tenant+filtros)
 exports.obtenerResenasPublicas = async (req, res) => {
     try {
         const { barberia } = req;
@@ -193,46 +198,48 @@ exports.obtenerResenasPublicas = async (req, res) => {
         if (configResenas.mostrarEnWeb === false) {
             return res.json({
                 success: true,
-                data: {
-                    resenas: [],
-                    total: 0,
-                    promedio: 0,
-                    page: 1,
-                    totalPages: 0
-                }
+                data: { resenas: [], total: 0, promedio: 0, page: 1, totalPages: 0 }
             });
         }
 
-        const query = {
-            barberiaId: barberia._id,
-            aprobada: true,
-            visible: true
-        };
+        // Cache key única por barbería + filtros de paginación
+        const cacheKey = cacheService.generateKey(
+            barberia._id.toString(),
+            'resenas_publicas',
+            `${barberoId || 'all'}:p${page}:l${limit}`
+        );
 
-        if (barberoId) query.barberoId = barberoId;
+        const data = await cacheService.wrap(cacheKey, async () => {
+            const query = {
+                barberiaId: barberia._id,
+                aprobada: true,
+                visible: true
+            };
+            if (barberoId) query.barberoId = barberoId;
 
-        const resenas = await Resena.find(query)
-            .populate("barberoId", "nombre")
-            .sort({ createdAt: -1 })
-            .limit(parseInt(limit))
-            .skip((parseInt(page) - 1) * parseInt(limit));
+            const [resenas, total] = await Promise.all([
+                Resena.find(query)
+                    .populate("barberoId", "nombre")
+                    .sort({ createdAt: -1 })
+                    .limit(parseInt(limit))
+                    .skip((parseInt(page) - 1) * parseInt(limit)),
+                Resena.countDocuments(query),
+            ]);
 
-        const total = await Resena.countDocuments(query);
+            const promedio = total > 0
+                ? resenas.reduce((acc, r) => acc + r.calificacionGeneral, 0) / (resenas.length || 1)
+                : 0;
 
-        const promedio = total > 0
-            ? resenas.reduce((acc, r) => acc + r.calificacionGeneral, 0) / (resenas.length || 1)
-            : 0;
-
-        res.json({
-            success: true,
-            data: {
+            return {
                 resenas,
                 total,
                 promedio: Math.round(promedio * 10) / 10,
                 page: parseInt(page),
                 totalPages: Math.ceil(total / parseInt(limit))
-            }
-        });
+            };
+        }, RESENAS_CACHE_TTL);
+
+        res.json({ success: true, data });
     } catch (error) {
         console.error("Error al obtener reseñas:", error);
         res.status(500).json({ success: false, message: "Error al obtener reseñas" });
@@ -359,6 +366,8 @@ exports.aprobarResena = async (req, res) => {
         resena.moderadaPor = adminId;
         await resena.save();
 
+        // Invalidar caché de reseñas públicas para esta barbería
+        cacheService.delByPattern(barberiaId.toString());
         // 🚀 OPTIMIZACIÓN: Recalcular estadísticas de la barbería
         await recalcularEstadisticasResenas(barberiaId);
 
@@ -388,6 +397,7 @@ exports.ocultarResena = async (req, res) => {
         resena.visible = false;
         await resena.save();
 
+        cacheService.delByPattern(barberiaId.toString());
         // 🚀 OPTIMIZACIÓN: Recalcular estadísticas de la barbería
         await recalcularEstadisticasResenas(barberiaId);
 
@@ -417,6 +427,7 @@ exports.mostrarResena = async (req, res) => {
         resena.visible = true;
         await resena.save();
 
+        cacheService.delByPattern(barberiaId.toString());
         // 🚀 OPTIMIZACIÓN: Recalcular estadísticas de la barbería
         await recalcularEstadisticasResenas(barberiaId);
 

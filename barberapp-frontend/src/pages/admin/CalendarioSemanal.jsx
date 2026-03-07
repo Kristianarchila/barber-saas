@@ -136,19 +136,19 @@ export default function CalendarioSemanal() {
             {/* FILTERS */}
             <div className="card card-padding space-y-4">
                 {/* Week navigation */}
-                <div className="flex items-center justify-between">
-                    <button className="btn btn-ghost" onClick={handlePreviousWeek}>
+                <div className="flex items-center justify-between gap-2">
+                    <button className="btn btn-ghost btn-sm flex-shrink-0" onClick={handlePreviousWeek}>
                         <ChevronLeft size={20} />
-                        Semana Anterior
+                        <span className="hidden md:inline">Semana Anterior</span>
                     </button>
 
-                    <div className="flex items-center gap-2 text-gray-900 font-semibold">
-                        <CalendarIcon size={20} className="text-blue-600" />
-                        <span>{weekRange}</span>
+                    <div className="flex items-center gap-1.5 text-gray-900 font-semibold text-sm text-center min-w-0">
+                        <CalendarIcon size={16} className="text-blue-600 flex-shrink-0 hidden sm:block" />
+                        <span className="truncate">{weekRange}</span>
                     </div>
 
-                    <button className="btn btn-ghost" onClick={handleNextWeek}>
-                        Semana Siguiente
+                    <button className="btn btn-ghost btn-sm flex-shrink-0" onClick={handleNextWeek}>
+                        <span className="hidden md:inline">Semana Siguiente</span>
                         <ChevronRight size={20} />
                     </button>
                 </div>

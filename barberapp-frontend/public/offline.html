@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,50 +24,84 @@
 
         .container {
             text-align: center;
-            padding: 2rem;
-            max-width: 400px;
+            padding: 2.5rem 2rem;
+            max-width: 360px;
         }
 
-        .icon {
-            font-size: 80px;
-            margin-bottom: 1rem;
+        .logo-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #D4AF37, #B8960C);
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .brand {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #D4AF37;
+            margin-bottom: 0.5rem;
         }
 
         h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
         }
 
         p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #a3a3a3;
             margin-bottom: 2rem;
         }
 
         button {
-            background: #fff;
-            color: #667eea;
+            background: #D4AF37;
+            color: #000;
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 8px;
+            padding: 14px 32px;
+            font-size: 0.9rem;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: transform 0.2s, background 0.2s;
+            min-height: 48px;
         }
 
         button:hover {
-            transform: scale(1.05);
+            background: #e8c547;
+            transform: scale(1.03);
+        }
+
+        .divider {
+            width: 40px;
+            height: 2px;
+            background: #D4AF37;
+            margin: 1.5rem auto;
+            border-radius: 2px;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="icon">📡</div>
+        <div class="logo-mark">✂️</div>
+        <p class="brand">Barber SaaS</p>
+        <div class="divider"></div>
         <h1>Sin Conexión</h1>
-        <p>Parece que no tienes conexión a internet. Por favor, verifica tu conexión e intenta nuevamente.</p>
-        <button onclick="window.location.reload()">Reintentar</button>
+        <p>Parece que no tienes conexión a internet. Tus datos guardados siguen disponibles. Verifica tu red e intenta
+            de nuevo.</p>
+        <button onclick="window.location.reload()">Reintentar conexión</button>
     </div>
 </body>
 

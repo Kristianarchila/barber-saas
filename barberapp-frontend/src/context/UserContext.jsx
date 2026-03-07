@@ -6,9 +6,11 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Cargar usuario desde localStorage al iniciar
+  // S-JWT FIX: Usar sessionStorage en lugar de localStorage.
+  // Los tokens no sobreviven entre sesiones/pestañas, reduciendo la ventana de exposición.
+  // Nota: XSS sigue siendo un vector — la mitigación definitiva sería HttpOnly Cookie.
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -17,11 +19,14 @@ export const UserProvider = ({ children }) => {
 
   const loginUser = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logoutUser = () => {
     setUser(null);
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    // Limpiar localStorage legacy por si existía antes de la migración
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   };

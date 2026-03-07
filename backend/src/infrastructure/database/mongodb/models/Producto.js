@@ -21,7 +21,7 @@ const productoSchema = new mongoose.Schema({
     categoria: {
         type: String,
         required: true,
-        enum: ['pomada', 'cera', 'aceite', 'shampoo', 'acondicionador', 'gel', 'spray', 'cuidado_barba', 'herramientas', 'otros'],
+        trim: true,
         index: true
     },
     precio: {
@@ -62,6 +62,12 @@ const productoSchema = new mongoose.Schema({
     activo: {
         type: Boolean,
         default: true,
+        index: true
+    },
+    // Marketplace: visible en la tienda pública
+    disponibleEnTienda: {
+        type: Boolean,
+        default: false,
         index: true
     },
     especificaciones: {

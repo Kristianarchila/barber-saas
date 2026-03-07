@@ -193,19 +193,19 @@ export default function CalendarioMensual() {
             {/* FILTERS */}
             <div className="card card-padding space-y-4">
                 {/* Month navigation */}
-                <div className="flex items-center justify-between">
-                    <button className="btn btn-ghost" onClick={handlePreviousMonth}>
+                <div className="flex items-center justify-between gap-2">
+                    <button className="btn btn-ghost btn-sm flex-shrink-0" onClick={handlePreviousMonth}>
                         <ChevronLeft size={20} />
-                        Mes Anterior
+                        <span className="hidden md:inline">Mes Anterior</span>
                     </button>
 
-                    <div className="flex items-center gap-2 text-gray-900 font-semibold text-xl capitalize">
-                        <CalendarIcon size={24} className="text-blue-600" />
+                    <div className="flex items-center gap-2 text-gray-900 font-bold text-lg capitalize text-center">
+                        <CalendarIcon size={20} className="text-blue-600 flex-shrink-0 hidden sm:block" />
                         <span>{format(currentDate, 'MMMM yyyy', { locale: es })}</span>
                     </div>
 
-                    <button className="btn btn-ghost" onClick={handleNextMonth}>
-                        Mes Siguiente
+                    <button className="btn btn-ghost btn-sm flex-shrink-0" onClick={handleNextMonth}>
+                        <span className="hidden md:inline">Mes Siguiente</span>
                         <ChevronRight size={20} />
                     </button>
                 </div>
@@ -238,7 +238,7 @@ export default function CalendarioMensual() {
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                     </div>
                 ) : (
-                    <div className="calendar-container" style={{ height: '700px' }}>
+                    <div className="calendar-container" style={{ height: 'clamp(380px, 60vh, 700px)' }}>
                         <Calendar
                             localizer={localizer}
                             events={events}

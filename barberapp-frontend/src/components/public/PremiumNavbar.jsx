@@ -79,16 +79,14 @@ export default function PremiumNavbar() {
                             whileTap={{ scale: 0.98 }}
                         >
                             <div className="flex items-center gap-3">
-                                {/* Icono decorativo */}
+                                {/* Logo de la barbería o ícono por defecto */}
                                 <div
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${scrolled ? 'bg-black' : 'bg-white'
-                                        }`}
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ${scrolled ? 'bg-black' : 'bg-white'}`}
                                 >
-                                    <Scissors
-                                        size={16}
-                                        className={scrolled ? 'text-white' : 'text-black'}
-                                        strokeWidth={2.5}
-                                    />
+                                    {theme.logo
+                                        ? <img src={theme.logo} alt={theme.nombre} className="w-full h-full object-cover" />
+                                        : <Scissors size={16} className={scrolled ? 'text-white' : 'text-black'} strokeWidth={2.5} />
+                                    }
                                 </div>
 
                                 {/* Nombre de la barbería */}
@@ -232,8 +230,11 @@ export default function PremiumNavbar() {
                             {/* Header del menú */}
                             <div className="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-black/5 p-6 flex items-center justify-between z-10">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
-                                        <Scissors size={16} className="text-white" strokeWidth={2.5} />
+                                    <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center overflow-hidden">
+                                        {theme.logo
+                                            ? <img src={theme.logo} alt={theme.nombre} className="w-full h-full object-cover" />
+                                            : <Scissors size={16} className="text-white" strokeWidth={2.5} />
+                                        }
                                     </div>
                                     <span
                                         className="text-lg font-bold text-black"

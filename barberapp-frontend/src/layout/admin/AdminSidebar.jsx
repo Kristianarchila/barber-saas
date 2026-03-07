@@ -77,24 +77,40 @@ export default function AdminSidebar({
                             {section.items.map((item, itemIdx) => {
                                 const active = isActive(item.to);
                                 return (
-                                    <Link
-                                        key={itemIdx}
-                                        to={item.to}
-                                        className={`
-                                            flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all
-                                            ${active
-                                                ? 'bg-blue-50 text-blue-700'
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                                            }
-                                            ${isCollapsed ? 'justify-center' : ''}
-                                        `}
-                                        title={isCollapsed ? item.label : ''}
-                                    >
-                                        <span className={`flex-shrink-0 ${active ? 'text-blue-600' : 'text-gray-500'}`}>
-                                            {item.icon}
-                                        </span>
-                                        {!isCollapsed && <span>{item.label}</span>}
-                                    </Link>
+                                    <div key={itemIdx} className="relative group/tip">
+                                        <Link
+                                            to={item.to}
+                                            className={`
+                                                flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all
+                                                ${active
+                                                    ? 'bg-blue-50 text-blue-700'
+                                                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                                                }
+                                                ${isCollapsed ? 'justify-center' : ''}
+                                            `}
+                                            title={isCollapsed ? item.label : ''}
+                                        >
+                                            <span className={`flex-shrink-0 ${active ? 'text-blue-600' : 'text-gray-500'}`}>
+                                                {item.icon}
+                                            </span>
+                                            {!isCollapsed && <span>{item.label}</span>}
+                                        </Link>
+
+                                        {/* Tooltip — solo cuando hay descripción y sidebar no está colapsado */}
+                                        {item.tooltip && !isCollapsed && (
+                                            <div className="
+                                                pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
+                                                opacity-0 group-hover/tip:opacity-100
+                                                transition-opacity duration-150 delay-300
+                                                bg-gray-900 text-white text-xs font-medium
+                                                rounded-lg px-3 py-1.5 whitespace-nowrap shadow-xl
+                                            ">
+                                                {item.tooltip}
+                                                {/* Arrow */}
+                                                <span className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
+                                            </div>
+                                        )}
+                                    </div>
                                 );
                             })}
                         </div>

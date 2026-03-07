@@ -351,7 +351,7 @@ export default function Historial() {
                         {(r.estado === "RESERVADA" || r.estado === "CONFIRMADA") && (
                           <button
                             onClick={() => abrirModalReagendar(r)}
-                            className="btn btn-ghost btn-sm text-blue-600 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all"
+                            className="btn btn-ghost btn-sm text-blue-600 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-2 md:group-hover:translate-x-0 transition-all"
                           >
                             <Edit2 size={16} className="mr-2" />
                             Reagendar

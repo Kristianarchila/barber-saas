@@ -1,8 +1,9 @@
-const fetch = require('node-fetch');
+const https = require('https');
 
 /**
  * OpenAI Adapter
  * Handles communication with OpenAI API
+ * Uses native Node.js https module to avoid ESM compatibility issues with node-fetch v3
  */
 class OpenAIAdapter {
     constructor(apiKey, model = 'gpt-4o-mini') {
@@ -23,34 +24,52 @@ class OpenAIAdapter {
             return null;
         }
 
-        try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
+        const body = JSON.stringify({
+            model: this.model,
+            messages,
+            temperature: 0.7,
+            max_tokens: 500,
+            ...options
+        });
+
+        return new Promise((resolve, reject) => {
+            const req = https.request(
+                {
+                    hostname: 'api.openai.com',
+                    path: '/v1/chat/completions',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'Content-Length': Buffer.byteLength(body)
+                    }
                 },
-                body: JSON.stringify({
-                    model: this.model,
-                    messages,
-                    temperature: 0.7,
-                    max_tokens: 500,
-                    ...options
-                })
+                (res) => {
+                    let data = '';
+                    res.on('data', (chunk) => { data += chunk; });
+                    res.on('end', () => {
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >= 300) {
+                                console.error('❌ Error de OpenAI API:', parsed);
+                                return reject(new Error(`OpenAI API error: ${parsed.error?.message || res.statusMessage}`));
+                            }
+                            resolve(parsed.choices?.[0]?.message?.content?.trim());
+                        } catch (e) {
+                            reject(new Error(`Error parsing OpenAI response: ${e.message}`));
+                        }
+                    });
+                }
+            );
+
+            req.on('error', (err) => {
+                console.error('❌ Error al conectar con OpenAI:', err);
+                reject(err);
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('❌ Error de OpenAI API:', errorData);
-                throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data.choices?.[0]?.message?.content?.trim();
-        } catch (error) {
-            console.error('❌ Error al conectar con OpenAI:', error);
-            throw error;
-        }
+            req.write(body);
+            req.end();
+        });
     }
 }
 

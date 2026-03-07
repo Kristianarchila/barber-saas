@@ -5,7 +5,31 @@
  */
 
 const container = require('../shared/Container');
+const cacheService = require('../infrastructure/cache/CacheService');
 
+// Single-flight registry for calendario (prevents stampede on cold cache)
+const calendarInflight = Object.create(null);
+const CALENDARIO_TTL = 30; // 30s — calendar changes on new reservations, short TTL ok
+
+/**
+ * Fetch the barbería's IANA timezone from DB.
+ * Uses a lean, projection-only query to avoid loading the full document.
+ * Falls back to 'America/Santiago' if the document has no timezone yet
+ * (backwards compatibility with pre-migration records).
+ *
+ * @param {string} barberiaId
+ * @returns {Promise<string>} IANA timezone string
+ */
+async function resolveTimezone(barberiaId) {
+    if (!barberiaId) return 'America/Santiago';
+    try {
+        const barberia = await container.barberiaRepository.findById(barberiaId);
+        return barberia?.timezone || 'America/Santiago';
+    } catch {
+        // Never block a booking due to a TZ lookup failure — fall back gracefully
+        return 'America/Santiago';
+    }
+}
 
 // =========================================================
 // 1) CREATE RESERVA
@@ -14,15 +38,24 @@ exports.crearReserva = async (req, res, next) => {
     try {
         const useCase = container.createReservaUseCase;
 
+        // barberiaId: prefer authenticated user's barberiaId (admin context),
+        // fall back to req.body.barberiaId for public booking routes (no auth).
+        const barberiaId = req.user?.barberiaId || req.body.barberiaId;
+
+        // Fetch the barbería's timezone so TimeSlot evaluations (isPast, isFuture)
+        // are done in the tenant's local time, not the server's timezone.
+        const timezone = await resolveTimezone(barberiaId);
+
         const reserva = await useCase.execute({
             barberoId: req.body.barberoId,
             clienteId: req.user?.id,
             nombreCliente: req.body.nombreCliente,
             emailCliente: req.body.emailCliente,
-            barberiaId: req.user.barberiaId,
+            barberiaId,
             servicioId: req.body.servicioId,
             fecha: req.body.fecha,
-            hora: req.body.hora
+            hora: req.body.hora,
+            timezone,
         });
 
         res.status(201).json({
@@ -160,12 +193,17 @@ exports.reagendarPorToken = async (req, res, next) => {
 exports.obtenerHorariosDisponibles = async (req, res, next) => {
     try {
         const useCase = container.getAvailableSlotsUseCase;
+        const barberiaId = req.user?.barberiaId || req.query.barberiaId;
+
+        // Resolve barbería timezone for correct past-slot filtering
+        const timezone = await resolveTimezone(barberiaId);
 
         const availableSlots = await useCase.execute({
             barberoId: req.query.barberoId,
             fecha: req.query.fecha,
             duracion: parseInt(req.query.duracion),
-            barberiaId: req.user?.barberiaId || req.query.barberiaId
+            barberiaId,
+            timezone,
         });
 
         res.json({
@@ -192,8 +230,15 @@ exports.listarReservas = async (req, res, next) => {
             filters.clienteId = req.user.id;
         }
 
+        // 🔒 R-01 FIX: BARBERO can only see their own appointments
+        // Ignore barberoId query param to prevent IDOR across colleagues
+        if (req.user.rol === 'BARBERO') {
+            filters.barberoId = req.user._id;
+        } else if (req.query.barberoId) {
+            filters.barberoId = req.query.barberoId;
+        }
+
         if (req.query.estado) filters.estado = req.query.estado;
-        if (req.query.barberoId) filters.barberoId = req.query.barberoId;
         if (req.query.fecha) {
             const fecha = new Date(req.query.fecha);
             filters.fecha = {
@@ -293,6 +338,11 @@ exports.listarPorBarbero = async (req, res, next) => {
         const reservaRepository = container.reservaRepository;
         const { barberoId } = req.params;
 
+        // 🔒 R-01 FIX: BARBERO can only see their own appointments
+        if (req.user.rol === 'BARBERO' && req.user._id.toString() !== barberoId.toString()) {
+            return res.status(403).json({ message: 'No tienes permiso para ver las citas de otro barbero' });
+        }
+
         const filters = { barberoId };
         if (req.query.estado) filters.estado = req.query.estado;
         if (req.query.fecha) {
@@ -380,60 +430,67 @@ exports.confirmarReagendado = exports.reagendarPorToken;
 // =========================================================
 exports.obtenerCalendario = async (req, res, next) => {
     try {
-        const reservaRepository = container.reservaRepository;
         const { fechaInicio, fechaFin, barberoId } = req.query;
 
-        // Validate required parameters
         if (!fechaInicio || !fechaFin) {
-            return res.status(400).json({
-                message: 'Se requieren fechaInicio y fechaFin'
-            });
+            return res.status(400).json({ message: 'Se requieren fechaInicio y fechaFin' });
         }
 
-        // Parse dates
         const inicio = new Date(fechaInicio + 'T00:00:00');
         const fin = new Date(fechaFin + 'T23:59:59.999');
 
-        // Validate date range
         if (inicio > fin) {
-            return res.status(400).json({
-                message: 'fechaInicio debe ser anterior a fechaFin'
-            });
+            return res.status(400).json({ message: 'fechaInicio debe ser anterior a fechaFin' });
         }
 
-        // Build filters
-        const filters = {
-            fecha: {
-                $gte: inicio,
-                $lte: fin
+        const barberiaId = req.user.barberiaId.toString();
+        const cacheKey = `calendario:${barberiaId}:${fechaInicio}:${fechaFin}:${barberoId || 'todos'}`;
+
+        // ── Layer 1: warm cache ──────────────────────────────────────────
+        const cached = cacheService.get(cacheKey);
+        if (cached !== undefined) return res.json(cached);
+
+        // ── Layer 2: single-flight (prevent stampede) ──────────────────
+        if (calendarInflight[cacheKey]) {
+            return res.json(await calendarInflight[cacheKey]);
+        }
+
+        // ── Layer 3: DB fetch ──────────────────────────────────────────
+        const fetch = async () => {
+            const reservaRepository = container.reservaRepository;
+            const filters = { fecha: { $gte: inicio, $lte: fin } };
+
+            if (req.user.rol === 'BARBERO') {
+                filters.barberoId = req.user._id;
+            } else if (barberoId) {
+                filters.barberoId = barberoId;
             }
+
+            const reservas = await reservaRepository.findByBarberiaId(barberiaId, filters);
+
+            const sorted = reservas.sort((a, b) => {
+                const d = new Date(a.fecha) - new Date(b.fecha);
+                return d !== 0 ? d : (a.timeSlot?.hora || '').localeCompare(b.timeSlot?.hora || '');
+            });
+
+            const payload = {
+                fechaInicio, fechaFin,
+                barberoId: barberoId || 'todos',
+                total: sorted.length,
+                reservas: sorted.map(r => r.getDetails())
+            };
+
+            cacheService.set(cacheKey, payload, CALENDARIO_TTL);
+            return payload;
         };
 
-        // Optional barbero filter
-        if (barberoId) {
-            filters.barberoId = barberoId;
+        calendarInflight[cacheKey] = fetch();
+        try {
+            return res.json(await calendarInflight[cacheKey]);
+        } finally {
+            delete calendarInflight[cacheKey];
         }
 
-        // Fetch reservations with tenant isolation
-        const reservas = await reservaRepository.findByBarberiaId(
-            req.user.barberiaId,
-            filters
-        );
-
-        // Sort by date and time
-        const sortedReservas = reservas.sort((a, b) => {
-            const dateCompare = new Date(a.fecha) - new Date(b.fecha);
-            if (dateCompare !== 0) return dateCompare;
-            return a.timeSlot.hora.localeCompare(b.timeSlot.hora);
-        });
-
-        res.json({
-            fechaInicio,
-            fechaFin,
-            barberoId: barberoId || 'todos',
-            total: sortedReservas.length,
-            reservas: sortedReservas.map(r => r.getDetails())
-        });
     } catch (error) {
         next(error);
     }

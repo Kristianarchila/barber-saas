@@ -7,7 +7,8 @@ const plans = [
     {
         id: 'basico',
         name: 'Básico',
-        price: '29.990',
+        price: '15',
+        priceSuffix: 'USD/mes',
         description: 'Ideal para barberos independientes o locales pequeños.',
         icon: Zap,
         color: 'from-blue-500 to-blue-600',
@@ -17,7 +18,8 @@ const plans = [
             'Hasta 10 servicios',
             'Gestión de horarios',
             'Reservas online 24/7',
-            'Panel de control básico'
+            'Panel de control básico',
+            '0% comisión por reservas'
         ],
         buttonText: 'Empezar ahora',
         recommended: false
@@ -25,7 +27,8 @@ const plans = [
     {
         id: 'pro',
         name: 'Pro',
-        price: '59.990',
+        price: '29',
+        priceSuffix: 'USD/mes',
         description: 'Perfecto para barberías en crecimiento con equipo.',
         icon: Sparkles,
         color: 'from-purple-500 to-indigo-600',
@@ -33,10 +36,11 @@ const plans = [
             'Hasta 10 barberos',
             '500 reservas al mes',
             'Servicios ilimitados',
-            'Notificaciones por Email',
+            'Notificaciones por Email y Push',
             'Reportes avanzados',
             'Integración con WhatsApp',
-            'Personalización visual'
+            'Personalización visual',
+            '0% comisión por reservas'
         ],
         buttonText: 'Prueba Pro gratis',
         recommended: true
@@ -44,7 +48,8 @@ const plans = [
     {
         id: 'premium',
         name: 'Premium',
-        price: '99.990',
+        price: '49',
+        priceSuffix: 'USD/mes',
         description: 'Para grandes barberías y franquicias sin límites.',
         icon: Trophy,
         color: 'from-amber-500 to-orange-600',
@@ -55,7 +60,7 @@ const plans = [
             'Soporte prioritario 24/7',
             'Múltiples administradores',
             'Gestión multi-sede',
-            'API de integración'
+            '0% comisión por reservas'
         ],
         buttonText: 'Contactar ventas',
         recommended: false
@@ -93,7 +98,7 @@ const PricingCard = ({ plan }) => {
 
             <div className="flex items-baseline mb-8">
                 <span className="text-4xl font-bold text-white">${plan.price}</span>
-                <span className="text-zinc-500 ml-2">/mes (CLP)</span>
+                <span className="text-zinc-500 ml-2">{plan.priceSuffix || 'USD/mes'}</span>
             </div>
 
             <ul className="space-y-4 mb-8 flex-grow">
@@ -108,8 +113,8 @@ const PricingCard = ({ plan }) => {
             <button
                 onClick={handleSelect}
                 className={`w-full py-4 px-6 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${plan.recommended
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20'
-                        : 'bg-zinc-800 hover:bg-zinc-700 text-white'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20'
+                    : 'bg-zinc-800 hover:bg-zinc-700 text-white'
                     }`}
             >
                 {plan.buttonText}

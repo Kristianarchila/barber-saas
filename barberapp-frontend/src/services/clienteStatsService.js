@@ -24,7 +24,8 @@ export const getClienteStats = async (filters = {}) => {
     if (filters.bloqueado !== undefined) params.append('bloqueado', filters.bloqueado);
     if (filters.email) params.append('email', filters.email);
     if (filters.limit) params.append('limit', filters.limit);
-    if (filters.offset) params.append('offset', filters.offset);
+    if (filters.fechaInicio) params.append('fechaInicio', filters.fechaInicio);
+    if (filters.fechaFin) params.append('fechaFin', filters.fechaFin);
 
     const queryString = params.toString();
     const url = `/barberias/${slug}/admin/cliente-stats${queryString ? `?${queryString}` : ''}`;

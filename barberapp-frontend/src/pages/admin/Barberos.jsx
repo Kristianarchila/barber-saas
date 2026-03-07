@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getBarberos, crearBarbero, editarBarbero, eliminarBarbero, toggleEstadoBarbero } from '../../services/barberosService';
+import uploadService from '../../services/uploadService';
+import { compressImage, validateImageFile } from '../../utils/imageCompression';
 import { Card, Button, Badge, Skeleton, Avatar } from '../../components/ui';
-import { Users, Plus, Edit2, Trash2, Power, Upload, X, Save, Mail, Lock, Scissors, Star, FileText } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, Power, Upload, X, Save, Mail, Lock, Scissors, Star, FileText, Loader2 } from 'lucide-react';
 import { useApiCall } from '../../hooks/useApiCall';
 import { useAsyncAction } from '../../hooks/useAsyncAction';
 import { toast } from 'react-hot-toast';
@@ -40,43 +42,40 @@ export default function Barberos() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, foto: '' }));
+  };
 
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor selecciona un archivo de imagen válido');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen es demasiado grande. Máximo 5MB');
+    try {
+      validateImageFile(file);
+    } catch (err) {
+      toast.error(err.message || 'Archivo de imagen inválido');
       return;
     }
 
     setUploadingImage(true);
-
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const base64String = reader.result;
-      setImagePreview(base64String);
-      setFormData(prev => ({ ...prev, foto: base64String }));
+    try {
+      const compressedFile = await compressImage(file, { maxSizeMB: 2, maxWidthOrHeight: 800 });
+      const data = await uploadService.uploadBarberoAvatar(compressedFile);
+      if (data.url || data.imageUrl) {
+        const url = data.url || data.imageUrl;
+        setImagePreview(url);
+        setFormData(prev => ({ ...prev, foto: url }));
+        toast.success('Foto subida exitosamente');
+      } else {
+        throw new Error('No se recibió URL de imagen');
+      }
+    } catch (error) {
+      console.error('Error al subir foto:', error);
+      toast.error(error.message || 'Error al subir la imagen. Verifica que Cloudinary esté configurado.');
+    } finally {
       setUploadingImage(false);
-    };
-
-    reader.onerror = () => {
-      alert('Error al cargar la imagen');
-      setUploadingImage(false);
-    };
-
-    reader.readAsDataURL(file);
-  };
-
-  const removeImage = () => {
-    setImagePreview(null);
-    setFormData(prev => ({ ...prev, foto: '' }));
+    }
   };
 
   const abrirModalNuevo = () => {
@@ -113,6 +112,19 @@ export default function Barberos() {
   const { execute: handleSubmit, loading: saving } = useAsyncAction(
     async (e) => {
       e.preventDefault();
+
+      // Validaciones de creación
+      if (!editingBarbero) {
+        if (!formData.email || !formData.email.includes('@')) {
+          toast.error('Ingresa un email válido'); throw new Error('Email inválido');
+        }
+        if (!formData.password || formData.password.length < 8) {
+          toast.error('La contraseña debe tener al menos 8 caracteres'); throw new Error('Contraseña muy corta');
+        }
+      }
+      if (!formData.nombre || formData.nombre.trim().length < 2) {
+        toast.error('El nombre debe tener al menos 2 caracteres'); throw new Error('Nombre muy corto');
+      }
 
       const payload = {
         ...formData,
@@ -258,7 +270,7 @@ export default function Barberos() {
                 )}
 
                 {/* Acciones */}
-                <div className="flex gap-2 pt-2 border-t border-gray-50 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2 pt-2 border-t border-gray-50 mt-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => abrirModalEditar(barbero)}
                     className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-all font-semibold text-xs"
@@ -370,9 +382,12 @@ export default function Barberos() {
                         value={formData.password}
                         onChange={handleInputChange}
                         required
+                        minLength={8}
                         className="input"
                         placeholder="Mínimo 8 caracteres"
+                        autoComplete="new-password"
                       />
+                      <p className="caption text-gray-400">Mínimo 8 caracteres</p>
                     </div>
                   </>
                 )}

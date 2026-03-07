@@ -1,4 +1,5 @@
 const container = require('../shared/Container');
+const Venta = require('../infrastructure/database/mongodb/models/Venta');
 
 /**
  * Venta Controller
@@ -53,4 +54,53 @@ exports.obtenerHistorialVentas = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * GET /ventas/top-productos
+ * Returns real top-selling products aggregated from the Venta collection.
+ * Groups by product ID across all sales for the current month.
+ */
+exports.getTopProductos = async (req, res, next) => {
+    try {
+        const { barberiaId } = req;
+        const hoy = new Date();
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+        const topProductos = await Venta.aggregate([
+            {
+                $match: {
+                    barberiaId: barberiaId,
+                    createdAt: { $gte: inicioMes },
+                    'items.type': 'producto'
+                }
+            },
+            { $unwind: '$items' },
+            { $match: { 'items.type': 'producto' } },
+            {
+                $group: {
+                    _id: '$items.itemId',
+                    nombre: { $first: '$items.nombre' },
+                    cantidadVendida: { $sum: '$items.cantidad' },
+                    totalGenerado: { $sum: '$items.subtotal' }
+                }
+            },
+            { $sort: { cantidadVendida: -1 } },
+            { $limit: 5 },
+            {
+                $project: {
+                    _id: 0,
+                    productoId: '$_id',
+                    nombre: 1,
+                    cantidadVendida: 1,
+                    totalGenerado: 1
+                }
+            }
+        ]);
+
+        res.json({ success: true, topProductos });
+    } catch (error) {
+        next(error);
+    }
+};
+
 

@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, Plus, Trash2, Image as ImageIcon, Palette, Layout, Instagram, Facebook, Search, BarChart2, Loader2, Upload, MapPin, Phone, Sparkles, Globe, Settings, Smartphone, X } from 'lucide-react';
+import { Save, Plus, Trash2, Image as ImageIcon, Palette, Layout, Instagram, Facebook, Search, BarChart2, Loader2, Upload, MapPin, Phone, Sparkles, Globe, Settings, Smartphone, X, Lock, Monitor } from 'lucide-react';
 import barberiaService from '../../services/barberiaService';
 import uploadService from '../../services/uploadService';
 import { compressImage, validateImageFile } from '../../utils/imageCompression';
 import { motion } from 'framer-motion';
 import { themePresets } from '../../config/themePresets';
 import ThemePreview from '../../components/admin/ThemePreview';
+import { toast } from 'react-hot-toast';
+import { getAvailableTemplates } from '../../config/templateRegistry';
 
 export default function SiteConfig() {
     const [loading, setLoading] = useState(true);
@@ -28,6 +30,7 @@ export default function SiteConfig() {
         badge: 'ESTUDIO Y EXCELENCIA',
         ctaPrimary: 'Reservar Turno',
         ctaSecondary: 'Ver Servicios',
+        yearEstablished: '2026',
         instagram: '',
         facebook: '',
         googleMapsUrl: '',
@@ -36,6 +39,7 @@ export default function SiteConfig() {
         faviconUrl: '',
         analyticsId: '',
         pixelId: '',
+        template: 'modern',
         galeria: [],
         politicasCancelacion: {
             horasMinimas: 24,
@@ -82,10 +86,11 @@ export default function SiteConfig() {
             const data = await uploadService.uploadLogo(compressedFile);
             if (data.success) {
                 setConfig({ ...config, logoUrl: data.url });
+                toast.success('Logo subido exitosamente');
             }
         } catch (error) {
             console.error('Error uploading logo:', error);
-            alert(error.message || 'Error al subir el logo. Verifica que Cloudinary esté configurado.');
+            toast.error(error.message || 'Error al subir el logo. Verifica que Cloudinary esté configurado.');
         } finally {
             setUploadingLogo(false);
         }
@@ -102,10 +107,11 @@ export default function SiteConfig() {
             const data = await uploadService.uploadGallery(compressedFile);
             if (data.success) {
                 setConfig({ ...config, galeria: [...config.galeria, data.url] });
+                toast.success('Imagen agregada a la galería');
             }
         } catch (error) {
             console.error('Error uploading gallery image:', error);
-            alert(error.message || 'Error al subir la imagen. Verifica que Cloudinary esté configurado.');
+            toast.error(error.message || 'Error al subir la imagen. Verifica que Cloudinary esté configurado.');
         } finally {
             setUploadingGallery(false);
         }
@@ -133,6 +139,7 @@ export default function SiteConfig() {
                     badge: data.barberia.configuracion?.badge || 'ESTUDIO Y EXCELENCIA',
                     ctaPrimary: data.barberia.configuracion?.ctaPrimary || 'Reservar Turno',
                     ctaSecondary: data.barberia.configuracion?.ctaSecondary || 'Ver Servicios',
+                    yearEstablished: data.barberia.configuracion?.yearEstablished || '2026',
                     instagram: data.barberia.configuracion?.instagram || '',
                     facebook: data.barberia.configuracion?.facebook || '',
                     googleMapsUrl: data.barberia.configuracion?.googleMapsUrl || '',
@@ -141,6 +148,7 @@ export default function SiteConfig() {
                     faviconUrl: data.barberia.configuracion?.faviconUrl || '',
                     analyticsId: data.barberia.configuracion?.analyticsId || '',
                     pixelId: data.barberia.configuracion?.pixelId || '',
+                    template: data.barberia.configuracion?.template || 'modern',
                     galeria: data.barberia.configuracion?.galeria || [],
                     politicasCancelacion: data.barberia.politicasCancelacion || {
                         horasMinimas: 24,
@@ -175,10 +183,10 @@ export default function SiteConfig() {
         setSaving(true);
         try {
             await barberiaService.updateConfiguracion(config);
-            alert('Configuración actualizada correctamente');
+            toast.success('Configuración actualizada correctamente');
         } catch (error) {
             console.error('Error al guardar:', error);
-            alert('Error al guardar los cambios');
+            toast.error('Error al guardar los cambios');
         } finally {
             setSaving(false);
         }
@@ -187,7 +195,7 @@ export default function SiteConfig() {
     const addGalleryImage = () => {
         if (!newImageUrl) return;
         if (!/^https?:\/\/.+/.test(newImageUrl)) {
-            alert('URL de imagen no válida');
+            toast.error('URL de imagen no válida');
             return;
         }
         setConfig(prev => ({
@@ -195,6 +203,7 @@ export default function SiteConfig() {
             galeria: [...prev.galeria, newImageUrl]
         }));
         setNewImageUrl('');
+        toast.success('Imagen agregada');
     };
 
     const removeGalleryImage = (index) => {
@@ -255,6 +264,7 @@ export default function SiteConfig() {
                 {[
                     { id: 'branding', label: 'Identidad', icon: Globe },
                     { id: 'design', label: 'Diseño', icon: Palette },
+                    { id: 'plantilla', label: 'Plantilla', icon: Monitor },
                     { id: 'content', label: 'Contenido', icon: Layout },
                     { id: 'reviews', label: 'Reseñas', icon: BarChart2 },
                     { id: 'advanced', label: 'Avanzado', icon: Settings }
@@ -312,7 +322,13 @@ export default function SiteConfig() {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="label mb-2 block">Teléfono</label>
+                                    <label className="label mb-2 flex items-center gap-2">
+                                        Teléfono
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-black rounded-full border border-green-200">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.135.561 4.133 1.535 5.854L0 24l6.27-1.517A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.368l-.359-.213-3.724.9.945-3.632-.234-.374A9.818 9.818 0 1112 21.818z" /></svg>
+                                            WhatsApp
+                                        </span>
+                                    </label>
                                     <div className="relative">
                                         <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <input
@@ -320,9 +336,14 @@ export default function SiteConfig() {
                                             value={config.telefono}
                                             onChange={(e) => setConfig({ ...config, telefono: e.target.value })}
                                             className="input"
+                                            placeholder="+56912345678"
                                             style={{ paddingLeft: '2.5rem' }}
                                         />
                                     </div>
+                                    <p className="caption text-gray-400 mt-1.5 flex items-center gap-1">
+                                        <span className="text-green-500 font-bold">●</span>
+                                        Este número activa el botón de WhatsApp en tu página web
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -487,6 +508,84 @@ export default function SiteConfig() {
                     </motion.div>
                 )}
 
+                {/* PLANTILLA TAB */}
+                {activeTab === 'plantilla' && (() => {
+                    const plan = 'pro'; // TODO: get from barberia.plan via useBarberia context
+                    const templates = getAvailableTemplates(plan);
+                    return (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="pt-6"
+                        >
+                            <div className="mb-8">
+                                <h2 className="heading-2">Plantilla Web</h2>
+                                <p className="body-small text-gray-600 mt-1">Elige el diseño que mejor representa a tu barbería</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                                {templates.map(t => (
+                                    <button
+                                        key={t.key}
+                                        type="button"
+                                        disabled={t.locked}
+                                        onClick={() => {
+                                            if (t.locked) {
+                                                toast(`🚀 Requiere ${t.plan === 'pro' ? 'Plan Pro' : 'Plan Premium'} para activar esta plantilla`, { icon: '🔒' });
+                                                return;
+                                            }
+                                            setConfig(prev => ({ ...prev, template: t.key }));
+                                            toast.success(`Plantilla "${t.name}" seleccionada. Guarda los cambios para aplicarla.`);
+                                        }}
+                                        className={`relative text-left border-2 rounded-2xl p-5 transition-all ${config.template === t.key
+                                                ? 'border-blue-600 bg-blue-50 shadow-md'
+                                                : t.locked
+                                                    ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                                                    : 'border-gray-200 hover:border-blue-400 hover:shadow-sm cursor-pointer'
+                                            }`}
+                                    >
+                                        {/* Preview placeholder */}
+                                        <div className="w-full h-28 rounded-xl mb-4 flex items-center justify-center text-4xl bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                                            <span>{t.emoji}</span>
+                                            {config.template === t.key && (
+                                                <div className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                                                    <span className="text-white text-[10px]">✓</span>
+                                                </div>
+                                            )}
+                                            {t.locked && (
+                                                <div className="absolute inset-0 bg-gray-200/60 flex items-center justify-center">
+                                                    <Lock size={24} className="text-gray-500" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <p className="font-black text-sm mb-1">{t.name}</p>
+                                        <p className="text-xs text-gray-500 leading-snug mb-3">{t.description}</p>
+
+                                        <div className="flex flex-wrap gap-1">
+                                            {t.locked ? (
+                                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                                    🔒 {t.plan === 'pro' ? 'Plan Pro' : 'Plan Premium'}
+                                                </span>
+                                            ) : (
+                                                t.tags.map(tag => (
+                                                    <span key={tag} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                                        {tag}
+                                                    </span>
+                                                ))
+                                            )}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <p className="text-sm text-blue-800">
+                                    💡 Plantilla actual: <strong>{config.template || 'modern'}</strong>. Los cambios se aplican al guardar.
+                                </p>
+                            </div>
+                        </motion.div>
+                    );
+                })()}
+
                 {/* CONTENT TAB */}
                 {activeTab === 'content' && (
                     <motion.div
@@ -525,6 +624,23 @@ export default function SiteConfig() {
                                         rows={4}
                                         className="input textarea"
                                     />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
+                                    <div>
+                                        <label className="label mb-2 block">Año de Fundación</label>
+                                        <input
+                                            type="text"
+                                            value={config.yearEstablished}
+                                            onChange={(e) => setConfig({ ...config, yearEstablished: e.target.value })}
+                                            placeholder="Ej: 2026"
+                                            className="input text-sm font-mono"
+                                        />
+                                        <p className="caption text-gray-400 mt-1">Se muestra como EST. {config.yearEstablished}</p>
+                                    </div>
+                                    <div className="opacity-0 pointer-events-none">
+                                        <label className="label mb-2 block">Space</label>
+                                        <input className="input" disabled />
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
                                     <div>

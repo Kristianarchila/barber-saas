@@ -405,6 +405,55 @@ class EmailAdapter {
             console.error("❌ Error enviando email:", error);
             throw error;
         }
+    }  // end sendEmail
+
+    /**
+     * Adapter: maps a saved Reserva entity → sendReservationConfirmation
+     * Called fire-and-forget from CreateReserva use case.
+     * @param {Object} reserva - Saved Reserva entity / plain object
+     */
+    async sendReservaConfirmation(reserva) {
+        if (!reserva?.emailCliente) return; // nothing to do without email
+
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const slug = reserva.barberiaSlug || '';
+
+        const reservaData = {
+            emailCliente: reserva.emailCliente,
+            nombreCliente: reserva.nombreCliente || 'Cliente',
+            fecha: reserva.fecha,
+            hora: reserva.hora,
+            servicio: reserva.servicioNombre || reserva.servicio || 'Servicio',
+            cancelUrl: `${baseUrl}/${slug}/cancelar?token=${reserva.cancelToken || ''}`,
+            reagendarUrl: `${baseUrl}/${slug}/reagendar?token=${reserva.cancelToken || ''}`,
+        };
+
+        return this.sendReservationConfirmation(reservaData, null);
+    }
+
+    /**
+     * Adapter: maps a Reserva-like object → sendReminderEmail
+     * Called from the daily cron job (reminderScheduler).
+     * @param {Object} reserva
+     * @param {Object|null} barberiaConfig
+     */
+    async sendReservaReminder(reserva, barberiaConfig = null) {
+        if (!reserva?.emailCliente) return;
+
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const slug = reserva.barberiaSlug || '';
+
+        const reservaData = {
+            emailCliente: reserva.emailCliente,
+            nombreCliente: reserva.nombreCliente || 'Cliente',
+            fecha: reserva.fecha,
+            hora: reserva.hora,
+            servicio: reserva.servicioNombre || reserva.servicio || 'Servicio',
+            cancelUrl: `${baseUrl}/${slug}/cancelar?token=${reserva.cancelToken || ''}`,
+            reagendarUrl: `${baseUrl}/${slug}/reagendar?token=${reserva.cancelToken || ''}`,
+        };
+
+        return this.sendReminderEmail(reservaData, barberiaConfig);
     }
 }
 

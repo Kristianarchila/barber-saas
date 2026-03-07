@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getServicios, crearServicio, editarServicio, cambiarEstadoServicio } from "../../services/serviciosService";
+import { getServicios, crearServicio, editarServicio, cambiarEstadoServicio, getCategorias, saveCategorias } from "../../services/serviciosService";
 import uploadService from "../../services/uploadService";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import ErrorMessage from "../../components/ui/ErrorMessage";
@@ -8,6 +8,7 @@ import { useAsyncAction } from "../../hooks/useAsyncAction";
 import { toast } from "react-hot-toast";
 
 export default function Servicios() {
+  const [tab, setTab] = useState('servicios'); // 'servicios' | 'categorias'
   const [servicios, setServicios] = useState([]);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -20,14 +21,20 @@ export default function Servicios() {
     precio: "",
     extras: "",
     imagen: "",
-    categoria: ""
+    categoria: "Cortes",
+    destacado: false
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [isDragging, setIsDragging] = useState(false);
 
-  // Categorías predefinidas (opcional, se puede dejar como texto libre o un select)
-  const sugerenciasCategorias = ["Cortes", "Barbas", "Colorimetría", "Químicos", "Faciales", "Otros"];
+  // Categorías
+  const [categorias, setCategorias] = useState([]);
+  const [catInput, setCatInput] = useState('');
+  const [savingCats, setSavingCats] = useState(false);
+
+  // Ya no usamos lista fija — se usa el state `categorias`
+  const nombresCategorias = categorias.map(c => c.nombre);
 
   // Hook para cargar servicios con manejo de errores
   const { execute: cargarServicios, loading, error } = useApiCall(
@@ -41,6 +48,12 @@ export default function Servicios() {
   useEffect(() => {
     window.scrollTo(0, 0);
     cargarServicios();
+    getCategorias().then(cats => {
+      if (cats.length > 0) setCategorias(cats);
+      else setCategorias([{ nombre: 'Cortes', orden: 0 }, { nombre: 'Barbas', orden: 1 }, { nombre: 'General', orden: 2 }]);
+    }).catch(() => {
+      setCategorias([{ nombre: 'Cortes', orden: 0 }, { nombre: 'Barbas', orden: 1 }, { nombre: 'General', orden: 2 }]);
+    });
   }, []);
 
   // Hook para guardar servicio (crear/editar) con protección contra doble click
@@ -69,7 +82,8 @@ export default function Servicios() {
         precio: Number(form.precio),
         extras: form.extras || "",
         imagen: imageUrl,
-        categoria: form.categoria || "Otros"
+        categoria: form.categoria || "General",
+        destacado: form.destacado || false
       };
 
       // Crear o editar según el caso
@@ -117,7 +131,8 @@ export default function Servicios() {
       precio: servicio.precio,
       extras: servicio.extras || "",
       imagen: servicio.imagen || "",
-      categoria: servicio.categoria || "Otros"
+      categoria: servicio.categoria || "General",
+      destacado: servicio.destacado || false
     });
     setImagePreview(servicio.imagen || "");
     setImageFile(null);
@@ -196,90 +211,183 @@ export default function Servicios() {
     );
   }
 
+  /* ── Handlers de categorías ─────────────────────────── */
+  const addCategoria = () => {
+    const nombre = catInput.trim();
+    if (!nombre) return;
+    if (categorias.some(c => c.nombre.toLowerCase() === nombre.toLowerCase())) {
+      toast.error('Esa categoría ya existe');
+      return;
+    }
+    setCategorias([...categorias, { nombre, orden: categorias.length }]);
+    setCatInput('');
+  };
+
+  const removeCategoria = (nombre) => {
+    const enUso = servicios.some(s => s.categoria === nombre);
+    if (enUso) { toast.error(`"${nombre}" tiene servicios asignados. Cambia su categoría primero.`); return; }
+    setCategorias(categorias.filter(c => c.nombre !== nombre));
+  };
+
+  const renameCategoria = (oldNombre, newNombre) => {
+    const trimmed = newNombre.trim();
+    if (!trimmed) return;
+    setCategorias(categorias.map(c => c.nombre === oldNombre ? { ...c, nombre: trimmed } : c));
+  };
+
+  const moveCat = (index, dir) => {
+    const arr = [...categorias];
+    const target = index + dir;
+    if (target < 0 || target >= arr.length) return;
+    [arr[index], arr[target]] = [arr[target], arr[index]];
+    setCategorias(arr.map((c, i) => ({ ...c, orden: i })));
+  };
+
+  const handleSaveCategorias = async () => {
+    setSavingCats(true);
+    try {
+      await saveCategorias(categorias.map((c, i) => ({ nombre: c.nombre, orden: i })));
+      toast.success('Categorías guardadas');
+    } catch {
+      toast.error('Error guardando categorías');
+    } finally {
+      setSavingCats(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
         <div>
           <h1 className="heading-1">Servicios</h1>
           <p className="body-large text-gray-600 mt-2">Control total sobre tu catálogo y precios</p>
         </div>
-        <button
-          onClick={abrirNuevo}
-          className="btn btn-primary flex items-center gap-2"
-        >
-          <span className="text-xl">+</span>
-          Añadir Servicio
-        </button>
+        {tab === 'servicios' && (
+          <button onClick={abrirNuevo} className="btn btn-primary flex items-center gap-2">
+            <span className="text-xl">+</span> Añadir Servicio
+          </button>
+        )}
       </div>
 
-      {/* Grid de Servicios */}
-      {servicios.length === 0 ? (
-        <div className="card card-padding text-center py-20">
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-5xl">✂️</span>
-          </div>
-          <h2 className="heading-3 mb-2">Tu catálogo está vacío</h2>
-          <p className="body text-gray-500 mb-6 max-w-sm mx-auto">Comienza agregando servicios para que tus clientes puedan reservar online.</p>
-          <button onClick={abrirNuevo} className="btn btn-ghost">Crear primer servicio</button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {servicios.map((s) => (
-            <div
-              key={s._id}
-              className={`card card-padding transition-all duration-300 hover:shadow-md ${s.activo ? '' : 'grayscale opacity-60'
-                }`}
-            >
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                  {s.imagen ? (
-                    <img src={s.imagen} alt={s.nombre} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-3xl">
-                      ✂️
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className={`badge ${s.activo ? 'badge-success' : 'badge-error'}`}>
-                    {s.activo ? 'Activo' : 'Pausado'}
-                  </span>
-                  <span className="caption text-gray-500 px-3 py-1 rounded-full bg-gray-100">
-                    {s.categoria || 'Sin Cat.'}
-                  </span>
-                </div>
-              </div>
+      {/* Tabs */}
+      <div className="flex gap-1 mb-8 border-b border-gray-200">
+        {[{ key: 'servicios', label: 'Servicios' }, { key: 'categorias', label: 'Categorías' }].map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition-colors cursor-pointer ${tab === t.key
+              ? 'border-gray-900 text-gray-900'
+              : 'border-transparent text-gray-400 hover:text-gray-600'
+              }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-              <div className="mb-6">
-                <h3 className="heading-4 mb-2 group-hover:text-blue-600 transition-colors truncate">
-                  {s.nombre}
-                </h3>
-                <div className="flex items-center gap-4 text-gray-500 body-small">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    {s.duracion} min
-                  </span>
-                  <span className="text-gray-900 font-bold">{formatearPrecio(s.precio)}</span>
-                </div>
+      {/* ── TAB: SERVICIOS ─────────────── */}
+      {tab === 'servicios' && (
+        <>
+          {servicios.length === 0 ? (
+            <div className="card card-padding text-center py-20">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-5xl">✂️</span>
               </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => abrirEditar(s)}
-                  className="btn btn-secondary"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => setConfirmDelete(s._id)}
-                  className={`btn ${s.activo ? 'btn-ghost text-red-600 hover:bg-red-50' : 'btn-ghost text-green-600 hover:bg-green-50'}`}
-                >
-                  {s.activo ? 'Desactivar' : 'Activar'}
-                </button>
-              </div>
+              <h2 className="heading-3 mb-2">Tu catálogo está vacío</h2>
+              <p className="body text-gray-500 mb-6 max-w-sm mx-auto">Comienza agregando servicios para que tus clientes puedan reservar online.</p>
+              <button onClick={abrirNuevo} className="btn btn-ghost">Crear primer servicio</button>
             </div>
-          ))}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {servicios.map((s) => (
+                <div key={s._id} className={`card card-padding transition-all duration-300 hover:shadow-md ${s.activo ? '' : 'grayscale opacity-60'}`}>
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                      {s.imagen
+                        ? <img src={s.imagen} alt={s.nombre} className="w-full h-full object-cover" />
+                        : <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-3xl">✂️</div>
+                      }
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className={`badge ${s.activo ? 'badge-success' : 'badge-error'}`}>{s.activo ? 'Activo' : 'Pausado'}</span>
+                      <span className="caption text-gray-500 px-3 py-1 rounded-full bg-gray-100">{s.categoria || 'Sin Cat.'}</span>
+                      {s.destacado && <span className="caption text-blue-600 px-3 py-1 rounded-full bg-blue-50">⭐ Recomendado</span>}
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <h3 className="heading-4 mb-2 truncate">{s.nombre}</h3>
+                    <div className="flex items-center gap-4 text-gray-500 body-small">
+                      <span className="flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        {s.duracion} min
+                      </span>
+                      <span className="text-gray-900 font-bold">${s.precio?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 pt-6 border-t border-gray-200">
+                    <button onClick={() => abrirEditar(s)} className="btn btn-secondary">Editar</button>
+                    <button onClick={() => setConfirmDelete(s._id)} className={`btn ${s.activo ? 'btn-ghost text-red-600 hover:bg-red-50' : 'btn-ghost text-green-600 hover:bg-green-50'}`}>
+                      {s.activo ? 'Desactivar' : 'Activar'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── TAB: CATEGORÍAS ─────────────── */}
+      {tab === 'categorias' && (
+        <div className="max-w-xl">
+          <p className="body text-gray-600 mb-6">Organiza tus servicios en categorías. El orden aquí determina el orden de los filtros en tu web pública.</p>
+
+          {/* Add new */}
+          <div className="flex gap-3 mb-6">
+            <input
+              value={catInput}
+              onChange={e => setCatInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addCategoria()}
+              placeholder="Nueva categoría (ej: VIP, Tratamientos...)"
+              className="input flex-1"
+            />
+            <button onClick={addCategoria} className="btn btn-primary px-5">+ Añadir</button>
+          </div>
+
+          {/* List */}
+          <div className="space-y-2 mb-8">
+            {categorias.length === 0 && (
+              <p className="body text-gray-400 text-center py-10">No hay categorías. Añade la primera.</p>
+            )}
+            {categorias.map((cat, idx) => (
+              <div key={cat.nombre + idx} className="flex items-center gap-3 card card-padding py-3 px-4">
+                {/* Reorder arrows */}
+                <div className="flex flex-col gap-0.5">
+                  <button onClick={() => moveCat(idx, -1)} disabled={idx === 0} className="text-gray-300 hover:text-gray-700 disabled:opacity-20 cursor-pointer leading-none">▲</button>
+                  <button onClick={() => moveCat(idx, 1)} disabled={idx === categorias.length - 1} className="text-gray-300 hover:text-gray-700 disabled:opacity-20 cursor-pointer leading-none">▼</button>
+                </div>
+                {/* Editable name */}
+                <input
+                  defaultValue={cat.nombre}
+                  onBlur={e => renameCategoria(cat.nombre, e.target.value)}
+                  className="input flex-1 py-1 text-sm"
+                />
+                {/* Service count badge */}
+                <span className="caption text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                  {servicios.filter(s => s.categoria === cat.nombre).length} servicios
+                </span>
+                {/* Delete */}
+                <button onClick={() => removeCategoria(cat.nombre)} className="text-red-400 hover:text-red-600 cursor-pointer transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button onClick={handleSaveCategorias} disabled={savingCats} className="btn btn-primary w-full">
+            {savingCats ? 'Guardando...' : '✓ Guardar Categorías'}
+          </button>
         </div>
       )}
 
@@ -326,20 +434,26 @@ export default function Servicios() {
               {/* IZQUIERDA: Formulario */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="label">Nombre</label>
+                  <label className="label">Nombre *</label>
                   <input
+                    required
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                     className="input"
                     placeholder="Ej: Corte de Autor"
+                    minLength={2}
+                    maxLength={80}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="label">Precio</label>
+                    <label className="label">Precio *</label>
                     <input
                       type="number"
+                      required
+                      min="0"
+                      step="1"
                       value={form.precio}
                       onChange={(e) => setForm({ ...form, precio: e.target.value })}
                       className="input"
@@ -347,9 +461,12 @@ export default function Servicios() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="label">Tiempo (Min)</label>
+                    <label className="label">Tiempo (Min) *</label>
                     <input
                       type="number"
+                      required
+                      min="1"
+                      max="480"
                       value={form.duracion}
                       onChange={(e) => setForm({ ...form, duracion: e.target.value })}
                       className="input"
@@ -365,8 +482,30 @@ export default function Servicios() {
                     onChange={(e) => setForm({ ...form, categoria: e.target.value })}
                     className="input"
                   >
-                    {sugerenciasCategorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    <option value="">Sin categoría</option>
+                    {(nombresCategorias.length > 0 ? nombresCategorias : ['Cortes', 'Barbas', 'Colorimetría', 'Faciales', 'General', 'Otros']).map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </select>
+                </div>
+
+                {/* Destacado toggle */}
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-gray-50">
+                  <div>
+                    <p className="label mb-0.5">Marcar como Recomendado</p>
+                    <p className="caption text-gray-500">Aparece con badge en la web pública</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, destacado: !form.destacado })}
+                    className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none ${form.destacado ? 'bg-blue-600' : 'bg-gray-200'
+                      }`}
+                    aria-checked={form.destacado}
+                    role="switch"
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${form.destacado ? 'translate-x-6' : 'translate-x-0'
+                      }`} />
+                  </button>
                 </div>
 
                 <div className="space-y-2">

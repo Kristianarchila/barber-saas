@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { getPerfilBarbero, updatePerfilBarbero } from "../../services/barberoDashboardService";
+import { getPerfilBarbero, updatePerfilBarbero, getEstadisticasBarbero } from "../../services/barberoDashboardService";
 import { Card, Button, Input, Badge, Stat, Modal } from "../../components/ui";
 import DisponibilidadModal from "../../components/barbero/DisponibilidadModal";
 import EspecialidadesModal from "../../components/barbero/EspecialidadesModal";
@@ -16,9 +16,15 @@ import {
   Camera,
   Star,
   Clock,
-  Scissors
+  Scissors,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  CheckCircle2
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import api from "../../services/api";
 
 export default function Perfil() {
   const { user } = useAuth();
@@ -27,6 +33,11 @@ export default function Perfil() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [disponibilidadOpen, setDisponibilidadOpen] = useState(false);
   const [especialidadesOpen, setEspecialidadesOpen] = useState(false);
+  const [estadisticas, setEstadisticas] = useState(null);
+  const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [savingPw, setSavingPw] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -43,7 +54,10 @@ export default function Perfil() {
   const cargarPerfil = async () => {
     try {
       setLoadingData(true);
-      const perfil = await getPerfilBarbero();
+      const [perfil, stats] = await Promise.all([
+        getPerfilBarbero(),
+        getEstadisticasBarbero().catch(() => null)
+      ]);
       setFormData({
         nombre: perfil.nombre || user?.nombre || "",
         email: perfil.email || user?.email || "",
@@ -52,6 +66,7 @@ export default function Perfil() {
         bio: perfil.bio || "",
         avatar: perfil.avatar || ""
       });
+      setEstadisticas(stats);
     } catch (err) {
       console.error("Error cargando perfil:", err);
       toast.error("Error al cargar el perfil");
@@ -106,6 +121,32 @@ export default function Perfil() {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (!pwForm.currentPassword || !pwForm.newPassword) { toast.error("Completa todos los campos"); return; }
+    if (pwForm.newPassword.length < 8) { toast.error("Mínimo 8 caracteres"); return; }
+    if (pwForm.newPassword !== pwForm.confirm) { toast.error("Las contraseñas no coinciden"); return; }
+    setSavingPw(true);
+    try {
+      await api.patch("/auth/me/password", {
+        currentPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword
+      });
+      toast.success("Contraseña cambiada correctamente");
+      setPwForm({ currentPassword: "", newPassword: "", confirm: "" });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Error al cambiar contraseña");
+    } finally { setSavingPw(false); }
+  };
+
+  const pwStrength = (pw) => {
+    if (!pw) return null;
+    if (pw.length >= 12 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^a-zA-Z0-9]/.test(pw)) return { label: "Fuerte", color: "text-green-600", bar: "bg-green-500 w-full" };
+    if (pw.length >= 8) return { label: "Aceptable", color: "text-amber-500", bar: "bg-amber-400 w-2/3" };
+    return { label: "Débil", color: "text-red-500", bar: "bg-red-400 w-1/3" };
+  };
+  const strength = pwStrength(pwForm.newPassword);
+
   if (loadingData) {
     return (
       <div className="space-y-10 animate-pulse">
@@ -138,9 +179,18 @@ export default function Perfil() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Badge variant="info" className="bg-blue-50 text-blue-600 border-none px-4 py-2 text-sm font-semibold">
-            <Star size={14} className="mr-2 inline" /> 4.9 (120 reseñas)
-          </Badge>
+          {estadisticas && (
+            <div className="flex items-center gap-3">
+              <Badge variant="info" className="bg-blue-50 text-blue-600 border-none px-4 py-2 text-sm font-semibold">
+                <Scissors size={14} className="mr-2 inline" /> {estadisticas.citas?.total || 0} servicios
+              </Badge>
+              {estadisticas.tasaCancelacion !== undefined && (
+                <Badge variant="neutral" className="bg-gray-50 text-gray-600 border-none px-4 py-2 text-sm">
+                  {estadisticas.tasaCancelacion}% cancel.
+                </Badge>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
@@ -221,6 +271,92 @@ export default function Perfil() {
               </div>
             </div>
           </Card>
+
+          {/* CAMBIAR CONTRASEÑA */}
+          <Card className="p-8 border-gray-200 bg-white rounded-xl shadow-sm">
+            <h3 className="heading-3 mb-6 flex items-center gap-2">
+              <ShieldCheck className="text-blue-600" size={20} /> Cambiar Contraseña
+            </h3>
+            <form onSubmit={handleChangePassword} className="space-y-5">
+              <div className="space-y-2">
+                <label className="caption text-gray-400">Contraseña actual</label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type={showCurrent ? "text" : "password"}
+                    value={pwForm.currentPassword}
+                    onChange={e => setPwForm(p => ({ ...p, currentPassword: e.target.value }))}
+                    className="w-full bg-white border border-gray-200 focus:border-blue-500 rounded-lg p-3 pl-9 pr-10 text-gray-900 outline-none text-sm"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                  />
+                  <button type="button" onClick={() => setShowCurrent(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                    {showCurrent ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="caption text-gray-400">Nueva contraseña</label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type={showNew ? "text" : "password"}
+                    value={pwForm.newPassword}
+                    onChange={e => setPwForm(p => ({ ...p, newPassword: e.target.value }))}
+                    className="w-full bg-white border border-gray-200 focus:border-blue-500 rounded-lg p-3 pl-9 pr-10 text-gray-900 outline-none text-sm"
+                    placeholder="Mínimo 8 caracteres"
+                    autoComplete="new-password"
+                  />
+                  <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                    {showNew ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                {strength && (
+                  <div className="space-y-1">
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${strength.bar}`} />
+                    </div>
+                    <p className={`text-xs font-bold ${strength.color}`}>{strength.label}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="caption text-gray-400">Confirmar nueva contraseña</label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={pwForm.confirm}
+                    onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                    className={`w-full bg-white border rounded-lg p-3 pr-9 text-gray-900 outline-none text-sm ${pwForm.confirm && pwForm.confirm !== pwForm.newPassword
+                        ? 'border-red-300 focus:border-red-400'
+                        : 'border-gray-200 focus:border-blue-500'
+                      }`}
+                    placeholder="Repite la nueva contraseña"
+                    autoComplete="new-password"
+                  />
+                  {pwForm.confirm && pwForm.confirm === pwForm.newPassword && pwForm.newPassword && (
+                    <CheckCircle2 size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />
+                  )}
+                </div>
+                {pwForm.confirm && pwForm.confirm !== pwForm.newPassword && (
+                  <p className="text-xs text-red-500">Las contraseñas no coinciden</p>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-gray-100">
+                <Button
+                  type="submit"
+                  loading={savingPw}
+                  disabled={savingPw || !pwForm.currentPassword || !pwForm.newPassword || pwForm.newPassword !== pwForm.confirm}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-8 py-3 font-semibold disabled:opacity-50"
+                >
+                  <ShieldCheck size={16} className="mr-2" /> Cambiar Contraseña
+                </Button>
+              </div>
+            </form>
+          </Card>
         </div>
 
         {/* STATS & QUICK ACTIONS */}
@@ -236,8 +372,11 @@ export default function Perfil() {
                   <Scissors size={20} />
                 </div>
                 <div>
-                  <p className="caption text-gray-400">Servicios Totales</p>
-                  <p className="text-gray-900 font-bold">1,240 cortes</p>
+                  <p className="caption text-gray-400">Servicios Completados</p>
+                  <p className="text-gray-900 font-bold">
+                    {estadisticas?.citas?.total ?? '—'} total
+                  </p>
+                  <p className="caption text-gray-400">{estadisticas?.citas?.mes ?? '—'} este mes</p>
                 </div>
               </div>
 
@@ -246,8 +385,11 @@ export default function Perfil() {
                   <Clock size={20} />
                 </div>
                 <div>
-                  <p className="caption text-gray-400">Experiencia</p>
-                  <p className="text-gray-900 font-bold">5 años</p>
+                  <p className="caption text-gray-400">Promedio Diario</p>
+                  <p className="text-gray-900 font-bold">
+                    {estadisticas?.promedioCitasPorDia ?? '—'} citas/día
+                  </p>
+                  <p className="caption text-gray-400">{estadisticas?.clientesUnicosMes ?? '—'} clientes únicos/mes</p>
                 </div>
               </div>
             </div>

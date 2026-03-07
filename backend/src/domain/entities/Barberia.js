@@ -17,6 +17,7 @@ class Barberia {
         estado = 'trial',
         activa = true,
         esMatriz = false,
+        timezone = 'America/Santiago',
         configuracion = {},
         configuracionMatriz = {},
         sucursales = [],
@@ -39,6 +40,7 @@ class Barberia {
         this.estado = estado;
         this.activa = activa;
         this.esMatriz = esMatriz;
+        this.timezone = timezone;
         this.configuracion = configuracion;
         this.configuracionMatriz = configuracionMatriz;
         this.sucursales = sucursales;
@@ -75,6 +77,19 @@ class Barberia {
         if (this.estado && !estadosValidos.includes(this.estado)) {
             throw new Error(`Estado inválido: ${this.estado}`);
         }
+
+        if (typeof this.timezone !== 'string' || this.timezone.trim() === '') {
+            throw new Error('El timezone de la barbería debe ser un string IANA válido (e.g. "America/Santiago")');
+        }
+    }
+
+    /**
+     * Returns the IANA timezone of this barbería.
+     * Use this when constructing TimeSlots or evaluating slot availability.
+     * @returns {string}
+     */
+    getTimezone() {
+        return this.timezone;
     }
 
     /**
@@ -251,6 +266,7 @@ class Barberia {
             estado: this.estado,
             activa: this.activa,
             esMatriz: this.esMatriz,
+            timezone: this.timezone,
             configuracion: this.configuracion,
             configuracionMatriz: this.configuracionMatriz,
             sucursales: this.sucursales,

@@ -101,6 +101,34 @@ exports.actualizarConfiguracionGeneral = async (req, res, next) => {
 exports.actualizarConfiguracionEmail = exports.actualizarConfiguracionGeneral;
 
 // ==========================================
+// 5b) ACTUALIZAR MARKETPLACE (PRO+)
+//     Ruta separada para que el gate de plan
+//     no afecte al resto de la configuración
+// ==========================================
+exports.actualizarMarketplace = async (req, res, next) => {
+    try {
+        const barberiaId = req.user?.barberiaId;
+        if (!barberiaId) return res.status(403).json({ message: 'No autorizado' });
+
+        // req.body = { marketplace: { activo, descripcion, whatsapp, bannerUrl, categorias } }
+        const useCase = container.updateBarberiaConfigUseCase;
+        const barberia = await useCase.execute(
+            barberiaId,
+            { marketplace: req.body.marketplace || req.body },
+            req.user._id,
+            req
+        );
+
+        res.json({
+            message: 'Configuración de marketplace actualizada',
+            marketplace: barberia.marketplace || barberia.toObject?.()?.marketplace || {}
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ==========================================
 // 6) OBTENER CONFIGURACIÓN DE EMAIL
 // ==========================================
 exports.getConfiguracionEmail = async (req, res, next) => {
@@ -168,5 +196,47 @@ exports.testConfiguracionEmail = async (req, res, next) => {
             message: 'Error al validar configuración',
             error: error.message
         });
+    }
+};
+
+// ==========================================
+// 8) ASIGNAR TEMPLATE (SUPER_ADMIN only)
+// ==========================================
+const VALID_TEMPLATES = ['modern', 'premium', 'minimal', 'vintage', 'bold', 'luxury', 'retro'];
+
+
+exports.asignarTemplate = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { template } = req.body;
+
+        if (!VALID_TEMPLATES.includes(template)) {
+            return res.status(400).json({
+                message: `Template inválido. Opciones: ${VALID_TEMPLATES.join(', ')}`
+            });
+        }
+
+        // Direct model update — SUPER_ADMIN action, skips tenant scoping intentionally
+        const Barberia = require('../infrastructure/database/mongodb/models/Barberia');
+        const barberia = await Barberia.findByIdAndUpdate(
+            id,
+            { $set: { 'configuracion.template': template } },
+            { new: true, runValidators: true }
+        );
+
+        if (!barberia) return res.status(404).json({ message: 'Barbería no encontrada' });
+
+        // ✅ Invalidar caché público para que el cambio sea inmediato en la web
+        try {
+            const cacheService = require('../infrastructure/cache/CacheService');
+            await cacheService.del(`pub:barberia:${barberia.slug}`);
+        } catch (cacheErr) {
+            // Cache no crítico — solo loguear
+            console.warn('[asignarTemplate] No se pudo limpiar caché:', cacheErr.message);
+        }
+
+        res.json({ message: `Plantilla "${template}" asignada`, template });
+    } catch (error) {
+        next(error);
     }
 };

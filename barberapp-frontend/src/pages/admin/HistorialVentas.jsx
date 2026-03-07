@@ -263,12 +263,12 @@ export default function HistorialVentas() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Fecha & Hora</th>
-                                <th className="px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Profesional</th>
-                                <th className="px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Contenido</th>
-                                <th className="px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Pago</th>
-                                <th className="px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest text-right">Total</th>
-                                <th className="px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest text-right">Detalle</th>
+                                <th className="px-3 md:px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Fecha & Hora</th>
+                                <th className="px-3 md:px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Profesional</th>
+                                <th className="px-3 md:px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Contenido</th>
+                                <th className="px-3 md:px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest">Pago</th>
+                                <th className="px-3 md:px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest text-right">Total</th>
+                                <th className="px-3 md:px-8 py-5 caption font-black text-gray-400 uppercase tracking-widest text-right">Detalle</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -297,7 +297,7 @@ export default function HistorialVentas() {
                             ) : (
                                 ventasFiltradas.map(v => (
                                     <tr key={v.id} className="hover:bg-gray-50/30 transition-colors group">
-                                        <td className="px-8 py-6">
+                                        <td className="px-3 md:px-8 py-4 md:py-6">
                                             <p className="body-small font-black text-gray-900 mb-1">
                                                 {dayjs(v.fecha).format('DD [de] MMMM')}
                                             </p>
@@ -305,7 +305,7 @@ export default function HistorialVentas() {
                                                 {dayjs(v.fecha).format('HH:mm [hrs]')}
                                             </p>
                                         </td>
-                                        <td className="px-8 py-6">
+                                        <td className="px-3 md:px-8 py-4 md:py-6">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-black text-[10px]">
                                                     {v.barberoId?.nombre.charAt(0) || "B"}
@@ -313,21 +313,21 @@ export default function HistorialVentas() {
                                                 <span className="body-small font-black text-gray-900">{v.barberoId?.nombre || "—"}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6">
+                                        <td className="px-3 md:px-8 py-4 md:py-6">
                                             <Badge variant="neutral" className="bg-gray-100 text-gray-600 font-black">
                                                 {v.items.length} {v.items.length === 1 ? 'Item' : 'Items'}
                                             </Badge>
                                         </td>
-                                        <td className="px-8 py-6">
+                                        <td className="px-3 md:px-8 py-4 md:py-6">
                                             <div className="flex items-center gap-2 text-gray-600 font-bold body-small">
                                                 {getMetodoPagoIcon(v.metodoPago)}
                                                 <span className="tracking-tighter">{v.metodoPago}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 text-right font-black text-gray-900 body-small">
+                                        <td className="px-3 md:px-8 py-4 md:py-6 text-right font-black text-gray-900 body-small">
                                             {formatCurrency(v.total)}
                                         </td>
-                                        <td className="px-8 py-6 text-right">
+                                        <td className="px-3 md:px-8 py-4 md:py-6 text-right">
                                             <button
                                                 onClick={() => handleOpenDetail(v)}
                                                 className="p-3 bg-gray-50 text-gray-400 hover:bg-blue-600 hover:text-white rounded-xl transition-all group-hover:shadow-lg"

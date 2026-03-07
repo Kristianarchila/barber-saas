@@ -53,10 +53,10 @@ class CompleteReserva {
                         estado: reserva.estado,
                         completadaEn: new Date(),
                         reviewToken: reviewToken,
-                        reviewTokenExpiry: reviewTokenExpiry, // ✅ NUEVO
+                        reviewTokenExpiry: reviewTokenExpiry,
                         updatedAt: reserva.updatedAt
                     },
-                    null, // barberiaId
+                    reserva.barberiaId, // Use barberiaId from the reservation itself
                     session // Pass session for transaction
                 );
 

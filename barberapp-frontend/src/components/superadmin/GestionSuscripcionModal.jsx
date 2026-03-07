@@ -385,10 +385,21 @@ export default function GestionSuscripcionModal({ open, onClose, barberia, onSuc
                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                     className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-primary-500 transition-all"
                                 >
-                                    <option value="Transferencia">Transferencia Bancaria</option>
-                                    <option value="Efectivo">Efectivo</option>
-                                    <option value="Cheque">Cheque</option>
-                                    <option value="Otro">Otro</option>
+                                    <optgroup label="💎 Crypto">
+                                        <option value="USDT_TRC20">USDT TRC-20 (TRON)</option>
+                                        <option value="USDT_ERC20">USDT ERC-20 (Ethereum)</option>
+                                    </optgroup>
+                                    <optgroup label="🇨🇱 Chile">
+                                        <option value="Transferencia">Transferencia Bancaria CLP</option>
+                                        <option value="Webpay">Webpay / Transbank</option>
+                                        <option value="Flow">Flow</option>
+                                    </optgroup>
+                                    <optgroup label="💵 Otros">
+                                        <option value="Efectivo_USD">Efectivo USD</option>
+                                        <option value="Efectivo_CLP">Efectivo CLP</option>
+                                        <option value="PayPal">PayPal</option>
+                                        <option value="Otro">Otro</option>
+                                    </optgroup>
                                 </select>
                             </div>
 

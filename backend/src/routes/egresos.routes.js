@@ -7,11 +7,8 @@ const {
     validateBarberiaOwnership,
     checkBarberiaActiva
 } = require("../config/middleware/checkBarberia");
-
-/**
- * Rutas de Egresos
- * Todas las rutas requieren autenticación y rol BARBERIA_ADMIN
- */
+const validateJoi = require("../middleware/joiValidation.middleware");
+const { egresoSchema, mongoIdParamsSchema } = require("../validators/common.joi");
 
 // Middleware global
 router.use(protect);
@@ -21,6 +18,7 @@ router.use(authorize("BARBERIA_ADMIN"));
 // Registrar nuevo egreso
 router.post("/",
     validateBarberiaOwnership,
+    validateJoi(egresoSchema),
     egresosController.registrarEgreso
 );
 
@@ -38,12 +36,15 @@ router.get("/resumen",
 
 // Actualizar egreso
 router.put("/:id",
+    validateJoi(mongoIdParamsSchema, "params"),
     filterByBarberia,
+    validateJoi(egresoSchema),
     egresosController.actualizarEgreso
 );
 
 // Eliminar egreso (soft delete)
 router.delete("/:id",
+    validateJoi(mongoIdParamsSchema, "params"),
     filterByBarberia,
     egresosController.eliminarEgreso
 );

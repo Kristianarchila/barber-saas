@@ -32,10 +32,41 @@ async function bootstrap() {
     startSendRemindersJob();
     require('./jobs/expireWaitingList');
 
-    app.listen(PORT, () => {
+    // ✅ Inicializar rate limiters con Redis (await garantiza que Redis está conectado
+    // antes de que llegue el primer request — evita el race condition del store)
+    const { initRateLimiters } = require("./middleware/rateLimit.middleware");
+    await initRateLimiters();
+
+    const server = app.listen(PORT, () => {
       logger.info(`API corriendo en puerto ${PORT}`);
       console.log(`🚀 SERVIDOR LISTO EN EL PUERTO ${PORT}`);
     });
+
+    // ── Graceful shutdown (Docker sends SIGTERM on stop/restart) ──
+    const gracefulShutdown = async (signal) => {
+      console.log(`\n🛑 ${signal} recibido. Cerrando gracefully...`);
+      server.close(async () => {
+        console.log('   ✅ HTTP server cerrado (no más requests nuevos)');
+        try {
+          const mongoose = require('mongoose');
+          await mongoose.connection.close();
+          console.log('   ✅ MongoDB conexión cerrada');
+        } catch (err) {
+          console.error('   ❌ Error cerrando MongoDB:', err.message);
+        }
+        process.exit(0);
+      });
+
+      // Si no cierra en 10s, forzar (Docker mata a los 30s por defecto)
+      setTimeout(() => {
+        console.error('   ⚠️ Timeout 10s — forzando cierre');
+        process.exit(1);
+      }, 10000);
+    };
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
   } catch (err) {
     logger.error("Error al iniciar servidor", { error: err.message, stack: err.stack });
     process.exit(1);

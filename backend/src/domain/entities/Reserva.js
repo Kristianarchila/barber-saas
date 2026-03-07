@@ -13,7 +13,7 @@ class Reserva {
         clienteId,
         nombreCliente,
         emailCliente,
-        telefonoCliente,  // ⬅️ NUEVO
+        telefonoCliente,
         barberiaId,
         servicioId,
         fecha,
@@ -26,6 +26,7 @@ class Reserva {
         depositoPagado = false,
         montoDeposito = 0,
         precioSnapshot = null,
+        timezone = 'America/Santiago',
         createdAt,
         updatedAt
     }) {
@@ -34,10 +35,11 @@ class Reserva {
         this.clienteId = clienteId;
         this.nombreCliente = nombreCliente;
         this.emailCliente = emailCliente instanceof Email ? emailCliente : new Email(emailCliente);
-        this.telefonoCliente = telefonoCliente;  // ⬅️ NUEVO
+        this.telefonoCliente = telefonoCliente;
         this.barberiaId = barberiaId;
         this.servicioId = servicioId;
-        this.timeSlot = new TimeSlot(fecha, hora, duracion);
+        this.timezone = timezone;
+        this.timeSlot = new TimeSlot(fecha, hora, duracion, timezone);
         this.precio = precio instanceof Money ? precio : new Money(precio);
         this.estado = estado;
         this.cancelToken = cancelToken;
@@ -112,7 +114,8 @@ class Reserva {
             throw new Error('Esta reserva no puede ser reagendada');
         }
 
-        const newTimeSlot = new TimeSlot(newFecha, newHora, newDuracion);
+        // Use the barbería's own timezone for correct past-date validation
+        const newTimeSlot = new TimeSlot(newFecha, newHora, newDuracion, this.timezone);
 
         if (newTimeSlot.isPast()) {
             throw new Error('No se puede reagendar a una fecha pasada');
@@ -200,16 +203,26 @@ class Reserva {
     getDetails() {
         return {
             id: this.id,
+            barberoId: this.barberoId,
+            clienteId: this.clienteId,
+            barberiaId: this.barberiaId,
+            servicioId: this.servicioId,
             nombreCliente: this.nombreCliente,
             emailCliente: this.emailCliente.value,
-            telefonoCliente: this.telefonoCliente,  // ⬅️ NUEVO
+            telefonoCliente: this.telefonoCliente,
             fecha: this.timeSlot.date,
             hora: this.timeSlot.startTime,
             horaFin: this.timeSlot.endTime,
             duracion: this.timeSlot.durationMinutes,
+            timezone: this.timezone,
             precio: this.precio.amount,
+            precioSnapshot: this.precioSnapshot,
             estado: this.estado,
-            depositoPagado: this.depositoPagado
+            cancelToken: this.cancelToken,
+            depositoPagado: this.depositoPagado,
+            montoDeposito: this.montoDeposito.amount,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt
         };
     }
 
@@ -226,6 +239,7 @@ class Reserva {
             telefonoCliente: this.telefonoCliente,
             barberiaId: this.barberiaId,
             servicioId: this.servicioId,
+            timezone: this.timezone,
             fecha: this.timeSlot.date,
             hora: this.timeSlot.startTime,
             horaFin: this.timeSlot.endTime,

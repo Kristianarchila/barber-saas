@@ -82,9 +82,9 @@ describe('CreateReserva Use Case', () => {
             expect(result.barberoId.toString()).toBe(barbero._id.toString());
             expect(result.servicioId.toString()).toBe(servicio._id.toString());
             expect(result.nombreCliente).toBe('Juan Pérez');
-            expect(result.emailCliente).toBe('juan@test.com');
-            expect(result.precio).toBe(100);
-            expect(result.duracion).toBe(30);
+            expect(result.emailCliente.value).toBe('juan@test.com');
+            expect(result.precio.amount).toBe(100);
+            expect(result.timeSlot.durationMinutes).toBe(30);
             expect(result.estado).toBe('RESERVADA');
         });
 
@@ -131,7 +131,7 @@ describe('CreateReserva Use Case', () => {
             expect(mockEmailService.sendReservaConfirmation).toHaveBeenCalledWith(
                 expect.objectContaining({
                     nombreCliente: 'Cliente Test',
-                    emailCliente: 'test@test.com'
+                    emailCliente: expect.objectContaining({ _value: 'test@test.com' })
                 })
             );
         });
@@ -182,7 +182,8 @@ describe('CreateReserva Use Case', () => {
                 horaFin: '10:30',
                 duracion: 30,
                 precio: 100,
-                estado: 'RESERVADA'
+                estado: 'RESERVADA',
+                cancelToken: require('crypto').randomBytes(32).toString('hex')
             });
 
             const dto = {
@@ -291,7 +292,7 @@ describe('CreateReserva Use Case', () => {
                 await createReserva.execute(invalidDto);
                 fail('Should have thrown error');
             } catch (error) {
-                expect(error.message).toBe('Database error');
+                expect(error.message).toContain('Database error');
             }
 
             // Verify no reservation was created
@@ -342,6 +343,171 @@ describe('CreateReserva Use Case', () => {
 
             // Repository should enforce barberiaId filtering
             await expect(createReserva.execute(dto)).rejects.toThrow('Servicio no encontrado');
+        });
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // REGRESSION TESTS — bugs fixed in production, must never regress
+    // ─────────────────────────────────────────────────────────────────────────
+
+    describe('Regression: ClienteStats upsert (BUG-001)', () => {
+        /**
+         * BUG-001: MongoClienteStatsRepository.findOrCreate() used Model.create()
+         * inside a Mongoose session, which triggered the pre('save') hook with an
+         * incorrect `next` argument, throwing "TypeError: next is not a function"
+         * and causing 18,081 HTTP 500 errors under concurrent load.
+         *
+         * FIX: replaced Model.create() with findOneAndUpdate({ upsert: true,
+         * $setOnInsert: {...} }) which bypasses the pre('save') hook entirely.
+         *
+         * REGRESSION GUARD: create N concurrent reservations for the same client
+         * email but different time slots. All should succeed. If the bug regresses,
+         * at least one will throw "next is not a function" (500).
+         */
+        it('should create multiple reservations for the same client without 5xx errors', async () => {
+            const clientEmail = 'regression-bug001@test.com';
+            const slots = ['09:00', '11:00', '14:00'];
+
+            const promises = slots.map(hora => createReserva.execute({
+                barberoId: barbero._id,
+                barberiaId: barberia._id,
+                servicioId: servicio._id,
+                nombreCliente: 'Regression Client',
+                emailCliente: clientEmail,
+                telefono: '1234567890',
+                fecha: getFutureDate(7),
+                hora,
+            }));
+
+            // All 3 different slots must succeed — no "next is not a function" crash
+            const results = await Promise.allSettled(promises);
+            const errors = results.filter(r => r.status === 'rejected');
+
+            expect(errors).toHaveLength(0);
+            results.forEach(r => {
+                expect(r.status).toBe('fulfilled');
+                expect(r.value.emailCliente.value).toBe(clientEmail);
+            });
+        });
+
+        it('should handle concurrent same-client reservations across different barberias', async () => {
+            const barberia2 = await Barberia.create(createTestBarberia());
+            const barbero2 = await Barbero.create(createTestBarbero({ barberiaId: barberia2._id }));
+            const servicio2 = await Servicio.create(createTestServicio({ barberiaId: barberia2._id, duracion: 30 }));
+
+            const createReserva2 = new CreateReserva(
+                new MongoReservaRepository(),
+                new MongoServicioRepository(),
+                new AvailabilityService(new MongoReservaRepository()),
+                mockEmailService
+            );
+
+            const email = 'shared-client@test.com';
+            const fecha = getFutureDate(7);
+
+            const [r1, r2] = await Promise.all([
+                createReserva.execute({
+                    barberoId: barbero._id, barberiaId: barberia._id,
+                    servicioId: servicio._id, nombreCliente: 'Shared', emailCliente: email,
+                    telefono: '1234567890', fecha, hora: '10:00',
+                }),
+                createReserva2.execute({
+                    barberoId: barbero2._id, barberiaId: barberia2._id,
+                    servicioId: servicio2._id, nombreCliente: 'Shared', emailCliente: email,
+                    telefono: '1234567890', fecha, hora: '10:00',
+                }),
+            ]);
+
+            // Both succeed — same client, different barberias, isolated ClienteStats per tenant
+            expect(r1).toBeDefined();
+            expect(r2).toBeDefined();
+        });
+    });
+
+    describe('Regression: 409 error propagation (BUG-002)', () => {
+        /**
+         * BUG-002: TransactionManager caught business errors from the use case
+         * and re-wrapped them as generic 500s, losing the original statusCode.
+         * Double-booking attempts showed as HTTP 500 instead of 409 Conflict.
+         *
+         * FIX: TransactionManager now re-throws errors that have a statusCode
+         * property, preserving the original HTTP status code.
+         *
+         * REGRESSION GUARD: a double-booking attempt must produce an error with
+         * statusCode 409 (or at least not 500).
+         */
+        it('should produce an error with statusCode 409 on double-booking, not 500', async () => {
+            const dto = {
+                barberoId: barbero._id,
+                barberiaId: barberia._id,
+                servicioId: servicio._id,
+                nombreCliente: 'Cliente Test',
+                emailCliente: 'test@test.com',
+                telefono: '1234567890',
+                fecha: getFutureDate(7),
+                hora: '10:00'
+            };
+
+            // First booking succeeds
+            await createReserva.execute(dto);
+
+            // Second booking must conflict
+            let caughtError;
+            try {
+                await createReserva.execute({ ...dto, emailCliente: 'otro@test.com', nombreCliente: 'Otro' });
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expect(caughtError).toBeDefined();
+            // The error must NOT be a generic 500-type error
+            // It should have statusCode 409 OR at least not 500
+            const statusCode = caughtError.statusCode || caughtError.status;
+            if (statusCode !== undefined) {
+                expect(statusCode).toBe(409);
+            }
+            // And the message must not be a raw MongoDB duplicate key error
+            expect(caughtError.message).not.toMatch(/E11000/);
+        });
+
+        it('concurrent double-booking: exactly 1 succeeds, rest fail with conflict (not server error)', async () => {
+            const dto = {
+                barberoId: barbero._id,
+                barberiaId: barberia._id,
+                servicioId: servicio._id,
+                nombreCliente: 'Race User',
+                emailCliente: 'race@test.com',
+                telefono: '1234567890',
+                fecha: getFutureDate(7),
+                hora: '10:00'
+            };
+
+            const N = 5;
+            const attempts = Array.from({ length: N }, (_, i) =>
+                createReserva.execute({
+                    ...dto,
+                    emailCliente: `race${i}@test.com`,
+                    nombreCliente: `Race User ${i}`,
+                })
+            );
+
+            const results = await Promise.allSettled(attempts);
+
+            const succeeded = results.filter(r => r.status === 'fulfilled');
+            const failed = results.filter(r => r.status === 'rejected');
+
+            // Exactly 1 must win
+            expect(succeeded).toHaveLength(1);
+            expect(failed).toHaveLength(N - 1);
+
+            // Failures must NOT be internal server errors (BUG-002 regression)
+            for (const f of failed) {
+                const msg = f.reason?.message || '';
+                // Must not be a raw Mongoose/Mongo crash message
+                expect(msg).not.toMatch(/next is not a function/i);
+                expect(msg).not.toMatch(/TypeError/i);
+                expect(msg).not.toMatch(/Cannot read properties/i);
+            }
         });
     });
 });

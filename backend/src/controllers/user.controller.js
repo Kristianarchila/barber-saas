@@ -85,9 +85,11 @@ exports.obtenerClientesByBarberia = async (req, res, next) => {
         const clientes = await useCase.execute(req.user.barberiaId);
 
         res.json(clientes.map(c => ({
+            _id: c.id,
             id: c.id,
             nombre: c.nombre,
             email: c.email,
+            telefono: c.telefono || null,
             createdAt: c.createdAt
         })));
     } catch (error) {
@@ -110,8 +112,10 @@ exports.createCliente = async (req, res, next) => {
             message: 'Cliente creado exitosamente',
             cliente: {
                 id: user.id,
+                _id: user.id,
                 nombre: user.nombre,
                 email: user.email,
+                telefono: user.telefono || null,
                 createdAt: user.createdAt
             }
         });

@@ -72,7 +72,26 @@ export async function editarServicio(id, data) {
 export async function cambiarEstadoServicio(id, activo) {
   const slug = getSlugActual();
   const res = await api.patch(`/barberias/${slug}/admin/servicios/${id}`, { activo });
-
-  // Arquitectura hexagonal devuelve: { message: string, servicio: Object }
   return res.data.servicio || res.data;
+}
+
+/**
+ * Obtiene las categorías personalizadas de la barbería
+ */
+export async function getCategorias() {
+  const slug = getSlugActual();
+  const res = await api.get(`/barberias/${slug}/public`);
+  return (res.data?.configuracion?.categorias || []).sort((a, b) => a.orden - b.orden);
+}
+
+/**
+ * Guarda (reemplaza) las categorías personalizadas de la barbería
+ * @param {Array} categorias - [{nombre, orden}]
+ */
+export async function saveCategorias(categorias) {
+  const slug = getSlugActual();
+  const res = await api.put(`/barberias/${slug}/admin/config`, {
+    configuracion: { categorias }
+  });
+  return res.data;
 }

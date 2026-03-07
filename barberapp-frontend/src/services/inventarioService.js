@@ -56,6 +56,14 @@ const inventarioService = {
         const response = await api.get(`/barberias/${slug}/inventario/alertas`);
         return response.data;
     },
+
+    /**
+     * Eliminar registro de inventario
+     */
+    async deleteInventario(slug, id) {
+        const response = await api.delete(`/barberias/${slug}/inventario/${id}`);
+        return response.data;
+    },
 };
 
 export default inventarioService;

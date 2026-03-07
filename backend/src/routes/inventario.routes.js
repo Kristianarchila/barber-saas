@@ -5,12 +5,15 @@ const {
     getInventarioItem,
     createInventario,
     updateInventario,
+    deleteInventario,
     registrarMovimiento,
     getMovimientos,
     getAlertasStock,
 } = require("../controllers/inventario.controller");
 const { protect, esAdmin } = require("../config/middleware/auth.middleware");
 const { getBarberiaBySlug } = require("../config/middleware/barberiaMiddleware");
+const validateJoi = require("../middleware/joiValidation.middleware");
+const { inventarioSchema, movimientoSchema, mongoIdParamsSchema } = require("../validators/common.joi");
 
 // Aplicar middlewares
 router.use(protect);
@@ -23,11 +26,12 @@ router.get("/alertas", getAlertasStock);
 
 // Rutas de inventario
 router.get("/", getInventario);
-router.post("/", createInventario);
-router.get("/:id", getInventarioItem);
-router.put("/:id", updateInventario);
+router.post("/", validateJoi(inventarioSchema), createInventario);
+router.get("/:id", validateJoi(mongoIdParamsSchema, "params"), getInventarioItem);
+router.put("/:id", validateJoi(mongoIdParamsSchema, "params"), validateJoi(inventarioSchema), updateInventario);
+router.delete("/:id", validateJoi(mongoIdParamsSchema, "params"), deleteInventario);
 
 // Registrar movimiento de stock
-router.post("/:id/movimiento", registrarMovimiento);
+router.post("/:id/movimiento", validateJoi(mongoIdParamsSchema, "params"), validateJoi(movimientoSchema), registrarMovimiento);
 
 module.exports = router;

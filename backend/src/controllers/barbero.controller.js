@@ -13,7 +13,7 @@ exports.createBarberoConUsuario = async (req, res, next) => {
             return res.status(403).json({ message: 'No autorizado' });
         }
 
-        const barberiaId = req.user.barberiaId;
+        const barberiaId = req.user.barberiaId?.toString(); // stringify para Joi objectId validation
         const useCase = container.createBarberoUseCase;
 
         const barbero = await useCase.execute({

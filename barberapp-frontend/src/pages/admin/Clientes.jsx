@@ -8,7 +8,8 @@ import {
   UserPlus,
   Filter,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Phone
 } from "lucide-react";
 import { Card, Button, Input, Badge } from "../../components/ui";
 import { getClientesBarberia, createCliente } from "../../services/crmService";
@@ -24,7 +25,7 @@ export default function Clientes() {
 
   // Create Client State
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ nombre: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ nombre: "", email: "", telefono: "" });
 
   const navigate = useNavigate();
 
@@ -47,19 +48,22 @@ export default function Clientes() {
   const { execute: handleCreateCliente, loading: creating } = useAsyncAction(
     async () => {
       // Validación de campos
-      if (!formData.nombre || !formData.email || !formData.password) {
-        toast.error('Completa todos los campos obligatorios');
+      if (!formData.nombre || !formData.email) {
+        toast.error('Completa nombre y email');
         throw new Error('Campos faltantes');
       }
 
-      return await createCliente(formData);
+      // Auto-generar contraseña temporal (el admin no necesita inventarla)
+      const passwordTemporal = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase() + "!1";
+
+      return await createCliente({ ...formData, password: passwordTemporal });
     },
     {
-      successMessage: 'Cliente creado exitosamente',
-      errorMessage: 'Error al crear cliente',
+      successMessage: 'Cliente registrado exitosamente',
+      errorMessage: 'Error al registrar cliente',
       onSuccess: () => {
         setShowModal(false);
-        setFormData({ nombre: "", email: "", password: "" });
+        setFormData({ nombre: "", email: "", telefono: "" });
         fetchClientes();
       }
     }
@@ -129,12 +133,12 @@ export default function Clientes() {
               </div>
 
               <div className="space-y-2">
-                <label className="label">Contraseña Temporal</label>
+                <label className="label">Teléfono <span className="text-gray-400 font-normal">(para WhatsApp)</span></label>
                 <input
-                  type="password"
-                  placeholder="******"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  type="tel"
+                  placeholder="+56 9 1234 5678"
+                  value={formData.telefono}
+                  onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
                   className="input"
                 />
               </div>
@@ -149,10 +153,10 @@ export default function Clientes() {
               </button>
               <button
                 onClick={handleCreateCliente}
-                disabled={creating || !formData.nombre || !formData.email || !formData.password}
+                disabled={creating || !formData.nombre || !formData.email}
                 className="btn btn-primary flex-1"
               >
-                {creating ? "Creando..." : "Crear Cliente"}
+                {creating ? "Registrando..." : "Registrar Cliente"}
               </button>
             </div>
           </div>
@@ -197,8 +201,25 @@ export default function Clientes() {
                   </h3>
                   <div className="flex items-center gap-2 text-gray-500 mt-2 body-small">
                     <Mail size={14} className="text-gray-400" />
-                    {cliente.email}
+                    <span className="truncate">{cliente.email}</span>
                   </div>
+                  {cliente.telefono ? (
+                    <a
+                      href={`https://wa.me/${cliente.telefono.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 mt-1 body-small text-green-600 hover:text-green-700 font-semibold transition-colors"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <Phone size={14} />
+                      {cliente.telefono}
+                    </a>
+                  ) : (
+                    <div className="flex items-center gap-2 text-gray-300 mt-1 body-small italic">
+                      <Phone size={14} />
+                      Sin teléfono
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-gray-500 mt-1 body-small">
                     <Calendar size={14} className="text-gray-400" />
                     Desde {dayjs(cliente.createdAt).format('DD/MM/YYYY')}

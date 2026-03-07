@@ -110,8 +110,8 @@ export default function CalendarioDiario() {
             {/* HEADER */}
             <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="heading-1">Calendario Diario</h1>
-                    <p className="body-large text-gray-600 mt-2 capitalize">
+                    <h1 className="text-2xl md:heading-1 font-black">Calendario Diario</h1>
+                    <p className="text-sm md:body-large text-gray-600 mt-1 capitalize">
                         {dateStr}
                         {isToday && <span className="ml-2 text-blue-600 font-semibold">• HOY</span>}
                     </p>
@@ -140,19 +140,19 @@ export default function CalendarioDiario() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Date navigation */}
                 <div className="card card-padding">
-                    <div className="flex items-center justify-between">
-                        <button className="btn btn-ghost" onClick={handlePreviousDay}>
+                    <div className="flex items-center justify-between gap-2">
+                        <button className="btn btn-ghost btn-sm flex-shrink-0" onClick={handlePreviousDay}>
                             <ChevronLeft size={20} />
-                            Día Anterior
+                            <span className="hidden md:inline">Día Anterior</span>
                         </button>
 
-                        <div className="flex items-center gap-2 text-gray-900 font-semibold">
-                            <CalendarIcon size={20} className="text-blue-600" />
+                        <div className="flex items-center gap-1.5 text-gray-900 font-semibold text-sm text-center">
+                            <CalendarIcon size={16} className="text-blue-600 hidden sm:block" />
                             <span>{format(currentDate, 'd MMM yyyy', { locale: es })}</span>
                         </div>
 
-                        <button className="btn btn-ghost" onClick={handleNextDay}>
-                            Día Siguiente
+                        <button className="btn btn-ghost btn-sm flex-shrink-0" onClick={handleNextDay}>
+                            <span className="hidden md:inline">Día Siguiente</span>
                             <ChevronRight size={20} />
                         </button>
                     </div>
@@ -160,22 +160,22 @@ export default function CalendarioDiario() {
 
                 {/* Day stats */}
                 <div className="card card-padding">
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                            <div className="caption text-gray-500 mt-1">Total</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="text-center p-2">
+                            <div className="text-2xl font-black text-gray-900">{stats.total}</div>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mt-1">Total</div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-600">{stats.reservadas}</div>
-                            <div className="caption text-gray-500 mt-1">Reservadas</div>
+                        <div className="text-center p-2">
+                            <div className="text-2xl font-black text-blue-600">{stats.reservadas}</div>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mt-1">Reservadas</div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600">{stats.completadas}</div>
-                            <div className="caption text-gray-500 mt-1">Completadas</div>
+                        <div className="text-center p-2">
+                            <div className="text-2xl font-black text-green-600">{stats.completadas}</div>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mt-1">Completadas</div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-red-600">{stats.canceladas}</div>
-                            <div className="caption text-gray-500 mt-1">Canceladas</div>
+                        <div className="text-center p-2">
+                            <div className="text-2xl font-black text-red-600">{stats.canceladas}</div>
+                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mt-1">Canceladas</div>
                         </div>
                     </div>
                 </div>

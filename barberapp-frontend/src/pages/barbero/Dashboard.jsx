@@ -3,12 +3,14 @@ import dayjs from "dayjs";
 import "dayjs/locale/es";
 import {
   getAgendaBarbero,
+  getAgendaBarberoRange,
   completarReserva,
   cancelarReserva,
   getEstadisticasBarbero,
 } from "../../services/barberoDashboardService";
 import { getMiBalance } from "../../services/transactionService";
 import { Card, Button, Badge, Skeleton, Stat, ConfirmModal } from "../../components/ui";
+import PushNotificationBanner from "../../components/barbero/PushNotificationBanner";
 import {
   Users,
   Scissors,
@@ -39,6 +41,7 @@ export default function Dashboard() {
   const [reservas, setReservas] = useState([]);
   const [estadisticas, setEstadisticas] = useState(null);
   const [balance, setBalance] = useState(null);
+  const [proximasCitas, setProximasCitas] = useState([]);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, reservaId: null });
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
@@ -59,19 +62,27 @@ export default function Dashboard() {
   // Hook para cargar datos del dashboard
   const { execute: cargarDatos, loading, error } = useApiCall(
     async () => {
-      const [agendaData, statsData, balanceData] = await Promise.all([
+      const manana = dayjs().add(1, 'day').format('YYYY-MM-DD');
+      const enSemanaDias = dayjs().add(7, 'day').format('YYYY-MM-DD');
+      const [agendaData, statsData, balanceData, proxData] = await Promise.all([
         getAgendaBarbero(fecha),
         getEstadisticasBarbero(),
-        getMiBalance().catch(() => null)
+        getMiBalance().catch(() => null),
+        getAgendaBarberoRange(manana, enSemanaDias).catch(() => [])
       ]);
-      return { agendaData, statsData, balanceData };
+      return { agendaData, statsData, balanceData, proxData };
     },
     {
       errorMessage: 'No se pudo cargar el dashboard',
-      onSuccess: ({ agendaData, statsData, balanceData }) => {
+      onSuccess: ({ agendaData, statsData, balanceData, proxData }) => {
         setReservas(ensureArray(agendaData));
         setEstadisticas(statsData);
         setBalance(balanceData);
+        const próximas = ensureArray(proxData)
+          .filter(r => r.estado === 'RESERVADA')
+          .sort((a, b) => a.fecha?.localeCompare(b.fecha) || a.hora?.localeCompare(b.hora))
+          .slice(0, 5);
+        setProximasCitas(próximas);
       }
     }
   );
@@ -221,6 +232,9 @@ export default function Dashboard() {
       </div>
 
       {/* GRID DE CONTENIDO */}
+      {/* BANNER DE NOTIFICACIONES PUSH */}
+      <PushNotificationBanner />
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* AGENDA DEL DÍA */}
         <div className="lg:col-span-8 space-y-6">
@@ -335,6 +349,38 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+          </Card>
+
+          {/* PRÓXIMAS CITAS */}
+          <Card className="p-8 border-gray-200 bg-white rounded-xl shadow-sm">
+            <h3 className="heading-3 mb-5 flex items-center gap-2">
+              <Calendar className="text-blue-600" size={20} /> Próximas Citas
+            </h3>
+            {proximasCitas.length === 0 ? (
+              <div className="text-center py-6">
+                <Calendar size={32} className="mx-auto text-gray-200 mb-2" />
+                <p className="caption text-gray-400">Sin citas esta semana</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {proximasCitas.map(r => (
+                  <div key={r._id || r.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl hover:bg-blue-50/50 transition-all">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
+                      <span className="text-[10px] text-blue-600 font-bold uppercase">{dayjs(r.fecha).format('MMM')}</span>
+                      <span className="text-lg font-black text-blue-700 leading-none">{dayjs(r.fecha).format('DD')}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-gray-900 truncate">{r.servicioId?.nombre || 'Servicio'}</p>
+                      <p className="text-xs text-gray-500 truncate">{r.nombreCliente}</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Clock size={10} className="text-gray-400" />
+                        <span className="text-[10px] text-gray-400 font-semibold">{r.hora}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           <Card className="p-8 bg-blue-600 text-white border-none rounded-xl relative overflow-hidden group shadow-lg">

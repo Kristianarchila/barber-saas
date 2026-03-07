@@ -14,13 +14,17 @@ class MongoServicioRepository extends IServicioRepository {
 
     async findById(id, barberiaId) {
         if (!barberiaId) {
-            throw new Error('barberiaId es requerido para el aislamiento de datos');
+            const err = new Error('barberiaId es requerido para el aislamiento de datos');
+            err.statusCode = 400;
+            throw err;
         }
         const query = { _id: id, barberiaId };
 
         const servicio = await ServicioModel.findOne(query);
         if (!servicio) {
-            throw new Error('Servicio no encontrado o sin permisos de acceso');
+            const err = new Error('Servicio no encontrado');
+            err.statusCode = 404;
+            throw err;
         }
         return this.toDomain(servicio);
     }
@@ -41,26 +45,34 @@ class MongoServicioRepository extends IServicioRepository {
 
     async update(id, data, barberiaId) {
         if (!barberiaId) {
-            throw new Error('barberiaId es requerido para el aislamiento de datos');
+            const err = new Error('barberiaId es requerido para el aislamiento de datos');
+            err.statusCode = 400;
+            throw err;
         }
         const query = { _id: id, barberiaId };
 
         const updated = await ServicioModel.findOneAndUpdate(query, data, { new: true });
         if (!updated) {
-            throw new Error('Servicio no encontrado o sin permisos de acceso');
+            const err = new Error('Servicio no encontrado');
+            err.statusCode = 404;
+            throw err;
         }
         return this.toDomain(updated);
     }
 
     async delete(id, barberiaId) {
         if (!barberiaId) {
-            throw new Error('barberiaId es requerido para el aislamiento de datos');
+            const err = new Error('barberiaId es requerido para el aislamiento de datos');
+            err.statusCode = 400;
+            throw err;
         }
         const query = { _id: id, barberiaId };
 
         const deleted = await ServicioModel.findOneAndDelete(query);
         if (!deleted) {
-            throw new Error('Servicio no encontrado o sin permisos de acceso');
+            const err = new Error('Servicio no encontrado');
+            err.statusCode = 404;
+            throw err;
         }
     }
 

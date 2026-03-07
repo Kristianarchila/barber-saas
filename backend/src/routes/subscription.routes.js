@@ -33,4 +33,10 @@ router.get('/limits', subscriptionController.checkPlanLimits);
 // Get invoices/payment history
 router.get('/invoices', subscriptionController.getInvoices);
 
+// 💎 USDT CRYPTO PAYMENT ROUTES
+// Get wallet info + USDT amount for a plan
+router.get('/wallet-info', subscriptionController.getWalletInfo);
+// Request payment (barbería notifies they paid via USDT)
+router.post('/request-payment', subscriptionController.requestPayment);
+
 module.exports = router;

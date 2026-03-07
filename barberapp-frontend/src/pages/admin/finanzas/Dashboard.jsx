@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Card, Stat, Button, Skeleton, Badge } from "../../../components/ui";
 import { DollarSign, TrendingUp, Users, Clock, Receipt, PieChart, CreditCard, ArrowRight, Package, Calendar, RefreshCcw } from "lucide-react";
-import { getReporte } from "../../../services/transactionService";
+import { getReporte, getTopProductos } from "../../../services/transactionService";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
 dayjs.locale("es");
 
 export default function FinanzasDashboard() {
+    const { slug } = useParams();
     const [loading, setLoading] = useState(true);
     const [reporte, setReporte] = useState(null);
+    const [topProductos, setTopProductos] = useState([]);
+    const [loadingProductos, setLoadingProductos] = useState(true);
     const [rango, setRango] = useState({
         desde: dayjs().startOf('month').format('YYYY-MM-DD'),
         hasta: dayjs().endOf('month').format('YYYY-MM-DD')
@@ -18,6 +21,7 @@ export default function FinanzasDashboard() {
 
     useEffect(() => {
         cargarReporte();
+        cargarTopProductos();
     }, []);
 
     const cargarReporte = async () => {
@@ -32,6 +36,18 @@ export default function FinanzasDashboard() {
             console.error("Error cargando reporte:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const cargarTopProductos = async () => {
+        try {
+            setLoadingProductos(true);
+            const data = await getTopProductos();
+            setTopProductos(data);
+        } catch (error) {
+            console.error("Error cargando top productos:", error);
+        } finally {
+            setLoadingProductos(false);
         }
     };
 
@@ -240,7 +256,7 @@ export default function FinanzasDashboard() {
 
             {/* ACCESOS RÁPIDOS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Link to="/admin/finanzas/transacciones">
+                <Link to={`/${slug}/admin/finanzas/transacciones`}>
                     <Card className="hover:shadow-md transition-all cursor-pointer group border-none ring-1 ring-gray-100 py-2">
                         <div className="p-6 flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -257,7 +273,7 @@ export default function FinanzasDashboard() {
                     </Card>
                 </Link>
 
-                <Link to="/admin/finanzas/revenue-split">
+                <Link to={`/${slug}/admin/finanzas/revenue-split`}>
                     <Card className="hover:shadow-md transition-all cursor-pointer group border-none ring-1 ring-gray-100 py-2">
                         <div className="p-6 flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -274,7 +290,7 @@ export default function FinanzasDashboard() {
                     </Card>
                 </Link>
 
-                <Link to="/admin/finanzas/pagos">
+                <Link to={`/${slug}/admin/finanzas/pagos`}>
                     <Card className="hover:shadow-md transition-all cursor-pointer group border-none ring-1 ring-gray-100 py-2">
                         <div className="p-6 flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -337,42 +353,51 @@ export default function FinanzasDashboard() {
                         </div>
                     </Card>
 
-                    {/* PRODUCTOS RANKING */}
+                    {/* PRODUCTOS RANKING - datos reales del API */}
                     <Card className="shadow-sm ring-1 ring-gray-100 border-none overflow-hidden">
                         <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                             <div>
                                 <h3 className="heading-4 flex items-center gap-3">
                                     <Package className="text-indigo-600" size={24} />
-                                    Productos Estrella
+                                    Productos Más Vendidos
                                 </h3>
-                                <p className="caption text-gray-500 mt-1">Rotación de inventario este periodo</p>
+                                <p className="caption text-gray-500 mt-1">Ranking por unidades vendidas este mes</p>
                             </div>
-                            <span className="badge badge-secondary">RANKING</span>
+                            <span className="badge badge-secondary">MES ACTUAL</span>
                         </div>
                         <div className="p-6">
-                            <div className="space-y-4">
-                                {[
-                                    { nombre: 'SCORE GORILLA', cant: 15, total: 22500 },
-                                    { nombre: 'COCA COLA', cant: 15, total: 15000 },
-                                    { nombre: 'GATORADE', cant: 9, total: 18000 },
-                                    { nombre: 'TALCO TEXTURA', cant: 4, total: 12000 }
-                                ].map((prod, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-all group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-white shadow-sm ring-1 ring-gray-100 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-indigo-600 transition-all">
-                                                <Package size={20} />
+                            {loadingProductos ? (
+                                <div className="space-y-4">
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="h-14 bg-gray-50 rounded-2xl animate-pulse" />
+                                    ))}
+                                </div>
+                            ) : topProductos.length === 0 ? (
+                                <div className="py-10 text-center">
+                                    <Package size={40} className="text-gray-200 mx-auto mb-3" />
+                                    <p className="body-small text-gray-400 font-bold">Sin ventas de productos este mes</p>
+                                    <p className="caption text-gray-300 mt-1">Registra ventas desde Venta Rápida para ver el ranking</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {topProductos.map((prod, idx) => (
+                                        <div key={prod.productoId || idx} className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-all group">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-white shadow-sm ring-1 ring-gray-100 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-indigo-600 transition-all">
+                                                    <Package size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-900 font-black">{prod.nombre}</p>
+                                                    <p className="caption text-gray-400 font-bold uppercase">{prod.cantidadVendida} unidades vendidas</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-gray-900 font-black">{prod.nombre}</p>
-                                                <p className="caption text-gray-400 font-bold uppercase">{prod.cant} unidades vendidas</p>
+                                            <div className="text-right">
+                                                <p className="text-gray-900 font-black">{formatCurrency(prod.totalGenerado)}</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-gray-900 font-black">{formatCurrency(prod.total)}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </Card>
                 </div>

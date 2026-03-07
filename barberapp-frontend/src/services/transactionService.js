@@ -73,3 +73,10 @@ export const getMiBalance = async () => {
     const { data } = await api.get(`/barberias/${slug}/transactions/barbero/balance`);
     return data;
 };
+
+// Top productos más vendidos del mes (dashboard financiero)
+export const getTopProductos = async () => {
+    const slug = window.location.pathname.split('/')[1];
+    const { data } = await api.get(`/barberias/${slug}/ventas/top-productos`);
+    return data.topProductos || [];
+};

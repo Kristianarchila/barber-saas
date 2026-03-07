@@ -1,39 +1,70 @@
-const rateLimit = require('express-rate-limit');
+'use strict';
 
-/**
- * Rate limiter for public reservation creation
- * Prevents spam and overbooking attacks
- */
-exports.reservaLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 reservations per IP per 15 minutes
+const rateLimit = require('express-rate-limit');
+const { getRedisStore } = require('../redisClient');
+
+// ─── Stress-test bypass ───────────────────────────────────────────────────────
+const skipForStressTest = (req) => {
+    if (process.env.NODE_ENV === 'production') return false;
+    if (process.env.STRESS_TEST !== 'true') return false;
+    const ip = req.ip || req.connection?.remoteAddress || '';
+    return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+};
+
+// ─── Shared store (set once on init) ─────────────────────────────────────────
+// Starts as undefined (MemoryStore). Replaced with RedisStore after
+// initRateLimiters() runs in rateLimit.middleware.js during server startup.
+// getRedisStore() is safe to call multiple times — it returns the cached instance.
+let _store = undefined;
+
+(async () => {
+    _store = await getRedisStore();
+    if (_store) {
+        // Rebuild limiters with the real Redis store
+        _reservaLimiter = _buildReservaLimiter();
+        _cancelLimiter = _buildCancelLimiter();
+        _reviewLimiter = _buildReviewLimiter();
+    }
+})();
+
+// ─── Builders ─────────────────────────────────────────────────────────────────
+
+const _buildReservaLimiter = () => rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    store: _store,
     message: 'Demasiadas reservas desde esta IP. Por favor, intenta más tarde.',
     standardHeaders: true,
     legacyHeaders: false,
-    // Skip rate limiting for authenticated admin users
-    skip: (req) => req.user && (req.user.rol === 'BARBERIA_ADMIN' || req.user.rol === 'SUPER_ADMIN')
+    skip: skipForStressTest,
 });
 
-/**
- * Rate limiter for reservation cancellations
- * Prevents malicious mass cancellations
- */
-exports.cancelLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hour
-    max: 3, // 3 cancellations per IP per hour
+const _buildCancelLimiter = () => rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 3,
+    store: _store,
     message: 'Demasiadas cancelaciones desde esta IP. Por favor, intenta más tarde.',
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: skipForStressTest,
 });
 
-/**
- * Rate limiter for public reviews
- * Prevents review spam
- */
-exports.reviewLimiter = rateLimit({
-    windowMs: 24 * 60 * 60 * 1000, // 24 hours
-    max: 3, // 3 reviews per IP per day
+const _buildReviewLimiter = () => rateLimit({
+    windowMs: 24 * 60 * 60 * 1000,
+    max: 3,
+    store: _store,
     message: 'Demasiadas reseñas desde esta IP. Por favor, intenta mañana.',
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: skipForStressTest,
 });
+
+// Initial instances (MemoryStore). Replaced by the IIFE above if Redis connects.
+let _reservaLimiter = _buildReservaLimiter();
+let _cancelLimiter = _buildCancelLimiter();
+let _reviewLimiter = _buildReviewLimiter();
+
+// ─── Proxy exports ────────────────────────────────────────────────────────────
+exports.reservaLimiter = (req, res, next) => _reservaLimiter(req, res, next);
+exports.cancelLimiter = (req, res, next) => _cancelLimiter(req, res, next);
+exports.reviewLimiter = (req, res, next) => _reviewLimiter(req, res, next);

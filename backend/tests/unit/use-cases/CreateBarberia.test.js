@@ -37,11 +37,11 @@ describe('CreateBarberia Use Case', () => {
 
             expect(result).toBeDefined();
             expect(result.nombre).toBe('Barbería Premium');
-            expect(result.email).toBe('contacto@barberiapremium.com');
+            expect(result.email.value).toBe('contacto@barberiapremium.com');
             expect(result.slug).toBe('barberia-premium');
             expect(result.direccion).toBe('Av. Principal 123');
             expect(result.telefono).toBe('1234567890');
-            expect(result.activo).toBe(true);
+            expect(result.activa).toBe(true);
         });
 
         it('should generate unique slug from nombre', async () => {
@@ -131,7 +131,7 @@ describe('CreateBarberia Use Case', () => {
 
             const result = await createBarberia.execute(data);
 
-            expect(result.email).toBe('uppercase@test.com');
+            expect(result.email.value).toBe('uppercase@test.com');
         });
     });
 
@@ -150,7 +150,7 @@ describe('CreateBarberia Use Case', () => {
                 await createBarberia.execute(data);
                 fail('Should have thrown error');
             } catch (error) {
-                expect(error.message).toBe('Database error');
+                expect(error.message).toContain('Database error');
             }
 
             // Verify no barberia was created

@@ -9,6 +9,7 @@ import { DollarSign, Calendar, Users, TrendingUp, CheckCircle, XCircle, Clock, P
 import { useApiCall } from "../../hooks/useApiCall";
 import { useAsyncAction } from "../../hooks/useAsyncAction";
 import { ensureArray } from "../../utils/validateData";
+import SetupChecklist from "../../components/admin/SetupChecklist";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -111,6 +112,9 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
+      {/* ONBOARDING CHECKLIST — solo visible hasta que todo esté configurado */}
+      <SetupChecklist />
+
       {/* HEADER SECTION */}
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -159,10 +163,12 @@ export default function Dashboard() {
             <h3 className="text-3xl font-black text-gray-900 mt-2 tracking-tight">
               {formatearMoneda(data?.ingresosPeriodo || 0)}
             </h3>
-            <div className="mt-4 flex items-center gap-2 bg-green-50 w-fit px-2 py-1 rounded-lg">
-              <ArrowUp size={14} className="text-green-600" />
-              <span className="text-xs font-bold text-green-600">+12% vs ayer</span>
-            </div>
+            {data?.turnosCompletados > 0 && (
+              <div className="mt-4 flex items-center gap-2 bg-green-50 w-fit px-2 py-1 rounded-lg">
+                <CheckCircle size={14} className="text-green-600" />
+                <span className="text-xs font-bold text-green-600">{data.turnosCompletados} completadas</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -177,10 +183,12 @@ export default function Dashboard() {
             <h3 className="text-3xl font-black text-gray-900 mt-2 tracking-tight">
               {data?.totalReservas || 0}
             </h3>
-            <div className="mt-4 flex items-center gap-2 bg-green-50 w-fit px-2 py-1 rounded-lg">
-              <ArrowUp size={14} className="text-green-600" />
-              <span className="text-xs font-bold text-green-600">+5 nuevas</span>
-            </div>
+            {data?.turnosPendientes > 0 && (
+              <div className="mt-4 flex items-center gap-2 bg-amber-50 w-fit px-2 py-1 rounded-lg">
+                <Clock size={14} className="text-amber-600" />
+                <span className="text-xs font-bold text-amber-600">{data.turnosPendientes} pendientes</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -191,13 +199,13 @@ export default function Dashboard() {
             <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 mb-6">
               <Users size={24} />
             </div>
-            <p className="caption text-gray-500 font-bold uppercase tracking-widest">Nuevos Clientes</p>
+            <p className="caption text-gray-500 font-bold uppercase tracking-widest">Clientes Únicos</p>
             <h3 className="text-3xl font-black text-gray-900 mt-2 tracking-tight">
               {data?.nuevosClientes || 0}
             </h3>
             <div className="mt-4 flex items-center gap-2 bg-amber-50 w-fit px-2 py-1 rounded-lg">
               <TrendingUp size={14} className="text-amber-600" />
-              <span className="text-xs font-bold text-amber-600">Periodo activo</span>
+              <span className="text-xs font-bold text-amber-600">En el período</span>
             </div>
           </div>
         </div>
@@ -215,7 +223,9 @@ export default function Dashboard() {
             </h3>
             <div className="mt-4 flex items-center gap-2 bg-purple-50 w-fit px-2 py-1 rounded-lg">
               <CheckCircle size={14} className="text-purple-600" />
-              <span className="text-xs font-bold text-purple-600">Meta alcanzada</span>
+              <span className="text-xs font-bold text-purple-600">
+                {data?.turnosCompletados || 0} / {data?.totalReservas || 0} citas
+              </span>
             </div>
           </div>
         </div>
@@ -350,7 +360,7 @@ export default function Dashboard() {
                             <>
                               <button
                                 onClick={() => handleCompletar(reserva._id)}
-                                className="btn btn-ghost btn-sm text-green-600 opacity-0 group-hover:opacity-100 hover:bg-green-50"
+                                className="btn btn-ghost btn-sm text-green-600 opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-green-50"
                                 title="Completar"
                                 disabled={completando || cancelando}
                               >
@@ -358,7 +368,7 @@ export default function Dashboard() {
                               </button>
                               <button
                                 onClick={() => handleCancelar(reserva._id)}
-                                className="btn btn-ghost btn-sm text-red-600 opacity-0 group-hover:opacity-100 hover:bg-red-50"
+                                className="btn btn-ghost btn-sm text-red-600 opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-red-50"
                                 title="Cancelar"
                                 disabled={completando || cancelando}
                               >
