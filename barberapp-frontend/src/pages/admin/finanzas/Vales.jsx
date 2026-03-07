@@ -9,7 +9,7 @@ import DateRangePicker from "../../../components/ui/DateRangePicker";
 import {
     obtenerVales, registrarVale, actualizarVale, eliminarVale
 } from "../../../services/valesService";
-import { obtenerBarberos } from "../../../services/barberosService";
+import { getBarberos as obtenerBarberos } from "../../../services/barberosService";
 import dayjs from "dayjs";
 
 const fmt = (n) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(n || 0);
