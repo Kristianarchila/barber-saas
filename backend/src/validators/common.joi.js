@@ -237,17 +237,29 @@ const egresoSchema = Joi.object({
 
 // ==================== VENTAS ====================
 const ventaItemSchema = Joi.object({
-    productoId: objectId.required(),
+    productoId: objectId.optional(),
+    itemId: objectId.optional(),
     cantidad: Joi.number().integer().positive().required(),
-    precioUnitario: Joi.number().positive().required()
+    precioUnitario: Joi.number().positive().optional(),
+    precio: Joi.number().min(0).optional(),
+    subtotal: Joi.number().min(0).optional(),
+    type: Joi.string().valid('servicio', 'producto').optional(),
+    nombre: Joi.string().trim().max(200).optional().allow('')
 });
 
 const ventaSchema = Joi.object({
     items: Joi.array().items(ventaItemSchema).min(1).required()
         .messages({ 'array.min': 'La venta debe tener al menos un producto' }),
-    metodoPago: Joi.string().valid('efectivo', 'tarjeta', 'transferencia', 'otro').required(),
-    descuento: Joi.number().min(0).max(100).default(0),
-    notas: Joi.string().trim().max(300).optional().allow('')
+    metodoPago: Joi.string().valid(
+        'efectivo', 'tarjeta', 'transferencia', 'otro',
+        'EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO'
+    ).required(),
+    descuento: Joi.number().min(0).default(0),
+    notas: Joi.string().trim().max(300).optional().allow(''),
+    barberoId: objectId.optional().allow(null, ''),
+    subtotal: Joi.number().min(0).optional(),
+    iva: Joi.number().min(0).optional(),
+    total: Joi.number().min(0).optional()
 });
 
 // ==================== PEDIDOS ====================

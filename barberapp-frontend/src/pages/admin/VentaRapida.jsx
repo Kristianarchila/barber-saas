@@ -355,7 +355,7 @@ export default function VentaRapida() {
             </div>
 
             {/* ── MOBILE ONLY: Fixed bottom cart bar ────────────────── */}
-            <div className="lg:hidden fixed bottom-[72px] left-0 right-0 z-40 px-4">
+            <div className="lg:hidden fixed bottom-[84px] left-0 right-0 z-40 px-4 pb-1">
                 <button
                     onClick={() => setShowMobileCart(true)}
                     className="w-full flex items-center justify-between bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl active:scale-95 transition-transform"
