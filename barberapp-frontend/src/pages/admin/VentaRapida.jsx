@@ -45,9 +45,9 @@ export default function VentaRapida() {
     const { execute: fetchData, loading, error } = useApiCall(
         async () => {
             const [servs, dataProds, barbs] = await Promise.all([
-                getServicios(),
+                getServicios(slug),
                 obtenerProductos(slug),
-                getBarberos()
+                getBarberos(slug)
             ]);
             return { servs, dataProds, barbs };
         },

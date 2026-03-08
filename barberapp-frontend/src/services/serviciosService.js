@@ -21,11 +21,12 @@ function getSlugActual() {
 
 /**
  * Obtiene todos los servicios de la barbería
+ * @param {string} slugOverride - Opcional: slug de la barbería
  * @returns {Promise<Array>} Lista de servicios
  * @endpoint GET /api/barberias/:slug/admin/servicios
  */
-export async function getServicios() {
-  const slug = getSlugActual();
+export async function getServicios(slugOverride) {
+  const slug = slugOverride || getSlugActual();
   const res = await api.get(`/barberias/${slug}/admin/servicios`);
 
   // Arquitectura hexagonal devuelve: { total: number, servicios: Array }

@@ -26,11 +26,12 @@ function getSlugActual() {
 
 /**
  * Lista todos los barberos de la barbería actual
+ * @param {string} slugOverride - Opcional: slug de la barbería
  * @returns {Promise<Array>} Lista de barberos
  * @endpoint GET /api/barberias/:slug/barbero
  */
-export async function getBarberos() {
-  const slug = getSlugActual();
+export async function getBarberos(slugOverride) {
+  const slug = slugOverride || getSlugActual();
   const res = await api.get(`/barberias/${slug}/barbero`);
   return res.data.barberos;
 }
