@@ -44,6 +44,11 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
+      # ✅ These override backend/.env (dev values) — critical for production
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://barbersaas.duckdns.org}
+      FRONTEND_URL: ${FRONTEND_URL:-https://barbersaas.duckdns.org}
+      PRODUCTION_DOMAINS: ${PRODUCTION_DOMAINS:-https://barbersaas.duckdns.org}
+      MONGO_URI: ${MONGO_URI}
     depends_on:
       mongo:
         condition: service_healthy
