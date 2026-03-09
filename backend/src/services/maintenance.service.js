@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const Barberia = require('../infrastructure/database/mongodb/models/Barberia');
+const Subscription = require('../infrastructure/database/mongodb/models/Subscription');
 
 /**
  * Trial Monitor Service
@@ -17,11 +18,18 @@ class TrialMonitor {
             this.checkExpiredTrials();
         });
 
-        // Run every hour to check for pending payments
+        // Run every hour to check for expired paid subscriptions
         cron.schedule('0 * * * *', () => {
             console.log('⏰ Running hourly subscription status check...');
             this.checkSubscriptionStatus();
         });
+
+        // Run once on startup (after 5s delay so DB is connected)
+        setTimeout(() => {
+            console.log('🚀 Running startup subscription expiration check...');
+            this.checkExpiredTrials();
+            this.checkSubscriptionStatus();
+        }, 5000);
     }
 
     /**
@@ -61,12 +69,31 @@ class TrialMonitor {
     }
 
     /**
-     * Check for subscriptions and send reminders
+     * Check ACTIVE subscriptions whose currentPeriodEnd has passed
+     * and mark them as PAST_DUE automatically.
      */
     async checkSubscriptionStatus() {
-        // Implementation for sending reminders before expiration or payment
-        // (Similar logic to checkExpiredTrials but for upcoming payments)
+        try {
+            const now = new Date();
+
+            // Find ACTIVE subscriptions whose period has ended
+            const expired = await Subscription.find({
+                status: 'ACTIVE',
+                currentPeriodEnd: { $lt: now }
+            });
+
+            console.log(`🔍 Found ${expired.length} expired ACTIVE subscriptions`);
+
+            for (const sub of expired) {
+                sub.status = 'PAST_DUE';
+                await sub.save();
+                console.log(`⚠️  Marked subscription as PAST_DUE: barberiaId=${sub.barberiaId} | expired=${sub.currentPeriodEnd}`);
+            }
+        } catch (error) {
+            console.error('Error in checkSubscriptionStatus:', error);
+        }
     }
 }
 
 module.exports = new TrialMonitor();
+

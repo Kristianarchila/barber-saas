@@ -33,7 +33,8 @@ const manageSubscription = new ManageSubscription(subscriptionRepo, barberiaRepo
 const getSubscriptionHistory = new GetSubscriptionHistory(subscriptionRepo);
 
 /**
- * Get current subscription for authenticated barberia
+ * Get current subscription for authenticated barberia.
+ * Falls back to Barberia model data if no Subscription document exists.
  */
 exports.getCurrentSubscription = async (req, res) => {
     try {
@@ -41,14 +42,38 @@ exports.getCurrentSubscription = async (req, res) => {
 
         const subscription = await subscriptionRepo.findByBarberiaId(barberiaId);
 
-        if (!subscription) {
-            return res.status(404).json({
-                error: 'No subscription found'
-            });
+        if (subscription) {
+            return res.json({ subscription: subscription.toObject() });
         }
 
-        res.json({
-            subscription: subscription.toObject()
+        // ─── Fallback: no Subscription doc — build from Barberia model ───
+        const Barberia = require('../infrastructure/database/mongodb/models/Barberia');
+        const barberia = await Barberia.findById(barberiaId).lean();
+
+        if (!barberia) {
+            return res.status(404).json({ error: 'Barbería not found' });
+        }
+
+        // Return a virtual subscription object so the frontend always gets data
+        const { normalizePlan } = require('../constants/PlanLimits');
+        const now = new Date();
+        const periodEnd = barberia.proximoPago ? new Date(barberia.proximoPago) : null;
+        const isExpired = periodEnd && periodEnd < now;
+
+        return res.json({
+            subscription: {
+                id: null,
+                barberiaId: barberia._id,
+                plan: normalizePlan(barberia.plan || 'FREE'),
+                status: isExpired ? 'PAST_DUE' : (barberia.estado === 'activa' ? 'ACTIVE' : 'CANCELED'),
+                paymentMethod: 'MANUAL',
+                currentPeriodStart: barberia.createdAt || null,
+                currentPeriodEnd: periodEnd,
+                cancelAtPeriodEnd: false,
+                manualPayments: [],
+                changeHistory: [],
+                metadata: { source: 'barberia_model_fallback' }
+            }
         });
     } catch (error) {
         res.status(500).json({
@@ -57,6 +82,7 @@ exports.getCurrentSubscription = async (req, res) => {
         });
     }
 };
+
 
 /**
  * Create a new subscription

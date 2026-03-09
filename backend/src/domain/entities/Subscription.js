@@ -132,11 +132,31 @@ class Subscription {
     }
 
     /**
-     * Check if subscription allows access to the system
+     * Check if subscription period has expired (date-based check)
+     * @returns {boolean}
+     */
+    isExpired() {
+        if (!this._currentPeriodEnd) return false;
+        return new Date() > new Date(this._currentPeriodEnd);
+    }
+
+    /**
+     * Check if subscription allows access to the system.
+     * A subscription is blocked if:
+     *  - Status is not ACTIVE or TRIALING, OR
+     *  - It's ACTIVE but the period end date has already passed
      * @returns {boolean}
      */
     canAccess() {
-        return this.isActive() || this.isTrialing();
+        if (this.isTrialing()) {
+            // For trials, check the trial end date
+            return !this.hasTrialEnded();
+        }
+        if (this.isActive()) {
+            // For active subscriptions, check the period end date
+            return !this.isExpired();
+        }
+        return false;
     }
 
     /**

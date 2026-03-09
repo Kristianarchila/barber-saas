@@ -22,7 +22,19 @@ const STATUS = {
   activa: { dot: 'bg-green-500', bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: 'Activa' },
   trial: { dot: 'bg-yellow-500', bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: 'Trial' },
   suspendida: { dot: 'bg-red-500', bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Suspendida' },
+  vencida: { dot: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', label: '⚠ Vencida' },
 };
+
+/**
+ * Returns the effective display status for a barberia.
+ * If estado=activa but proximoPago is in the past → show 'vencida'
+ */
+function getEstadoEfectivo(b) {
+  if (b.estado === 'activa' && b.proximoPago && new Date(b.proximoPago) < new Date()) {
+    return 'vencida';
+  }
+  return b.estado;
+}
 
 function StatusBadge({ estado }) {
   const s = STATUS[estado] || STATUS.suspendida;
@@ -388,12 +400,17 @@ export default function Barberias() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4"><StatusBadge estado={b.estado} /></td>
+                  <td className="px-5 py-4"><StatusBadge estado={getEstadoEfectivo(b)} /></td>
                   <td className="px-5 py-4">
                     <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-lg uppercase">{b.plan || 'trial'}</span>
                   </td>
-                  <td className="px-5 py-4 text-sm text-gray-600">
-                    {b.proximoPago ? format(new Date(b.proximoPago), 'dd MMM yyyy', { locale: es }) : <span className="text-gray-300">—</span>}
+                  <td className="px-5 py-4 text-sm">
+                    {b.proximoPago ? (
+                      <span className={new Date(b.proximoPago) < new Date() ? 'text-orange-600 font-bold' : 'text-gray-600'}>
+                        {format(new Date(b.proximoPago), 'dd MMM yyyy', { locale: es })}
+                        {new Date(b.proximoPago) < new Date() && ' ⚠'}
+                      </span>
+                    ) : <span className="text-gray-300">—</span>}
                   </td>
                   <td className="px-5 py-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
