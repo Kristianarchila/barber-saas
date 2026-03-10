@@ -610,7 +610,7 @@ const ConfirmStep = ({ formData, service, barber, onConfirm, loading, onChange, 
                                                 />
                                             ))}
                                         </div>
-                                        <span>PROCESANDO BIOMETRÍA</span>
+                                        <span>PROCESANDO RESERVA</span>
                                     </div>
                                 ) : (
                                     <>
@@ -676,10 +676,10 @@ const SuccessScreen = ({ formData, service, barberia }) => {
             </div>
 
             <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-4 leading-none">
-                ¡Éxito Total<span className="text-green-500">.</span>!
+                ¡Cita Lista<span className="text-green-500">.</span>!
             </h2>
             <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-[0.4em] mb-16 max-w-md mx-auto leading-relaxed">
-                Tu espacio ha sido blindado. Los detalles viajan ahora mismo a tu bandeja de entrada.
+                Tu reserva ha sido confirmada. Los detalles viajan ahora mismo a tu bandeja de entrada.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
