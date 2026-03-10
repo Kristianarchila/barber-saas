@@ -58,7 +58,7 @@ export async function getResenasBySlug(slug) {
 
 // 10. Obtener sugerencias de horarios con IA
 export async function getAISuggestions(barberiaId, barberoId, servicioId, fechaDeseada, horaDeseada) {
-  const res = await api.post(`/reservas/ai-suggestions`, {
+  const res = await api.post(`/public/reservas/ai-suggestions`, {
     barberiaId,
     barberoId,
     servicioId,
