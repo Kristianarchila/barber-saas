@@ -111,3 +111,8 @@ export async function getAuditLogs(params = {}) {
   const res = await api.get("/superadmin/audit-logs", { params });
   return res.data;
 }
+
+export async function getSystemIntegrity() {
+  const res = await api.get("/superadmin/integrity");
+  return res.data;
+}

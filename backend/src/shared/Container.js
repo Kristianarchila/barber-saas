@@ -1264,14 +1264,6 @@ class Container {
         return this._instances.valeRepository;
     }
 
-    // ==========================================
-    // USE CASES - REPORTES FINANCIEROS
-    // ==========================================
-
-    get getReporteFinancieroUseCase() {
-        return new GetReporteFinancieroBarberia();
-    }
-
 }
 
 // Export singleton instance

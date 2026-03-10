@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const events = require('../../../events');
 
 /**
  * AuditLog Model
@@ -151,7 +152,14 @@ auditLogSchema.index({ result: 1, createdAt: -1 });
  */
 auditLogSchema.statics.log = async function (data) {
     try {
-        return await this.create(data);
+        const log = await this.create(data);
+
+        // 🚨 DISPARAR EVENTO para el AlertService
+        if (data.severity === 'CRITICAL' || data.severity === 'HIGH') {
+            events.emit('alert:critical', data);
+        }
+
+        return log;
     } catch (error) {
         // No fallar la operación principal si el log falla
         console.error('Error creando audit log:', error);

@@ -647,3 +647,32 @@ exports.getAuditLogs = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get system integrity and security status
+ */
+exports.getSystemIntegrity = async (req, res, next) => {
+  try {
+    const { checkSystemHealth } = require('../utils/healthCheck');
+    const AuditLog = require('../infrastructure/database/mongodb/models/AuditLog');
+
+    // 1. Obtener salud del sistema (Live Probes)
+    const health = await checkSystemHealth();
+
+    // 2. Obtener alertas de seguridad recientes (Severidad HIGH/CRITICAL)
+    const securityAlerts = await AuditLog.find({
+      severity: { $in: ['HIGH', 'CRITICAL'] },
+      createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } // Últimos 7 días
+    })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.json({
+      health,
+      securityAlerts
+    });
+  } catch (error) {
+    console.error('❌ [SUPERADMIN] Error al obtener integridad del sistema:', error);
+    next(error);
+  }
+};

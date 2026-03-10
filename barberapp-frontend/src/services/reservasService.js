@@ -1,23 +1,5 @@
-/**
- * @file reservasService.js
- * @description Servicio para gestión de reservas (rol: BARBERIA_ADMIN)
- * 
- * CRUD de reservas y operaciones relacionadas
- * 
- * 🔐 Autenticación: Requiere token JWT con rol BARBERIA_ADMIN
- * 🏢 Multi-tenant: Todas las rutas están bajo /api/barberias/:slug/admin/reservas
- * 📍 Slug: Se obtiene automáticamente de la URL
- */
-
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-  return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Crea una nueva reserva para un barbero
@@ -27,7 +9,7 @@ function getSlugActual() {
  * @endpoint POST /api/barberias/:slug/admin/reservas/barberos/:barberoId/reservar
  */
 export async function crearReserva(barberoId, reservaData) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.post(
     `/barberias/${slug}/admin/reservas/barberos/${barberoId}/reservar`,
     reservaData
@@ -45,7 +27,7 @@ export async function crearReserva(barberoId, reservaData) {
  * @endpoint GET /api/barberias/:slug/admin/reservas/barberos/:barberoId?fecha=YYYY-MM-DD
  */
 export async function getReservasPorBarberoDia(barberoId, fecha) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(`/barberias/${slug}/admin/reservas/barberos/${barberoId}?fecha=${fecha}`);
   return res.data.reservas || [];
 }
@@ -57,7 +39,7 @@ export async function getReservasPorBarberoDia(barberoId, fecha) {
  * @endpoint PATCH /api/barberias/:slug/admin/reservas/:id/completar
  */
 export async function completarReserva(id) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/completar`);
 
   // Arquitectura hexagonal devuelve: { message: string, reserva: Object }
@@ -71,7 +53,7 @@ export async function completarReserva(id) {
  * @endpoint PATCH /api/barberias/:slug/admin/reservas/:id/cancelar
  */
 export async function cancelarReserva(id) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/cancelar`);
 
   // Arquitectura hexagonal devuelve: { message: string, reserva: Object }
@@ -85,7 +67,7 @@ export async function cancelarReserva(id) {
  * @endpoint GET /api/barberias/:slug/admin/reservas
  */
 export async function getHistorialReservas(filters = {}) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const params = new URLSearchParams(filters).toString();
   const res = await api.get(`/barberias/${slug}/admin/reservas${params ? `?${params}` : ''}`);
   return res.data.reservas || [];
@@ -99,7 +81,7 @@ export async function getHistorialReservas(filters = {}) {
  * @endpoint PATCH /api/barberias/:slug/admin/reservas/:id/reagendar
  */
 export async function reagendarReserva(id, data) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/reagendar`, data);
   return res.data.reserva || res.data;
 }

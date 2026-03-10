@@ -292,6 +292,8 @@ app.use("/api/barberias/:slug/carrito", tenantPublicMiddleware, require("./route
 
 app.use("/api/barberias/:slug/admin/ficha-tecnica", tenantAdminMiddleware, require("./routes/fichaTecnica.routes"));
 app.use("/api/barberias/:slug/admin/ventas", tenantAdminMiddleware, require("./routes/venta.routes"));
+// Alias — some older pages call without /admin/ prefix
+app.use("/api/barberias/:slug/ventas", tenantAdminMiddleware, require("./routes/venta.routes"));
 app.use("/api/waiting-list", require("./routes/waitingList.routes"));
 app.use("/api/calendar", require("./routes/calendar.routes"));
 

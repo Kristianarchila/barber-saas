@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Mail, ArrowLeft, Scissors, CheckCircle2, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
-const API = import.meta.env.VITE_API_URL || "/api";
+import { requestPasswordReset } from "../../services/authService";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
@@ -16,15 +16,13 @@ export default function ForgotPassword() {
         setError(null);
         setLoading(true);
         try {
-            const res = await fetch(`${API}/auth/forgot-password`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email }),
-            });
+            await requestPasswordReset(email);
             // Always show success (anti-enumeration)
             setSent(true);
-        } catch {
-            setError("Error al conectar con el servidor. Intenta de nuevo.");
+        } catch (err) {
+            // Check for specific error messages from the backend or rate limits
+            const msg = err.response?.data?.message || "Error al conectar con el servidor. Intenta de nuevo.";
+            setError(msg);
         } finally {
             setLoading(false);
         }

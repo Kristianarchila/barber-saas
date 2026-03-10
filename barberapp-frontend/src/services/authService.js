@@ -13,3 +13,13 @@ export async function signup(userData) {
   const res = await api.post("/auth/register", userData);
   return res.data;
 }
+
+export async function requestPasswordReset(email) {
+  const res = await api.post("/auth/forgot-password", { email });
+  return res.data;
+}
+
+export async function resetPassword(token, newPassword) {
+  const res = await api.post("/auth/reset-password", { token, newPassword });
+  return res.data;
+}

@@ -36,7 +36,8 @@ class UpdateBarberiaConfig {
             'ctaSecondary', 'galeria', 'instagram', 'facebook',
             'googleMapsUrl', 'seoTitle', 'seoDescription', 'faviconUrl',
             'analyticsId', 'pixelId', 'emailNotificaciones',
-            'nombreParaEmails', 'emailProvider', 'smtpConfig'
+            'nombreParaEmails', 'emailProvider', 'smtpConfig',
+            'emailDesign', 'emailBannerUrl'
         ];
 
         configFields.forEach(field => {

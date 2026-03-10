@@ -1,18 +1,12 @@
 import api from './api';
-
-/**
- * Obtiene el slug de la barbería actual desde la URL
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Obtiene la disponibilidad horaria del barbero
  * @returns {Promise<Object>} Horarios configurados
  */
 export async function getDisponibilidad() {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.get(`/barberias/${slug}/barbero/disponibilidad`);
     return res.data;
 }
@@ -23,7 +17,7 @@ export async function getDisponibilidad() {
  * @returns {Promise<Object>} Horarios actualizados
  */
 export async function updateDisponibilidad(horarios) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.patch(`/barberias/${slug}/barbero/disponibilidad`, { horarios });
     return res.data;
 }

@@ -7,14 +7,7 @@
  */
 
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Obtener resumen general del negocio
@@ -22,7 +15,7 @@ function getSlugActual() {
  * @returns {Promise<Object>} Resumen general
  */
 export async function obtenerResumenGeneral(mes, desde, hasta) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     let queryParams = '';
     if (mes) queryParams = `?mes=${mes}`;
     else if (desde && hasta) queryParams = `?desde=${desde}&hasta=${hasta}`;
@@ -37,7 +30,7 @@ export async function obtenerResumenGeneral(mes, desde, hasta) {
  * @returns {Promise<Array>} Rendimiento de cada barbero
  */
 export async function obtenerRendimientoBarberos(mes, desde, hasta) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     let queryParams = '';
     if (mes) queryParams = `?mes=${mes}`;
     else if (desde && hasta) queryParams = `?desde=${desde}&hasta=${hasta}`;
@@ -52,7 +45,7 @@ export async function obtenerRendimientoBarberos(mes, desde, hasta) {
  * @returns {Promise<Object>} Servicios vendidos
  */
 export async function obtenerServiciosVendidos(mes, desde, hasta) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     let queryParams = '';
     if (mes) queryParams = `?mes=${mes}`;
     else if (desde && hasta) queryParams = `?desde=${desde}&hasta=${hasta}`;
@@ -67,7 +60,7 @@ export async function obtenerServiciosVendidos(mes, desde, hasta) {
  * @returns {Promise<Object>} Análisis de pagos
  */
 export async function obtenerAnalisisPagos(mes, desde, hasta) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     let queryParams = '';
     if (mes) queryParams = `?mes=${mes}`;
     else if (desde && hasta) queryParams = `?desde=${desde}&hasta=${hasta}`;
@@ -82,7 +75,7 @@ export async function obtenerAnalisisPagos(mes, desde, hasta) {
  * @returns {Promise<Array>} Tendencias por día
  */
 export async function obtenerTendenciasIngresos(mes, desde, hasta) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     let queryParams = '';
     if (mes) queryParams = `?mes=${mes}`;
     else if (desde && hasta) queryParams = `?desde=${desde}&hasta=${hasta}`;

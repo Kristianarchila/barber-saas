@@ -10,15 +10,8 @@
  */
 
 import api from "./api";
+import { getSlug } from "../utils/slugUtils";
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from "date-fns";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
 
 /**
  * Obtiene reservas para un rango de fechas
@@ -29,7 +22,7 @@ function getSlugActual() {
  * @endpoint GET /api/barberias/:slug/admin/reservas/calendario
  */
 export async function getCalendario(fechaInicio, fechaFin, barberoId = null) {
-    const slug = getSlugActual();
+    const slug = getSlug();
 
     const params = new URLSearchParams({
         fechaInicio,

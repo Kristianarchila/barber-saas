@@ -8,9 +8,28 @@ require("./controllers/reservas.events");
 require("./events/resenas.events");
 require("./infrastructure/cache/cache.events"); // Cache invalidation events
 
+// 🔍 Inicializar Sistema de Integridad y Conciencia (S.I.A.S.)
+require('./infrastructure/notifications/AlertService');
+require('./application/services/IntegrityService');
+
 const PORT = process.env.PORT || 4000;
 
 async function bootstrap() {
+  // 🛡️ VALIDACIÓN DE VARIABLES DE ENTORNO CRÍTICAS
+  const requiredEnv = [
+    "MONGO_URI",
+    "JWT_SECRET",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "CLIENT_URL"
+  ];
+
+  const missing = requiredEnv.filter(k => !process.env[k]);
+  if (missing.length > 0) {
+    logger.error(`❌ Faltan variables de entorno críticas: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+
   try {
     await connectDB();
 

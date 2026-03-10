@@ -10,14 +10,7 @@
  */
 
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Abrir caja
@@ -28,7 +21,7 @@ function getSlugActual() {
  * @endpoint POST /api/barberias/:slug/admin/caja/abrir
  */
 export async function abrirCaja(cajaData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/caja/abrir`, cajaData);
     return res.data;
 }
@@ -39,7 +32,7 @@ export async function abrirCaja(cajaData) {
  * @endpoint GET /api/barberias/:slug/admin/caja/actual
  */
 export async function obtenerCajaActual() {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.get(`/barberias/${slug}/admin/caja/actual`);
     return res.data;
 }
@@ -51,7 +44,7 @@ export async function obtenerCajaActual() {
  * @endpoint POST /api/barberias/:slug/admin/caja/ingresos
  */
 export async function agregarIngreso(ingresoData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/caja/ingresos`, ingresoData);
     return res.data;
 }
@@ -63,7 +56,7 @@ export async function agregarIngreso(ingresoData) {
  * @endpoint POST /api/barberias/:slug/admin/caja/egresos
  */
 export async function agregarEgreso(egresoData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/caja/egresos`, egresoData);
     return res.data;
 }
@@ -78,7 +71,7 @@ export async function agregarEgreso(egresoData) {
  * @endpoint POST /api/barberias/:slug/admin/caja/cerrar
  */
 export async function cerrarCaja(cierreData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/caja/cerrar`, cierreData);
     return res.data;
 }
@@ -90,7 +83,7 @@ export async function cerrarCaja(cierreData) {
  * @endpoint GET /api/barberias/:slug/admin/caja/historial
  */
 export async function obtenerHistorialCajas(filtros = {}) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = new URLSearchParams(filtros).toString();
     const url = `/barberias/${slug}/admin/caja/historial${queryParams ? `?${queryParams}` : ''}`;
     const res = await api.get(url);

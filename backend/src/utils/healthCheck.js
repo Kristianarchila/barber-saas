@@ -88,37 +88,47 @@ async function checkCloudinary() {
  */
 async function checkEmailService() {
     try {
+        const emailService = require('../infrastructure/email/EmailService');
+
         // Verificar que las variables de entorno estén configuradas
         const hasConfig = !!(
             process.env.EMAIL_USER &&
-            process.env.EMAIL_PASS &&
-            process.env.EMAIL_HOST
+            process.env.EMAIL_PASS
         );
 
         if (!hasConfig) {
             return {
-                status: 'degraded',
-                message: 'Servicio de email configurado parcialmente',
+                status: 'unhealthy',
+                message: 'Servicio de email no configurado (.env faltante)',
                 details: {
                     hasUser: !!process.env.EMAIL_USER,
-                    hasPass: !!process.env.EMAIL_PASS,
-                    hasHost: !!process.env.EMAIL_HOST
+                    hasPass: !!process.env.EMAIL_PASS
                 }
             };
         }
 
-        return {
-            status: 'healthy',
-            message: 'Servicio de email configurado',
-            details: {
-                host: process.env.EMAIL_HOST,
-                user: process.env.EMAIL_USER
-            }
-        };
+        // 🔍 PRUEBA VIVA: Verificar conexión con el servidor SMTP
+        try {
+            await emailService.transporter.verify();
+            return {
+                status: 'healthy',
+                message: 'Servicio de email conectado y autenticado correctamente',
+                details: {
+                    user: process.env.EMAIL_USER,
+                    host: 'smtp.gmail.com'
+                }
+            };
+        } catch (verifyError) {
+            return {
+                status: 'unhealthy',
+                message: 'Error de autenticación SMTP (Credenciales inválidas o bloqueo de Gmail)',
+                error: verifyError.message
+            };
+        }
     } catch (error) {
         return {
             status: 'unhealthy',
-            message: 'Error verificando servicio de email',
+            message: 'Error crítico al inicializar servicio de email',
             error: error.message
         };
     }

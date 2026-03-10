@@ -24,21 +24,28 @@ class RequestPasswordResetUseCase {
         user.passwordResetExpires = expires;
         await user.save({ validateBeforeSave: false });
 
-        // 4. Build reset URL
+        // 4. Get Barberia config for branding
+        const Barberia = require('../../../infrastructure/database/mongodb/models/Barberia');
+        let barberiaConfig = null;
+        if (user.barberiaId) {
+            const barberia = await Barberia.findById(user.barberiaId);
+            if (barberia) {
+                barberiaConfig = {
+                    nombre: barberia.nombre,
+                    design: barberia.configuracion?.emailDesign || 'modern',
+                    bannerUrl: barberia.configuracion?.emailBannerUrl || barberia.configuracion?.logoUrl,
+                    primaryColor: barberia.configuracion?.colorPrincipal || '#3b82f6'
+                };
+            }
+        }
+
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
         const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
 
-        // 5. Send email — wrapped: if SMTP isn't configured we still return 200
-        try {
-            await emailService.sendPasswordReset(user.email, resetUrl);
-        } catch (emailError) {
-            // Dev-only warning — never expose to client
-            console.warn('[RequestPasswordReset] Email no enviado (revisa EMAIL_USER / EMAIL_PASS en .env):', emailError.message);
-            // In dev: log the reset link so the superadmin can use it directly
-            if (process.env.NODE_ENV !== 'production') {
-                console.info(`[DEV] Reset link para ${user.email}: ${resetUrl}`);
-            }
-        }
+        // 5. Send email
+        // We no longer catch the error here to allow it to bubble up to the controller.
+        // This ensures that if SMTP is blocked (e.g. by Hetzner), the user/admin gets a real error.
+        await emailService.sendPasswordReset(user.email, resetUrl, barberiaConfig);
     }
 }
 

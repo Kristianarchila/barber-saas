@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, Plus, Trash2, Image as ImageIcon, Palette, Layout, Instagram, Facebook, Search, BarChart2, Loader2, Upload, MapPin, Phone, Sparkles, Globe, Settings, Smartphone, X, Lock, Monitor } from 'lucide-react';
+import { Save, Plus, Trash2, Image as ImageIcon, Palette, Layout, Instagram, Facebook, Search, BarChart2, Loader2, Upload, MapPin, Phone, Sparkles, Globe, Settings, Smartphone, X, Lock, Monitor, Mail, Check, Image, UploadCloud, Info } from 'lucide-react';
 import barberiaService from '../../services/barberiaService';
 import uploadService from '../../services/uploadService';
 import { compressImage, validateImageFile } from '../../utils/imageCompression';
@@ -58,7 +58,9 @@ export default function SiteConfig() {
             calificacionMinima: 1,
             permitirRespuestas: true,
             mostrarEnWeb: true
-        }
+        },
+        emailDesign: 'modern',
+        emailBannerUrl: ''
     });
 
     const [newImageUrl, setNewImageUrl] = useState('');
@@ -70,6 +72,7 @@ export default function SiteConfig() {
 
     const logoInputRef = useRef(null);
     const galleryInputRef = useRef(null);
+    const emailBannerInputRef = useRef(null);
 
     useEffect(() => {
         fetchConfig();
@@ -114,6 +117,27 @@ export default function SiteConfig() {
             toast.error(error.message || 'Error al subir la imagen. Verifica que Cloudinary esté configurado.');
         } finally {
             setUploadingGallery(false);
+        }
+    };
+
+    const handleEmailBannerUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setSaving(true);
+        try {
+            validateImageFile(file);
+            const compressedFile = await compressImage(file, { maxSizeMB: 2, maxWidthOrHeight: 1200 });
+            const data = await uploadService.uploadGallery(compressedFile); // Reuse gallery upload logic
+            if (data.success) {
+                setConfig(prev => ({ ...prev, emailBannerUrl: data.url }));
+                toast.success('Banner de email actualizado');
+            }
+        } catch (error) {
+            console.error('Error uploading email banner:', error);
+            toast.error(error.message || 'Error al subir el banner.');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -167,7 +191,9 @@ export default function SiteConfig() {
                         calificacionMinima: 1,
                         permitirRespuestas: true,
                         mostrarEnWeb: true
-                    }
+                    },
+                    emailDesign: data.barberia.configuracion?.emailDesign || 'modern',
+                    emailBannerUrl: data.barberia.configuracion?.emailBannerUrl || ''
                 });
             }
         } catch (error) {
@@ -266,6 +292,7 @@ export default function SiteConfig() {
                     { id: 'design', label: 'Diseño', icon: Palette },
                     { id: 'plantilla', label: 'Plantilla', icon: Monitor },
                     { id: 'content', label: 'Contenido', icon: Layout },
+                    { id: 'emails', label: 'Emails', icon: Mail },
                     { id: 'reviews', label: 'Reseñas', icon: BarChart2 },
                     { id: 'advanced', label: 'Avanzado', icon: Settings }
                 ].map((tab) => (
@@ -537,10 +564,10 @@ export default function SiteConfig() {
                                             toast.success(`Plantilla "${t.name}" seleccionada. Guarda los cambios para aplicarla.`);
                                         }}
                                         className={`relative text-left border-2 rounded-2xl p-5 transition-all ${config.template === t.key
-                                                ? 'border-blue-600 bg-blue-50 shadow-md'
-                                                : t.locked
-                                                    ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
-                                                    : 'border-gray-200 hover:border-blue-400 hover:shadow-sm cursor-pointer'
+                                            ? 'border-blue-600 bg-blue-50 shadow-md'
+                                            : t.locked
+                                                ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                                                : 'border-gray-200 hover:border-blue-400 hover:shadow-sm cursor-pointer'
                                             }`}
                                     >
                                         {/* Preview placeholder */}
@@ -839,7 +866,120 @@ export default function SiteConfig() {
                     </motion.div>
                 )}
 
-                {/* ADVANCED TAB */}
+                {/* EMAILS TAB */}
+                {activeTab === 'emails' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6"
+                    >
+                        {/* Design Selection */}
+                        <div className="card card-padding shadow-sm ring-1 ring-gray-100 border-none">
+                            <h2 className="heading-3 mb-8 flex items-center gap-2">
+                                <Mail size={20} className="text-blue-600" />
+                                Estilo de Emails
+                            </h2>
+                            <p className="text-sm text-gray-500 mb-6 font-medium">
+                                Elige cómo verán tus clientes los correos de recuperación de contraseña y notificaciones.
+                            </p>
+
+                            <div className="space-y-4">
+                                {[
+                                    { id: 'modern', name: 'Modern', desc: 'Limpio, degradados vibrantes, estilo tech.', preview: '✂️' },
+                                    { id: 'vintage', name: 'Vintage', desc: 'Clásico, tonos sepia, estilo tradicional.', preview: '💈' },
+                                    { id: 'luxury', name: 'Luxury', desc: 'Minimalista, dorado y negro, muy elegante.', preview: '💎' }
+                                ].map((design) => (
+                                    <button
+                                        key={design.id}
+                                        onClick={() => setConfig({ ...config, emailDesign: design.id })}
+                                        className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${config.emailDesign === design.id
+                                            ? 'border-blue-600 bg-blue-50/50 shadow-md'
+                                            : 'border-gray-100 hover:border-blue-200'
+                                            }`}
+                                    >
+                                        <div className={`w-12 h-12 flex items-center justify-center rounded-lg text-2xl ${design.id === 'modern' ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white' :
+                                            design.id === 'vintage' ? 'bg-[#f5f1e9] text-[#d4af37] border border-[#d4af37]' :
+                                                'bg-black text-[#c5a059]'
+                                            }`}>
+                                            {design.preview}
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="font-bold text-gray-900">{design.name}</p>
+                                            <p className="text-xs text-gray-500">{design.desc}</p>
+                                        </div>
+                                        {config.emailDesign === design.id && (
+                                            <div className="ml-auto w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                                <Check size={14} className="text-white" />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Banner & Branding */}
+                        <div className="card card-padding shadow-sm ring-1 ring-gray-100 border-none">
+                            <h2 className="heading-3 mb-8 flex items-center gap-2">
+                                <Image size={20} className="text-blue-600" />
+                                Imagen de Cabecera
+                            </h2>
+                            <p className="text-sm text-gray-500 mb-6 font-medium">
+                                Esta imagen aparecerá en la parte superior de tus correos. Recomendamos usar tu logo o una foto de tu equipo.
+                            </p>
+
+                            <div className="space-y-6">
+                                <div className="p-1 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 aspect-[2/1] relative overflow-hidden group">
+                                    {config.emailBannerUrl ? (
+                                        <>
+                                            <img
+                                                src={config.emailBannerUrl}
+                                                alt="Email Banner"
+                                                className="w-full h-full object-cover rounded-xl"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => emailBannerInputRef.current?.click()}
+                                                    className="p-2 bg-white rounded-full text-gray-900 hover:bg-blue-50"
+                                                >
+                                                    <Upload size={20} />
+                                                </button>
+                                                <button
+                                                    onClick={() => setConfig({ ...config, emailBannerUrl: '' })}
+                                                    className="p-2 bg-white rounded-full text-red-600 hover:bg-red-50"
+                                                >
+                                                    <Trash2 size={20} />
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <button
+                                            onClick={() => emailBannerInputRef.current?.click()}
+                                            className="w-full h-full flex flex-col items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-white transition-all"
+                                        >
+                                            <UploadCloud size={48} className="mb-2" />
+                                            <span className="text-sm font-bold">Subir Banner</span>
+                                            <span className="text-xs">JPG, PNG o WEBP (Máx 2MB)</span>
+                                        </button>
+                                    )}
+                                    <input
+                                        type="file"
+                                        ref={emailBannerInputRef}
+                                        onChange={handleEmailBannerUpload}
+                                        className="hidden"
+                                        accept="image/*"
+                                    />
+                                </div>
+
+                                <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
+                                    <Info size={20} className="text-amber-600 shrink-0" />
+                                    <p className="text-xs text-amber-800 italic">
+                                        Consejo: Los diseños <strong>Modern</strong> y <strong>Luxury</strong> funcionan mejor con logos en fondo transparente. El diseño <strong>Vintage</strong> luce genial con fotos cuadradas del equipo.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
                 {activeTab === 'advanced' && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}

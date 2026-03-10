@@ -1,4 +1,5 @@
 const AuditLog = require('../infrastructure/database/mongodb/models/AuditLog');
+const events = require('../events');
 
 /**
  * Audit Helper
@@ -7,6 +8,23 @@ const AuditLog = require('../infrastructure/database/mongodb/models/AuditLog');
  * Proporciona métodos simples para registrar eventos sin bloquear la operación principal.
  */
 class AuditHelper {
+    /**
+     * Registra un evento de auditoría genérico y dispara alertas si es necesario
+     */
+    static async log(data) {
+        try {
+            const log = await AuditLog.log(data);
+
+            // 🚨 DISPARAR ALERTA PROACTIVA si la severidad es alta
+            if (data.severity === 'CRITICAL' || data.severity === 'HIGH') {
+                events.emit('alert:critical', data);
+            }
+
+            return log;
+        } catch (error) {
+            console.error('Error in AuditHelper.log:', error);
+        }
+    }
     /**
      * Registra eliminación de un recurso
      * @param {Object} params

@@ -1,16 +1,5 @@
 import api from './api';
-
-/**
- * Cliente Stats Service
- * Handles all API calls related to client statistics and blocking
- */
-
-/**
- * Helper function to get current barberia slug from URL
- */
-function getSlugActual() {
-    return window.location.pathname.split('/')[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Get all client statistics for a barberia
@@ -18,7 +7,7 @@ function getSlugActual() {
  * @returns {Promise<Object>} { stats: Array, total: number }
  */
 export const getClienteStats = async (filters = {}) => {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const params = new URLSearchParams();
 
     if (filters.bloqueado !== undefined) params.append('bloqueado', filters.bloqueado);
@@ -40,7 +29,7 @@ export const getClienteStats = async (filters = {}) => {
  * @returns {Promise<Object>} Client statistics
  */
 export const getClienteStatsByEmail = async (email) => {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const response = await api.get(`/barberias/${slug}/admin/cliente-stats/${encodeURIComponent(email)}`);
     return response.data;
 };
@@ -52,7 +41,7 @@ export const getClienteStatsByEmail = async (email) => {
  * @returns {Promise<Object>} Updated client stats
  */
 export const bloquearCliente = async (email, data) => {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const response = await api.post(
         `/barberias/${slug}/admin/cliente-stats/${encodeURIComponent(email)}/bloquear`,
         data
@@ -66,7 +55,7 @@ export const bloquearCliente = async (email, data) => {
  * @returns {Promise<Object>} Updated client stats
  */
 export const desbloquearCliente = async (email) => {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const response = await api.post(
         `/barberias/${slug}/admin/cliente-stats/${encodeURIComponent(email)}/desbloquear`
     );
@@ -79,7 +68,7 @@ export const desbloquearCliente = async (email) => {
  * @returns {Promise<Object>} Updated client stats
  */
 export const resetCancelaciones = async (email) => {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const response = await api.post(
         `/barberias/${slug}/admin/cliente-stats/${encodeURIComponent(email)}/reset-cancelaciones`
     );
@@ -91,7 +80,7 @@ export const resetCancelaciones = async (email) => {
  * @returns {Promise<Object>} { totalClientes, clientesBloqueados, cancelacionesEsteMes }
  */
 export const getResumenStats = async () => {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const response = await api.get(`/barberias/${slug}/admin/cliente-stats/resumen`);
     return response.data;
 };

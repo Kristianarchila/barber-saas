@@ -25,6 +25,8 @@ services:
         if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
           echo '🔒 SSL certificates found — enabling HTTPS';
           envsubst '$$DOMAIN' < /etc/nginx/conf.d/ssl.conf.template > /etc/nginx/conf.d/default.conf;
+          # 🔄 Periodically reload nginx to pick up renewed certificates
+          (while true; do sleep 24h; nginx -s reload; done) &
         else
           echo '⚠️  No SSL certificates found — running HTTP only';
           echo '   Run scripts/init-letsencrypt.sh first';

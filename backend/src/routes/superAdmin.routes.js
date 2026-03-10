@@ -100,4 +100,7 @@ router.post("/pending-accounts/:id/reject", superAdminController.rejectAccount);
 // AUDIT LOGS
 router.get("/audit-logs", superAdminController.getAuditLogs);
 
+// SYSTEM INTEGRITY
+router.get("/integrity", superAdminController.getSystemIntegrity);
+
 module.exports = router;

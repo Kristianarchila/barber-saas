@@ -9,7 +9,9 @@ import {
   Users,
   CreditCard,
   UserCheck,
-  ShieldCheck
+  ShieldCheck,
+  Shield,
+  Activity
 } from "lucide-react";
 import { logout } from "../pages/auth/logout";
 import { getDashboardSuperAdmin } from "../services/superAdminService";
@@ -95,6 +97,11 @@ export default function SuperAdminLayout() {
       to: "/superadmin/dashboard/auditoria",
       label: "Auditoría",
       icon: <ShieldCheck size={20} />
+    },
+    {
+      to: "/superadmin/dashboard/integridad",
+      label: "Integridad",
+      icon: <Shield size={20} />
     }
   ];
 

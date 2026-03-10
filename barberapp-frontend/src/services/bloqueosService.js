@@ -1,21 +1,5 @@
 import api from "./api";
-
-/**
- * @file bloqueosService.js
- * @description Service for managing date/time blockings (admin only)
- * 
- * 🔐 Autenticación: Requiere token JWT con rol BARBERIA_ADMIN
- * 🏢 Multi-tenant: Todas las rutas están bajo /api/barberias/:slug/admin/bloqueos
- * 📍 Slug: Se obtiene automáticamente de la URL
- */
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Crea un nuevo bloqueo
@@ -24,7 +8,7 @@ function getSlugActual() {
  * @endpoint POST /api/barberias/:slug/admin/bloqueos
  */
 export async function crearBloqueo(bloqueoData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/bloqueos`, bloqueoData);
     return res.data.data;
 }
@@ -36,7 +20,7 @@ export async function crearBloqueo(bloqueoData) {
  * @endpoint GET /api/barberias/:slug/admin/bloqueos
  */
 export async function obtenerBloqueos(filters = {}) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const params = new URLSearchParams(filters).toString();
     const res = await api.get(`/barberias/${slug}/admin/bloqueos${params ? `?${params}` : ''}`);
     return res.data.data;
@@ -51,7 +35,7 @@ export async function obtenerBloqueos(filters = {}) {
  * @endpoint GET /api/barberias/:slug/admin/bloqueos/rango
  */
 export async function obtenerBloqueosPorRango(fechaInicio, fechaFin, barberoId = null) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const params = { fechaInicio, fechaFin };
     if (barberoId) params.barberoId = barberoId;
 
@@ -68,7 +52,7 @@ export async function obtenerBloqueosPorRango(fechaInicio, fechaFin, barberoId =
  * @endpoint GET /api/barberias/:slug/admin/bloqueos/fecha/:fecha
  */
 export async function obtenerBloqueosPorFecha(fecha, barberoId = null) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const params = barberoId ? `?barberoId=${barberoId}` : '';
     const res = await api.get(`/barberias/${slug}/admin/bloqueos/fecha/${fecha}${params}`);
     return res.data.data;
@@ -81,7 +65,7 @@ export async function obtenerBloqueosPorFecha(fecha, barberoId = null) {
  * @endpoint DELETE /api/barberias/:slug/admin/bloqueos/:id
  */
 export async function eliminarBloqueo(id) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.delete(`/barberias/${slug}/admin/bloqueos/${id}`);
     return res.data;
 }

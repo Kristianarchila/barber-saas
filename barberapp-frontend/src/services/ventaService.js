@@ -1,11 +1,5 @@
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Registrar una venta rápida (POS)
@@ -13,7 +7,7 @@ function getSlugActual() {
  * @returns {Promise<Object>} Resultado de la venta
  */
 export async function registrarVenta(ventaData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/ventas`, ventaData);
     return res.data;
 }
@@ -24,7 +18,7 @@ export async function registrarVenta(ventaData) {
  * @returns {Promise<Object>} Lista de ventas
  */
 export async function obtenerHistorialVentas(filtros = {}) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = new URLSearchParams(filtros).toString();
     const url = `/barberias/${slug}/admin/ventas/historial${queryParams ? `?${queryParams}` : ''}`;
     const res = await api.get(url);

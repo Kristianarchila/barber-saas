@@ -10,14 +10,7 @@
  */
 
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Registrar nuevo egreso
@@ -26,7 +19,7 @@ function getSlugActual() {
  * @endpoint POST /api/barberias/:slug/admin/egresos
  */
 export async function registrarEgreso(egresoData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/egresos`, egresoData);
     return res.data;
 }
@@ -38,7 +31,7 @@ export async function registrarEgreso(egresoData) {
  * @endpoint GET /api/barberias/:slug/admin/egresos
  */
 export async function obtenerEgresos(filtros = {}) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = new URLSearchParams(filtros).toString();
     const url = `/barberias/${slug}/admin/egresos${queryParams ? `?${queryParams}` : ''}`;
     const res = await api.get(url);
@@ -52,7 +45,7 @@ export async function obtenerEgresos(filtros = {}) {
  * @endpoint GET /api/barberias/:slug/admin/egresos/resumen
  */
 export async function obtenerResumenEgresos(mes) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = mes ? `?mes=${mes}` : '';
     const res = await api.get(`/barberias/${slug}/admin/egresos/resumen${queryParams}`);
     return res.data;
@@ -66,7 +59,7 @@ export async function obtenerResumenEgresos(mes) {
  * @endpoint PUT /api/barberias/:slug/admin/egresos/:id
  */
 export async function actualizarEgreso(id, egresoData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.put(`/barberias/${slug}/admin/egresos/${id}`, egresoData);
     return res.data;
 }
@@ -78,7 +71,7 @@ export async function actualizarEgreso(id, egresoData) {
  * @endpoint DELETE /api/barberias/:slug/admin/egresos/:id
  */
 export async function eliminarEgreso(id) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.delete(`/barberias/${slug}/admin/egresos/${id}`);
     return res.data;
 }

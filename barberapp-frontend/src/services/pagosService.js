@@ -10,14 +10,7 @@
  */
 
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Registrar nuevo pago
@@ -28,7 +21,7 @@ function getSlugActual() {
  * @endpoint POST /api/barberias/:slug/admin/pagos
  */
 export async function registrarPago(pagoData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/pagos`, pagoData);
     return res.data;
 }
@@ -44,7 +37,7 @@ export async function registrarPago(pagoData) {
  * @endpoint GET /api/barberias/:slug/admin/pagos
  */
 export async function obtenerPagos(filtros = {}) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = new URLSearchParams(filtros).toString();
     const url = `/barberias/${slug}/admin/pagos${queryParams ? `?${queryParams}` : ''}`;
     const res = await api.get(url);
@@ -58,7 +51,7 @@ export async function obtenerPagos(filtros = {}) {
  * @endpoint GET /api/barberias/:slug/admin/pagos/resumen
  */
 export async function obtenerResumenIngresos(mes) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = mes ? `?mes=${mes}` : '';
     const res = await api.get(`/barberias/${slug}/admin/pagos/resumen${queryParams}`);
     return res.data;

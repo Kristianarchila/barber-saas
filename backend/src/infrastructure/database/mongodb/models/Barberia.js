@@ -71,6 +71,14 @@ const barberiaSchema = new mongoose.Schema(
 
       template: { type: String, default: "modern" },
 
+      // ✅ NUEVO: Configuración de Diseño de Emails
+      emailDesign: {
+        type: String,
+        enum: ['modern', 'vintage', 'luxury'],
+        default: 'modern'
+      },
+      emailBannerUrl: { type: String },
+
       // Galería de portfolio
       galeria: [{
         type: String,

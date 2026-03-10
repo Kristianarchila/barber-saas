@@ -6,19 +6,16 @@
  */
 
 import api from "./api";
-
-function getSlugActual() {
-    return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 export async function registrarVale(valeData) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.post(`/barberias/${slug}/admin/vales`, valeData);
     return res.data;
 }
 
 export async function obtenerVales(filtros = {}) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const queryParams = new URLSearchParams(filtros).toString();
     const url = `/barberias/${slug}/admin/vales${queryParams ? `?${queryParams}` : ""}`;
     const res = await api.get(url);
@@ -26,13 +23,13 @@ export async function obtenerVales(filtros = {}) {
 }
 
 export async function actualizarVale(id, data) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.put(`/barberias/${slug}/admin/vales/${id}`, data);
     return res.data;
 }
 
 export async function eliminarVale(id) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.delete(`/barberias/${slug}/admin/vales/${id}`);
     return res.data;
 }
@@ -41,7 +38,7 @@ export async function eliminarVale(id) {
  * Obtiene el reporte financiero unificado (JSON) desde el backend.
  */
 export async function obtenerReporteFinanciero(fechaInicio, fechaFin) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.get(
         `/barberias/${slug}/admin/reportes/financiero?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
     );
@@ -53,7 +50,7 @@ export async function obtenerReporteFinanciero(fechaInicio, fechaFin) {
  * Abre el PDF en una nueva pestaña.
  */
 export async function descargarReportePDF(fechaInicio, fechaFin) {
-    const slug = getSlugActual();
+    const slug = getSlug();
     const res = await api.get(
         `/barberias/${slug}/admin/reportes/financiero/pdf?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
         { responseType: "blob" }

@@ -14,18 +14,8 @@
  */
 
 import api from "./api";
+import { getSlug } from "../utils/slugUtils";
 import dayjs from "dayjs";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería (ej: "barberia-central")
- * @example
- * // URL: http://localhost:5173/barberia-central/barbero/dashboard
- * // Returns: "barberia-central"
- */
-function getSlugActual() {
-  return window.location.pathname.split("/")[1];
-}
 
 /**
  * Obtiene la agenda del barbero para una fecha específica
@@ -34,7 +24,7 @@ function getSlugActual() {
  * @endpoint GET /api/barberias/:slug/barbero/agenda?fecha=YYYY-MM-DD
  */
 export async function getAgendaBarbero(fecha) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(
     `/barberias/${slug}/barbero/agenda?fecha=${fecha}`
   );
@@ -48,7 +38,7 @@ export async function getAgendaBarbero(fecha) {
  * @returns {Promise<Array>} Lista de reservas en el rango
  */
 export async function getAgendaBarberoRange(fechaInicio, fechaFin) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(
     `/barberias/${slug}/barbero/agenda?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
   );
@@ -61,7 +51,7 @@ export async function getAgendaBarberoRange(fechaInicio, fechaFin) {
  * @endpoint GET /api/barberias/:slug/barbero/mis-citas
  */
 export async function getCitasBarbero() {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(
     `/barberias/${slug}/barbero/mis-citas`
   );
@@ -74,7 +64,7 @@ export async function getCitasBarbero() {
  * @endpoint GET /api/barberias/:slug/barbero/mi-perfil
  */
 export async function getPerfilBarbero() {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(
     `/barberias/${slug}/barbero/mi-perfil`
   );
@@ -88,7 +78,7 @@ export async function getPerfilBarbero() {
  * @endpoint PATCH /api/barberias/:slug/barbero/reservas/:id/completar
  */
 export async function completarReserva(reservaId) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(
     `/barberias/${slug}/barbero/reservas/${reservaId}/completar`
   );
@@ -102,7 +92,7 @@ export async function completarReserva(reservaId) {
  * @endpoint PATCH /api/barberias/:slug/barbero/reservas/:id/cancelar
  */
 export async function cancelarReserva(reservaId) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(
     `/barberias/${slug}/barbero/reservas/${reservaId}/cancelar`
   );
@@ -115,7 +105,7 @@ export async function cancelarReserva(reservaId) {
  * @endpoint GET /api/barberias/:slug/barbero/estadisticas
  */
 export async function getEstadisticasBarbero() {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(
     `/barberias/${slug}/barbero/estadisticas`
   );
@@ -129,7 +119,7 @@ export async function getEstadisticasBarbero() {
  * @endpoint PATCH /api/barberias/:slug/barbero/mi-perfil
  */
 export async function updatePerfilBarbero(perfilData) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(
     `/barberias/${slug}/barbero/mi-perfil`,
     perfilData

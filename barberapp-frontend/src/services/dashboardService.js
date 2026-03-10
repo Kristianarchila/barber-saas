@@ -1,23 +1,5 @@
-/**
- * @file dashboardService.js
- * @description Servicio para dashboard del admin (rol: BARBERIA_ADMIN)
- * 
- * Métricas y estadísticas generales de la barbería
- * 
- * 🔐 Autenticación: Requiere token JWT con rol BARBERIA_ADMIN
- * 🏢 Multi-tenant: Todas las rutas están bajo /api/barberias/:slug/admin/*
- * 📍 Slug: Se obtiene automáticamente de la URL
- */
-
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-  return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Obtiene las métricas del dashboard admin
@@ -26,7 +8,7 @@ function getSlugActual() {
  * @endpoint GET /api/barberias/:slug/admin/dashboard
  */
 export async function getDashboardAdmin(params = {}) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const queryParams = new URLSearchParams(params).toString();
   const url = `/barberias/${slug}/admin/dashboard${queryParams ? `?${queryParams}` : ''}`;
   const res = await api.get(url);
@@ -39,7 +21,7 @@ export async function getDashboardAdmin(params = {}) {
  * @endpoint GET /api/barberias/:slug/admin/reservas/ultimas
  */
 export async function getUltimasReservas() {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.get(`/barberias/${slug}/admin/reservas/ultimas`);
   return res.data;
 }
@@ -51,7 +33,7 @@ export async function getUltimasReservas() {
  * @endpoint PATCH /api/barberias/:slug/admin/reservas/:id/completar
  */
 export async function completarReserva(id) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/completar`);
   return res.data;
 }
@@ -63,7 +45,7 @@ export async function completarReserva(id) {
  * @endpoint PATCH /api/barberias/:slug/admin/reservas/:id/cancelar
  */
 export async function cancelarReserva(id) {
-  const slug = getSlugActual();
+  const slug = getSlug();
   const res = await api.patch(`/barberias/${slug}/admin/reservas/${id}/cancelar`);
   return res.data;
 }

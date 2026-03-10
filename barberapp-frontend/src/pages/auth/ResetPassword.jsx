@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Lock, Eye, EyeOff, Scissors, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
-const API = import.meta.env.VITE_API_URL || "/api";
+import { resetPassword } from "../../services/authService";
 
 export default function ResetPassword() {
     const [searchParams] = useSearchParams();
@@ -41,17 +41,11 @@ export default function ResetPassword() {
 
         setLoading(true);
         try {
-            const res = await fetch(`${API}/auth/reset-password`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, newPassword: form.newPassword }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Error al restablecer contraseña");
+            await resetPassword(token, form.newPassword);
             setSuccess(true);
             setTimeout(() => navigate("/login"), 3000);
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || "Error al restablecer contraseña");
         } finally {
             setLoading(false);
         }

@@ -1,23 +1,5 @@
-/**
- * @file serviciosService.js
- * @description Servicio para gestión de servicios (rol: BARBERIA_ADMIN)
- * 
- * CRUD de servicios de la barbería
- * 
- * 🔐 Autenticación: Requiere token JWT con rol BARBERIA_ADMIN
- * 🏢 Multi-tenant: Todas las rutas están bajo /api/barberias/:slug/admin/servicios
- * 📍 Slug: Se obtiene automáticamente de la URL
- */
-
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería
- */
-function getSlugActual() {
-  return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Obtiene todos los servicios de la barbería
@@ -26,13 +8,14 @@ function getSlugActual() {
  * @endpoint GET /api/barberias/:slug/admin/servicios
  */
 export async function getServicios(slugOverride) {
-  const slug = slugOverride || getSlugActual();
+  const slug = getSlug(slugOverride);
   const res = await api.get(`/barberias/${slug}/admin/servicios`);
 
   // Arquitectura hexagonal devuelve: { total: number, servicios: Array }
   // Retornamos solo el array de servicios para compatibilidad
   return res.data.servicios || res.data;
 }
+
 
 /**
  * Crea un nuevo servicio
@@ -80,8 +63,8 @@ export async function cambiarEstadoServicio(id, activo) {
  * Obtiene las categorías personalizadas de la barbería
  */
 export async function getCategorias() {
-  const slug = getSlugActual();
-  const res = await api.get(`/barberias/${slug}/public`);
+  // GET /api/barberias/me returns the current admin's barbería (includes configuracion)
+  const res = await api.get('/barberias/me');
   return (res.data?.configuracion?.categorias || []).sort((a, b) => a.orden - b.orden);
 }
 
@@ -90,8 +73,8 @@ export async function getCategorias() {
  * @param {Array} categorias - [{nombre, orden}]
  */
 export async function saveCategorias(categorias) {
-  const slug = getSlugActual();
-  const res = await api.put(`/barberias/${slug}/admin/config`, {
+  // PATCH /api/barberias/configuracion updates the admin's barbería config
+  const res = await api.patch('/barberias/configuracion', {
     configuracion: { categorias }
   });
   return res.data;

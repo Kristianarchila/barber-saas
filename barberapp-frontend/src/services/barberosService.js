@@ -1,28 +1,5 @@
-/**
- * @file barberosService.js
- * @description Servicio para gestión de barberos (rol: BARBERIA_ADMIN)
- * 
- * Este servicio es usado por el panel ADMIN para gestionar barberos:
- * - Listar barberos de la barbería
- * - Crear nuevos barberos
- * - Editar barberos existentes
- * - Eliminar barberos
- * - Activar/Desactivar barberos
- * 
- * 🔐 Autenticación: Requiere token JWT con rol BARBERIA_ADMIN
- * 🏢 Multi-tenant: Filtrado automático por barberiaId del usuario autenticado
- * 📍 Nota: Las rutas backend filtran por barberiaId desde el token JWT
- */
-
 import api from "./api";
-
-/**
- * Obtiene el slug de la barbería actual desde la URL del navegador
- * @returns {string} slug de la barbería (ej: "barberia-central")
- */
-function getSlugActual() {
-  return window.location.pathname.split("/")[1];
-}
+import { getSlug } from "../utils/slugUtils";
 
 /**
  * Lista todos los barberos de la barbería actual
@@ -31,10 +8,11 @@ function getSlugActual() {
  * @endpoint GET /api/barberias/:slug/barbero
  */
 export async function getBarberos(slugOverride) {
-  const slug = slugOverride || getSlugActual();
+  const slug = getSlug(slugOverride);
   const res = await api.get(`/barberias/${slug}/barbero`);
   return res.data.barberos;
 }
+
 
 /**
  * Crea un nuevo barbero con su usuario asociado
