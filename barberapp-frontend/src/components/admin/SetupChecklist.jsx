@@ -34,8 +34,8 @@ export default function SetupChecklist() {
         try {
             const [barberiaRes, serviciosRes, barberosRes] = await Promise.all([
                 barberiaService.getMiBarberia().catch(() => null),
-                API.get('/servicios').catch(() => ({ data: [] })),
-                API.get('/barberos').catch(() => ({ data: [] })),
+                slug ? API.get(`/barberias/${slug}/admin/servicios`).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+                slug ? API.get(`/barberias/${slug}/barbero`).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
             ]);
             const b = barberiaRes?.barberia;
             const cfg = b?.configuracion || {};
@@ -43,8 +43,10 @@ export default function SetupChecklist() {
             const next = {
                 logo: !!cfg.logoUrl,
                 telefono: !!b?.telefono,
-                barberos: (Array.isArray(barberosRes?.data) ? barberosRes.data : []).length > 0,
-                servicios: (Array.isArray(serviciosRes?.data) ? serviciosRes.data : []).length > 0,
+                // GET /barberias/:slug/barbero → { barberos: [...] }
+                barberos: (barberosRes?.data?.barberos ?? []).length > 0,
+                // GET /barberias/:slug/admin/servicios → { servicios: [...] }
+                servicios: (serviciosRes?.data?.servicios ?? []).length > 0,
                 fotos: (cfg.galeria || []).length > 0,
                 titulo: !!(cfg.heroTitle && cfg.heroTitle !== 'REDEFINIENDO EL ESTILO MASCULINO'),
             };
