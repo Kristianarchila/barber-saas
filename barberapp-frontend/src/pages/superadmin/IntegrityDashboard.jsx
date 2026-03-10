@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, Shield, AlertTriangle, CheckCircle, Server, Database, Mail, CreditCard, RefreshCw, Clock, Ip } from 'lucide-react';
+import { Activity, Shield, AlertTriangle, CheckCircle, Server, Database, Mail, CreditCard, RefreshCw, Clock } from 'lucide-react';
 import { getSystemIntegrity } from '../../services/superAdminService';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';

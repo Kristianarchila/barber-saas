@@ -107,9 +107,12 @@ async function checkEmailService() {
             };
         }
 
-        // 🔍 PRUEBA VIVA: Verificar conexión con el servidor SMTP
+        // 🔍 PRUEBA VIVA: Verificar conexión SMTP con timeout de 5s
         try {
-            await emailService.transporter.verify();
+            const timeout = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('SMTP timeout (5s)')), 5000)
+            );
+            await Promise.race([emailService.transporter.verify(), timeout]);
             return {
                 status: 'healthy',
                 message: 'Servicio de email conectado y autenticado correctamente',
