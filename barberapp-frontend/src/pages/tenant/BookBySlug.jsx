@@ -434,79 +434,199 @@ const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => (
 
 const ConfirmStep = ({ formData, service, barber, onConfirm, loading, onChange, errorApi }) => {
     return (
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
-            <div className="bg-white p-8 rounded-[2.5rem] border border-black/5 shadow-xl">
-                <h4 className="font-black uppercase text-[10px] tracking-widest text-neutral-400 mb-8">Resumen de Cita</h4>
-                <div className="space-y-6">
-                    <div>
-                        <label className="text-[9px] font-black uppercase text-neutral-400 block mb-1">Servicio</label>
-                        <p className="text-2xl font-black uppercase tracking-tighter">{service?.nombre}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-[9px] font-black uppercase text-neutral-400 block mb-1">Especialista</label>
-                            <p className="font-black uppercase text-sm">{barber?.nombre}</p>
+        <motion.section 
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-start"
+        >
+            {/* CARD RESUMEN - Estilo Premium Glass */}
+            <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-black to-neutral-600 rounded-[3rem] blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
+                <div className="relative bg-white/80 backdrop-blur-2xl p-10 rounded-[2.8rem] border border-black/5 shadow-2xl overflow-hidden">
+                    {/* Elementos decorativos de fondo */}
+                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-neutral-100 rounded-full blur-3xl opacity-50"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-12">
+                            <div>
+                                <h4 className="font-black uppercase text-[10px] tracking-[0.3em] text-neutral-400 mb-2">Resumen de Cita</h4>
+                                <div className="h-1 w-12 bg-black rounded-full"></div>
+                            </div>
+                            <div className="bg-black text-white px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase">
+                                Confirmación
+                            </div>
                         </div>
-                        <div>
-                            <label className="text-[9px] font-black uppercase text-neutral-400 block mb-1">Fecha</label>
-                            <p className="font-black uppercase text-sm">{formData.fecha} - {formData.hora}</p>
+
+                        <div className="space-y-10">
+                            {/* SERVICIO */}
+                            <div className="flex items-start gap-5">
+                                <div className="p-4 bg-neutral-50 rounded-2xl">
+                                    <Scissors className="text-black" size={24} />
+                                </div>
+                                <div>
+                                    <label className="text-[9px] font-black uppercase text-neutral-400 block mb-1">Servicio seleccionado</label>
+                                    <p className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none">{service?.nombre || "Corte de Pelo"}</p>
+                                    <div className="flex items-center gap-2 mt-2 text-neutral-500">
+                                        <Clock size={12} />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest">{service?.duracion || 30} MINUTOS</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* BARBERO Y FECHA */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
+                                        {barber?.foto ? (
+                                            <img src={barber.foto} className="w-full h-full object-cover" alt={barber.nombre} />
+                                        ) : (
+                                            <div className="w-full h-full bg-neutral-100 flex items-center justify-center text-neutral-300">
+                                                <User size={20} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase text-neutral-400 block mb-0.5">Especialista</label>
+                                        <p className="font-black uppercase text-sm tracking-tight">{barber?.nombre}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3.5 bg-neutral-50 rounded-xl text-neutral-400">
+                                        <CheckCircle2 size={24} />
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase text-neutral-400 block mb-0.5">Fecha y Hora</label>
+                                        <p className="font-black uppercase text-sm tracking-tight">
+                                            {dayjs(formData.fecha).format('DD MMM')} • {formData.hora}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PRECIO FINAL */}
+                            <div className="pt-10 border-t border-black/5">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="font-black uppercase text-[10px] tracking-widest text-neutral-400">Inversión</span>
+                                    <span className="text-neutral-400 text-xs">Pago en establecimiento</span>
+                                </div>
+                                <div className="flex justify-between items-baseline">
+                                    <span className="font-black uppercase text-xl tracking-tighter">Total</span>
+                                    <div className="flex items-baseline">
+                                        <span className="text-sm font-black mr-1">$</span>
+                                        <span className="text-6xl font-black tracking-tighter leading-none">{service?.precio}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="pt-6 border-t border-black/5 flex justify-between items-end">
-                        <span className="font-black uppercase text-xs">Total</span>
-                        <span className="text-4xl font-black tracking-tighter">${service?.precio}</span>
                     </div>
                 </div>
             </div>
-            <div className="space-y-4 flex flex-col justify-center">
-                {/* M-03 FIX: text-base (16px) on inputs prevents iOS auto-zoom */}
-                <input
-                    required
-                    placeholder="NOMBRE COMPLETO *"
-                    className="w-full p-4 md:p-6 rounded-2xl border border-black/10 font-black text-base tracking-widest outline-none focus:border-black transition-all"
-                    value={formData.nombreCliente}
-                    onChange={(e) => onChange('nombreCliente', e.target.value)}
-                    minLength={2}
-                    maxLength={100}
-                    autoComplete="name"
-                />
-                <div>
-                    <input
-                        required
-                        placeholder="CORREO ELECTRÓNICO *"
-                        type="email"
-                        className="w-full p-4 md:p-6 rounded-2xl border border-black/10 font-black text-base tracking-widest outline-none focus:border-black transition-all"
-                        value={formData.emailCliente}
-                        onChange={(e) => onChange('emailCliente', e.target.value)}
-                        autoComplete="email"
-                    />
-                </div>
-                <div>
-                    <input
-                        placeholder="TELÉFONO (OPCIONAL)"
-                        type="tel"
-                        className="w-full p-4 md:p-6 rounded-2xl border border-black/10 font-black text-base tracking-widest outline-none focus:border-black transition-all"
-                        value={formData.telefonoCliente}
-                        onChange={(e) => onChange('telefonoCliente', e.target.value)}
-                        autoComplete="tel"
-                        maxLength={20}
-                    />
-                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mt-1 px-1">Ej: +56 9 1234 5678</p>
+
+            {/* FORMULARIO - Estilo Clean & High Tech */}
+            <div className="flex flex-col h-full py-4">
+                <div className="mb-10 text-center lg:text-left">
+                    <h3 className="text-3xl font-black uppercase tracking-tighter mb-2">Tus Datos</h3>
+                    <p className="text-neutral-400 font-bold text-[10px] uppercase tracking-[0.2em]">Necesarios para validar tu espacio</p>
                 </div>
 
-                {errorApi && (
-                    <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 text-center animate-in fade-in duration-300">
-                        <p className="text-red-600 font-bold text-sm">{errorApi}</p>
+                <div className="space-y-5">
+                    <div className="group relative">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-300 group-focus-within:text-black transition-colors">
+                            <User size={18} />
+                        </div>
+                        <input
+                            required
+                            placeholder="NOMBRE COMPLETO"
+                            className="w-full pl-16 p-6 rounded-[1.5rem] border border-black/5 bg-white font-black text-sm tracking-widest outline-none focus:border-black/20 focus:ring-4 focus:ring-black/5 transition-all shadow-sm"
+                            value={formData.nombreCliente}
+                            onChange={(e) => onChange('nombreCliente', e.target.value)}
+                            autoComplete="name"
+                        />
                     </div>
-                )}
 
-                <button onClick={onConfirm} disabled={loading || !formData.nombreCliente || !formData.emailCliente} className="w-full bg-black text-white py-6 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-4 hover:bg-neutral-900 transition-all disabled:opacity-50">
-                    {loading ? <Loader2 className="animate-spin" /> : "AGENDAR AHORA"}
-                </button>
+                    <div className="group relative">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-300 group-focus-within:text-black transition-colors">
+                            <Clock size={18} className="rotate-45" />
+                        </div>
+                        <input
+                            required
+                            placeholder="EMAIL DE CONTACTO"
+                            type="email"
+                            className="w-full pl-16 p-6 rounded-[1.5rem] border border-black/5 bg-white font-black text-sm tracking-widest outline-none focus:border-black/20 focus:ring-4 focus:ring-black/5 transition-all shadow-sm"
+                            value={formData.emailCliente}
+                            onChange={(e) => onChange('emailCliente', e.target.value)}
+                            autoComplete="email"
+                        />
+                    </div>
+
+                    <div className="group relative">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-neutral-300 group-focus-within:text-black transition-colors">
+                            <CheckCircle2 size={18} />
+                        </div>
+                        <input
+                            placeholder="TELÉFONO (OPCIONAL)"
+                            type="tel"
+                            className="w-full pl-16 p-6 rounded-[1.5rem] border border-black/5 bg-white font-black text-sm tracking-widest outline-none focus:border-black/20 focus:ring-4 focus:ring-black/5 transition-all shadow-sm"
+                            value={formData.telefonoCliente}
+                            onChange={(e) => onChange('telefonoCliente', e.target.value)}
+                            autoComplete="tel"
+                        />
+                    </div>
+
+                    <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-[0.15em] px-2 text-center lg:text-left">
+                        🔒 Tu información está protegida por encriptación de grado militar
+                    </p>
+
+                    {errorApi && (
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }} 
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-red-50 border-2 border-red-500/10 rounded-2xl p-5 text-center"
+                        >
+                            <p className="text-red-600 font-black uppercase text-[10px] tracking-widest leading-relaxed">
+                                {errorApi}
+                            </p>
+                        </motion.div>
+                    )}
+
+                    <div className="pt-6">
+                        <button 
+                            onClick={onConfirm} 
+                            disabled={loading || !formData.nombreCliente || !formData.emailCliente} 
+                            className="relative w-full overflow-hidden group/btn"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-neutral-800 to-black translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
+                            <div className={`relative flex items-center justify-center gap-4 py-7 rounded-[1.5rem] font-black uppercase text-xs tracking-[0.3em] transition-all duration-300 ${loading ? 'bg-neutral-100 text-neutral-400' : 'bg-black text-white shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] hover:shadow-none translate-y-0 hover:translate-y-1'}`}>
+                                {loading ? (
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex gap-1">
+                                            {[0, 1, 2].map(i => (
+                                                <motion.div 
+                                                    key={i}
+                                                    animate={{ opacity: [0.2, 1, 0.2] }}
+                                                    transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+                                                    className="w-1.5 h-1.5 bg-neutral-400 rounded-full"
+                                                />
+                                            ))}
+                                        </div>
+                                        <span>PROCESANDO BIOMETRÍA</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        AGENDAR AHORA
+                                        <span className="opacity-50 group-hover/btn:translate-x-1 transition-transform">→</span>
+                                    </>
+                                )}
+                            </div>
+                        </button>
+                    </div>
+                </div>
             </div>
         </motion.section>
     );
 };
+
 
 const SuccessScreen = ({ formData, service, barberia }) => {
     const generateGoogleUrl = () => {
@@ -534,36 +654,69 @@ const SuccessScreen = ({ formData, service, barberia }) => {
     };
 
     return (
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-12 px-4 max-w-2xl mx-auto">
-            <div className="w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl">
-                <CheckCircle2 size={48} />
+        <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            className="text-center py-20 px-4 max-w-3xl mx-auto"
+        >
+            <div className="relative w-32 h-32 mx-auto mb-10">
+                <motion.div 
+                    initial={{ scale: 0 }} 
+                    animate={{ scale: 1 }} 
+                    transition={{ type: 'spring', damping: 10, stiffness: 100, delay: 0.2 }}
+                    className="absolute inset-0 bg-green-500 rounded-full shadow-[0_20px_50px_rgba(34,197,94,0.4)] flex items-center justify-center text-white"
+                >
+                    <CheckCircle2 size={64} />
+                </motion.div>
+                <motion.div 
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="absolute -inset-4 border-4 border-green-500 rounded-full"
+                />
             </div>
-            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">¡Confirmado!</h2>
-            <p className="text-neutral-400 font-bold uppercase text-xs tracking-widest mb-12">Recibirás un email con los detalles de tu cita.</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-                <a
+            <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-4 leading-none">
+                ¡Éxito Total<span className="text-green-500">.</span>!
+            </h2>
+            <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-[0.4em] mb-16 max-w-md mx-auto leading-relaxed">
+                Tu espacio ha sido blindado. Los detalles viajan ahora mismo a tu bandeja de entrada.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                <motion.a
+                    whileHover={{ y: -5 }}
                     href={generateGoogleUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 p-4 bg-white border border-black/10 rounded-2xl hover:bg-neutral-50 transition-all font-black uppercase text-[10px] tracking-widest shadow-sm"
+                    className="flex flex-col items-center justify-center gap-4 p-8 bg-white border border-black/5 rounded-[2rem] hover:shadow-xl transition-all group"
                 >
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" className="w-5 h-5" alt="Google" />
-                    Google Calendar
-                </a>
-                <a
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" className="w-10 h-10 group-hover:scale-110 transition-transform" alt="Google" />
+                    <div>
+                        <span className="block font-black uppercase text-[10px] tracking-widest text-neutral-400 mb-1">Añadir a</span>
+                        <span className="block font-black uppercase text-xs tracking-tighter">Google Calendar</span>
+                    </div>
+                </motion.a>
+                <motion.a
+                    whileHover={{ y: -5 }}
                     href={generateOutlookUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 p-4 bg-white border border-black/10 rounded-2xl hover:bg-neutral-50 transition-all font-black uppercase text-[10px] tracking-widest shadow-sm"
+                    className="flex flex-col items-center justify-center gap-4 p-8 bg-white border border-black/5 rounded-[2rem] hover:shadow-xl transition-all group"
                 >
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" className="w-5 h-5" alt="Outlook" />
-                    Outlook / Hotmail
-                </a>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" className="w-10 h-10 group-hover:scale-110 transition-transform" alt="Outlook" />
+                    <div>
+                        <span className="block font-black uppercase text-[10px] tracking-widest text-neutral-400 mb-1">Añadir a</span>
+                        <span className="block font-black uppercase text-xs tracking-tighter">Outlook / Office</span>
+                    </div>
+                </motion.a>
             </div>
 
-            <button onClick={() => window.location.reload()} className="w-full md:w-auto px-12 py-5 bg-black text-white rounded-full font-black uppercase text-xs tracking-widest hover:bg-neutral-900 transition-all">
-                Finalizar
+            <button 
+                onClick={() => window.location.reload()} 
+                className="group relative px-16 py-6 bg-black text-white rounded-full font-black uppercase text-xs tracking-[0.4em] overflow-hidden transition-all hover:pr-20"
+            >
+                <span className="relative z-10">Finalizar Experiencia</span>
+                <span className="absolute right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all">→</span>
             </button>
         </motion.div>
     );
