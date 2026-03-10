@@ -20,9 +20,14 @@ async function bootstrap() {
     "MONGO_URI",
     "JWT_SECRET",
     "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "CLIENT_URL"
   ];
+
+  // Variables opcionales — solo advertir, no detener el servidor
+  const optionalEnv = ["STRIPE_WEBHOOK_SECRET", "CLIENT_URL"];
+  const missingOptional = optionalEnv.filter(k => !process.env[k]);
+  if (missingOptional.length > 0) {
+    logger.warn(`⚠️  Variables opcionales no configuradas: ${missingOptional.join(", ")} (algunas funciones pueden no estar disponibles)`);
+  }
 
   const missing = requiredEnv.filter(k => !process.env[k]);
   if (missing.length > 0) {
