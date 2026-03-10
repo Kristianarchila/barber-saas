@@ -35,18 +35,15 @@ class ErrorBoundary extends React.Component {
 
     logErrorToService = (error, errorInfo) => {
         try {
-            // Send error to backend for logging
-            fetch('/api/logs/frontend-error', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    error: error.toString(),
-                    errorInfo: errorInfo.componentStack,
-                    url: window.location.href,
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString()
-                })
-            }).catch(err => console.error('Failed to log error:', err));
+            // Log locally only — backend endpoint not yet implemented
+            console.error('[ErrorBoundary] Error captured:', {
+                error: error.toString(),
+                componentStack: errorInfo?.componentStack,
+                url: window.location.href,
+                timestamp: new Date().toISOString()
+            });
+            // Uncomment when /api/logs/frontend-error endpoint is ready:
+            // fetch('/api/logs/frontend-error', { method: 'POST', ... })
         } catch (err) {
             console.error('Error logging failed:', err);
         }
