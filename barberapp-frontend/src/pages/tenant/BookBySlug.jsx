@@ -288,37 +288,97 @@ export default function BookBySlug() {
                     )}
 
                     {step === 3 && (
-                        <motion.section key="step3" className="max-w-3xl mx-auto">
-                            <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mb-6 md:mb-10">Horario</h2>
+                        <motion.section key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto">
+                            {/* CABECERA DE SELECCIÓN - Contexto Inmediato */}
+                            <motion.div 
+                                initial={{ y: -20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="mb-10 p-6 bg-white/40 backdrop-blur-md rounded-[2rem] border border-black/5 flex flex-wrap items-center justify-between gap-4"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+                                        <img src={selectedBarber?.foto || "https://res.cloudinary.com/diz8m6fxi/image/upload/v1710926715/ux-placeholder-barber.png"} className="w-full h-full object-cover" alt={selectedBarber?.nombre} />
+                                    </div>
+                                    <div>
+                                        <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400">Seleccionaste a</span>
+                                        <span className="block font-black uppercase text-sm">{selectedBarber?.nombre}</span>
+                                    </div>
+                                </div>
+                                <div className="h-8 w-px bg-black/5 hidden md:block"></div>
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-black text-white rounded-xl">
+                                        <Scissors size={14} />
+                                    </div>
+                                    <div>
+                                        <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400">Para el servicio</span>
+                                        <span className="block font-black uppercase text-sm">{selectedService?.nombre}</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setStep(1)} 
+                                    className="px-4 py-2 hover:bg-black/5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all"
+                                >
+                                    Cambiar
+                                </button>
+                            </motion.div>
+
+                            <div className="flex justify-between items-end mb-8">
+                                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">Horario</h2>
+                                <div className="text-right">
+                                    <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-neutral-300">Marzo 2026</span>
+                                    <div className="h-1 w-8 bg-black ml-auto mt-1 rounded-full"></div>
+                                </div>
+                            </div>
+                            
                             <DatePicker selectedDate={formData.fecha} onSelect={(d) => handleSelect('fecha', d)} />
-                            <div className="mt-10">
+                            
+                            <div className="mt-12">
                                 <TimeGrid turnos={turnosDisponibles} selectedTime={formData.hora} loading={loadingTurnos} onSelect={(t) => handleSelect('hora', t)} />
                             </div>
 
                             {/* AI Suggestions Box */}
-                            <AISuggestionBox
-                                suggestion={aiSuggestion}
-                                onSelectSlot={handleSelectAISlot}
-                                loading={loadingAI}
-                            />
+                            <div className="mt-10">
+                                <AISuggestionBox
+                                    suggestion={aiSuggestion}
+                                    onSelectSlot={handleSelectAISlot}
+                                    loading={loadingAI}
+                                />
+                            </div>
 
-                            {/* No slots available - Show waiting list option as fallback */}
+                            {/* No slots available - Fallback */}
                             {!loadingTurnos && !loadingAI && turnosDisponibles.length === 0 && !aiSuggestion?.slots?.length && formData.fecha && (
-                                <div className="mt-8 bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-2xl p-8 text-center">
-                                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-3">No hay horarios disponibles</h3>
-                                    <p className="text-neutral-600 mb-6">¿Quieres que te notifiquemos cuando se libere un horario?</p>
+                                <motion.div 
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="mt-12 bg-white/50 border border-black/5 backdrop-blur-xl rounded-[2.5rem] p-10 text-center"
+                                >
+                                    <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Clock className="text-neutral-300" size={24} />
+                                    </div>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">No hay horarios disponibles</h3>
+                                    <p className="text-neutral-400 font-bold text-xs uppercase mb-8">¿Te avisamos si alguien cancela?</p>
                                     <button
                                         onClick={() => setShowWaitingListModal(true)}
-                                        className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-black uppercase tracking-widest hover:from-purple-700 hover:to-indigo-700 transition-all"
+                                        className="px-10 py-5 bg-black text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:scale-105 transition-all shadow-xl"
                                     >
-                                        Unirse a Lista de Espera
+                                        Unirse a Lista de Espera 
                                     </button>
-                                </div>
+                                </motion.div>
                             )}
 
-                            <button disabled={!formData.hora} onClick={() => setStep(4)} className="w-full mt-10 bg-black text-white py-6 rounded-2xl font-black uppercase tracking-widest disabled:opacity-10 transition-all">
-                                Confirmar Datos
-                            </button>
+                            <div className="sticky bottom-6 mt-16 px-4 md:px-0">
+                                <button 
+                                    disabled={!formData.hora} 
+                                    onClick={() => setStep(4)} 
+                                    className={`w-full py-7 rounded-[2rem] font-black uppercase text-xs tracking-[0.4em] transition-all duration-500 flex items-center justify-center gap-4 ${formData.hora ? 'bg-black text-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] translate-y-0 scale-100' : 'bg-neutral-100 text-neutral-300 translate-y-4 scale-95 opacity-50'}`}
+                                >
+                                    {formData.hora ? (
+                                        <>CONFIRMAR DATOS <span className="opacity-50">→</span></>
+                                    ) : (
+                                        "ELIGE UNA HORA"
+                                    )}
+                                </button>
+                            </div>
                         </motion.section>
                     )}
 
@@ -397,40 +457,110 @@ const DatePicker = ({ selectedDate, onSelect }) => {
     const dates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(); d.setDate(d.getDate() + i); return d;
     });
-    // Format date as YYYY-MM-DD using LOCAL timezone (not UTC)
     const toLocalISO = (d) => {
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
+
     return (
-        <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-            {dates.map(d => {
-                const iso = toLocalISO(d);
-                const active = selectedDate === iso;
-                return (
-                    <button key={iso} onClick={() => onSelect(iso)} className={`flex-shrink-0 w-16 h-24 md:w-20 md:h-28 rounded-3xl flex flex-col items-center justify-center transition-all ${active ? 'bg-black text-white scale-105' : 'bg-white border border-black/5 text-neutral-400 hover:border-black/20'}`}>
-                        <span className="text-[9px] font-black uppercase mb-1">{d.toLocaleDateString('es-ES', { weekday: 'short' })}</span>
-                        <span className="text-2xl md:text-3xl font-black">{d.getDate()}</span>
-                    </button>
-                );
-            })}
+        <div className="relative">
+            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
+                {dates.map((d, i) => {
+                    const iso = toLocalISO(d);
+                    const active = selectedDate === iso;
+                    const isToday = i === 0;
+                    return (
+                        <motion.button 
+                            key={iso} 
+                            whileHover={{ y: -5 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => onSelect(iso)} 
+                            className={`flex-shrink-0 w-20 h-28 md:w-24 md:h-32 rounded-[2rem] flex flex-col items-center justify-center transition-all relative overflow-hidden ${active ? 'bg-black text-white shadow-2xl scale-110 z-10' : 'bg-white border border-black/5 text-neutral-400 hover:border-black/20'}`}
+                        >
+                            {isToday && !active && (
+                                <span className="absolute top-2 text-[7px] font-black uppercase tracking-widest text-neutral-300">Today</span>
+                            )}
+                            <span className="text-[10px] font-black uppercase mb-1">{d.toLocaleDateString('es-ES', { weekday: 'short' })}</span>
+                            <span className="text-3xl md:text-4xl font-black tracking-tighter">{d.getDate()}</span>
+                            {active && (
+                                <motion.div layoutId="date-active" className="absolute bottom-2 w-1.5 h-1.5 bg-white rounded-full" />
+                            )}
+                        </motion.button>
+                    );
+                })}
+            </div>
         </div>
     );
 };
 
-// M-02 FIX: grid-cols-3 on mobile (was 4 → <72px wide), min-h-[48px] for touch target
-const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => (
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 md:gap-4">
-        {loading ? Array(8).fill(0).map((_, i) => <div key={i} className="h-12 bg-neutral-100 animate-pulse rounded-xl" />)
-            : turnos.map(t => (
-                <button key={t} onClick={() => onSelect(t)} className={`min-h-[48px] py-2 md:py-5 rounded-xl md:rounded-2xl border-2 font-black text-xs md:text-sm transition-all ${selectedTime === t ? 'bg-black text-white border-black' : 'bg-white border-black/5 hover:border-black'}`}>
-                    {t}
-                </button>
+const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => {
+    if (loading) return (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+            {Array(10).fill(0).map((_, i) => (
+                <div key={i} className="h-16 bg-neutral-100 animate-pulse rounded-2xl" />
             ))}
-    </div>
-);
+        </div>
+    );
+
+    // SEGMENTACIÓN POR BLOQUES HORARIOS
+    const morning = turnos.filter(t => parseInt(t.split(':')[0]) < 13);
+    const afternoon = turnos.filter(t => parseInt(t.split(':')[0]) >= 13 && parseInt(t.split(':')[0]) < 19);
+    const evening = turnos.filter(t => parseInt(t.split(':')[0]) >= 19);
+
+    const TimeBlock = ({ title, slots, icon: Icon }) => {
+        if (slots.length === 0) return null;
+        return (
+            <div className="mb-12">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-neutral-100 rounded-lg text-neutral-400">
+                        <Icon size={16} />
+                    </div>
+                    <span className="font-black uppercase text-[10px] tracking-[0.3em] text-neutral-400">{title}</span>
+                    <div className="h-px bg-black/5 flex-grow"></div>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                    {slots.map((t, i) => {
+                        const isRecommended = i === 1; // Simulación de IA highlight
+                        return (
+                            <motion.button 
+                                key={t} 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.05 }}
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => onSelect(t)} 
+                                className={`group relative min-h-[64px] rounded-2xl border-2 font-black text-sm transition-all overflow-hidden ${selectedTime === t ? 'bg-black text-white border-black shadow-lg' : 'bg-white border-black/5 hover:border-black/20'}`}
+                            >
+                                {isRecommended && selectedTime !== t && (
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/5 to-transparent opacity-50"></div>
+                                )}
+                                <span className="relative z-10">{t}</span>
+                                {isRecommended && selectedTime !== t && (
+                                    <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
+                                )}
+                            </motion.button>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="relative">
+            {/* Efectos de fondo glassmorphism dinámico */}
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-neutral-100/50 rounded-full blur-3xl -z-10"></div>
+            <div className="absolute top-1/2 -right-20 w-96 h-96 bg-neutral-50 rounded-full blur-3xl -z-10"></div>
+
+            <TimeBlock title="Sunrise / Mañana" slots={morning} icon={CheckCircle2} />
+            <TimeBlock title="Peak / Tarde" slots={afternoon} icon={Clock} />
+            <TimeBlock title="Nightfall / Noche" slots={evening} icon={User} />
+        </div>
+    );
+};
 
 const ConfirmStep = ({ formData, service, barber, onConfirm, loading, onChange, errorApi }) => {
     return (
