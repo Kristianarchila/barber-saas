@@ -7,8 +7,86 @@ import ModalNuevaReserva from '../../components/calendario/ModalNuevaReserva';
 import ModalDetalleReserva from '../../components/calendario/ModalDetalleReserva';
 import { getMonthReservations } from '../../services/calendarioService';
 import { getBarberos } from '../../services/barberosService';
-import { ChevronLeft, ChevronRight, Users, RefreshCw, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, RefreshCw, Calendar as CalendarIcon, Scissors } from 'lucide-react';
 import './CalendarioMensual.css';
+
+// ──────────────────────────────────────────────────────────────
+// Custom monthly event component — premium card style
+// ──────────────────────────────────────────────────────────────
+const STATUS_CFG = {
+    RESERVADA:  { from: '#3b82f6', to: '#2563eb' },
+    CONFIRMADA: { from: '#22c55e', to: '#16a34a' },
+    COMPLETADA: { from: '#6b7280', to: '#4b5563' },
+    CANCELADA:  { from: '#ef4444', to: '#dc2626' },
+    NO_ASISTIO: { from: '#f97316', to: '#ea580c' },
+};
+
+function MonthEvent({ event }) {
+    const reserva = event.resource;
+    const cfg = STATUS_CFG[reserva?.estado] || STATUS_CFG.RESERVADA;
+    const barberoNombre = reserva?.barbero?.nombre || '';
+    const barberoFoto   = reserva?.barbero?.foto   || null;
+    const initials = barberoNombre
+        ? barberoNombre.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+        : '?';
+    const hora = reserva?.hora || '';
+    const servicioNombre = reserva?.servicio?.nombre || '';
+
+    return (
+        <div
+            style={{
+                background: `linear-gradient(135deg, ${cfg.from}28, ${cfg.to}18)`,
+                borderLeft: `2.5px solid ${cfg.from}`,
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '2px 6px',
+                overflow: 'hidden',
+                minWidth: 0,
+            }}
+        >
+            {/* Tiny avatar */}
+            <div
+                style={{
+                    flexShrink: 0,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: `linear-gradient(135deg, ${cfg.from}, ${cfg.to})`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 8,
+                    fontWeight: 700,
+                    color: '#fff',
+                    overflow: 'hidden',
+                }}
+            >
+                {barberoFoto ? (
+                    <img src={barberoFoto} alt={barberoNombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : initials}
+            </div>
+
+            {/* Text */}
+            <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: cfg.from, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {reserva?.nombreCliente || 'Cliente'}
+                </div>
+                {(servicioNombre || hora) && (
+                    <div style={{ fontSize: 9, color: '#9ca3af', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {hora && <span>{hora} </span>}
+                        {servicioNombre && <span>· {servicioNombre}</span>}
+                    </div>
+                )}
+            </div>
+
+            {/* Glow dot */}
+            <div style={{ flexShrink: 0, width: 6, height: 6, borderRadius: '50%', background: cfg.from, boxShadow: `0 0 5px ${cfg.from}` }} />
+        </div>
+    );
+}
+
 
 // Setup localizer for react-big-calendar
 const locales = {
@@ -107,13 +185,15 @@ export default function CalendarioMensual() {
     // Transform reservations to calendar events
     const events = useMemo(() => {
         return reservations.map(reserva => {
-            const startDate = new Date(`${reserva.fecha}T${reserva.timeSlot?.hora || '00:00'}:00`);
-            const duration = reserva.timeSlot?.duracion || 30;
+            // getDetails() returns flat `hora`, `duracion`; timeSlot.* is legacy shape
+            const hora = reserva.hora || reserva.timeSlot?.hora || '00:00';
+            const duration = reserva.duracion || reserva.timeSlot?.duracion || 30;
+            const startDate = new Date(`${reserva.fecha}T${hora}:00`);
             const endDate = new Date(startDate.getTime() + duration * 60000);
 
             return {
                 id: reserva._id || reserva.id,
-                title: `${reserva.nombreCliente} - ${reserva.servicio?.nombre || 'Servicio'}`,
+                title: `${reserva.nombreCliente} - ${reserva.servicio?.nombre || reserva.servicio || 'Servicio'}`,
                 start: startDate,
                 end: endDate,
                 resource: reserva
@@ -121,31 +201,18 @@ export default function CalendarioMensual() {
         });
     }, [reservations]);
 
-    // Custom event style getter
-    const eventStyleGetter = (event) => {
-        const statusColors = {
-            RESERVADA: { backgroundColor: '#3b82f6', borderColor: '#2563eb' },
-            CONFIRMADA: { backgroundColor: '#22c55e', borderColor: '#16a34a' },
-            COMPLETADA: { backgroundColor: '#6b7280', borderColor: '#4b5563' },
-            CANCELADA: { backgroundColor: '#ef4444', borderColor: '#dc2626' },
-            NO_ASISTIO: { backgroundColor: '#f97316', borderColor: '#ea580c' }
-        };
+    // Custom event style getter — empty styles since MonthEvent handles visuals
+    const eventStyleGetter = () => ({
+        style: {
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+        }
+    });
 
-        const colors = statusColors[event.resource.estado] || statusColors.RESERVADA;
+    // Custom components
+    const calendarComponents = useMemo(() => ({ event: MonthEvent }), []);
 
-        return {
-            style: {
-                backgroundColor: colors.backgroundColor,
-                borderColor: colors.borderColor,
-                borderWidth: '2px',
-                borderStyle: 'solid',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '0.875rem',
-                padding: '2px 6px'
-            }
-        };
-    };
 
     // Custom messages in Spanish
     const messages = {
@@ -250,6 +317,7 @@ export default function CalendarioMensual() {
                             selectable
                             popup
                             eventPropGetter={eventStyleGetter}
+                            components={calendarComponents}
                             messages={messages}
                             culture="es"
                             date={currentDate}

@@ -1,100 +1,171 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Badge } from '../ui';
-import { Clock, User, Scissors } from 'lucide-react';
+import { Clock, Scissors, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 /**
- * CeldaReserva - Individual reservation cell for calendar grid
- * Displays compact reservation info with color coding by status
+ * CeldaReserva - Premium reservation cell for calendar grid
+ * Shows barber avatar, client name, service, and an elegant tooltip
  */
 export default function CeldaReserva({ reserva, onClick }) {
     const [showTooltip, setShowTooltip] = useState(false);
 
-    // Color mapping by status
-    const statusColors = {
-        RESERVADA: 'bg-blue-500 bg-opacity-20 border-blue-500 text-blue-500',
-        CONFIRMADA: 'bg-green-500 bg-opacity-20 border-green-500 text-green-500',
-        COMPLETADA: 'bg-gray-500 bg-opacity-20 border-gray-500 text-gray-500',
-        CANCELADA: 'bg-red-500 bg-opacity-20 border-red-500 text-red-500',
-        NO_ASISTIO: 'bg-orange-500 bg-opacity-20 border-orange-500 text-orange-500'
+    // Accent colors per status (gradient stops + badge bg)
+    const statusConfig = {
+        RESERVADA:  { from: '#3b82f6', to: '#2563eb', badge: 'bg-blue-500',   label: 'Reservada',   Icon: AlertCircle },
+        CONFIRMADA: { from: '#22c55e', to: '#16a34a', badge: 'bg-green-500',  label: 'Confirmada',  Icon: CheckCircle },
+        COMPLETADA: { from: '#6b7280', to: '#4b5563', badge: 'bg-gray-500',   label: 'Completada',  Icon: CheckCircle },
+        CANCELADA:  { from: '#ef4444', to: '#dc2626', badge: 'bg-red-500',    label: 'Cancelada',   Icon: XCircle     },
+        NO_ASISTIO: { from: '#f97316', to: '#ea580c', badge: 'bg-orange-500', label: 'No asistió',  Icon: XCircle     },
     };
 
-    const statusLabels = {
-        RESERVADA: 'Reservada',
-        CONFIRMADA: 'Confirmada',
-        COMPLETADA: 'Completada',
-        CANCELADA: 'Cancelada',
-        NO_ASISTIO: 'No asistió'
-    };
+    const cfg = statusConfig[reserva.estado] || statusConfig.RESERVADA;
 
-    const colorClass = statusColors[reserva.estado] || statusColors.RESERVADA;
+    // Barbero data (fallback placeholders)
+    const barberoNombre = reserva.barbero?.nombre || '';
+    const barberoFoto   = reserva.barbero?.foto   || null;
+    const servicioNombre = reserva.servicio?.nombre || reserva.servcioNombre || 'Servicio';
+    const hora = reserva.hora || reserva.timeSlot?.hora || '';
+    const duracion = reserva.duracion || reserva.timeSlot?.duracion || 30;
+
+    // Avatar initials fallback
+    const initials = barberoNombre
+        ? barberoNombre.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+        : '?';
 
     return (
         <div
-            className="relative"
+            className="relative group"
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
         >
+            {/* ── PILL ─────────────────────────────────────── */}
             <button
                 onClick={() => onClick(reserva)}
-                className={`w-full p-2 rounded-lg border-l-4 text-left transition-all hover:shadow-md ${colorClass}`}
+                className="w-full text-left rounded-xl overflow-hidden transition-all duration-200
+                           hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus:outline-none
+                           focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                style={{
+                    background: `linear-gradient(135deg, ${cfg.from}22, ${cfg.to}15)`,
+                    borderLeft: `3px solid ${cfg.from}`,
+                    boxShadow: `0 2px 8px ${cfg.from}20`,
+                }}
             >
-                {/* Time */}
-                <div className="flex items-center gap-1 text-xs font-semibold mb-1">
-                    <Clock size={12} />
-                    <span>{reserva.timeSlot?.hora || '00:00'}</span>
-                </div>
+                <div className="flex items-center gap-2 px-2 py-2">
+                    {/* Barber avatar */}
+                    <div
+                        className="flex-shrink-0 w-8 h-8 rounded-full ring-2 overflow-hidden flex items-center justify-center text-white text-xs font-bold"
+                        style={{ ringColor: cfg.from, background: `linear-gradient(135deg, ${cfg.from}, ${cfg.to})` }}
+                    >
+                        {barberoFoto ? (
+                            <img
+                                src={barberoFoto}
+                                alt={barberoNombre}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                            />
+                        ) : null}
+                        <span
+                            className="flex items-center justify-center w-full h-full"
+                            style={{ display: barberoFoto ? 'none' : 'flex' }}
+                        >
+                            {initials}
+                        </span>
+                    </div>
 
-                {/* Client name */}
-                <div className="flex items-center gap-1 text-xs mb-1">
-                    <User size={12} />
-                    <span className="truncate">{reserva.nombreCliente || 'Cliente'}</span>
-                </div>
+                    {/* Info */}
+                    <div className="min-w-0 flex-1">
+                        {/* Client name */}
+                        <div
+                            className="text-xs font-bold truncate leading-tight"
+                            style={{ color: cfg.from }}
+                        >
+                            {reserva.nombreCliente || 'Cliente'}
+                        </div>
+                        {/* Service + time */}
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <Scissors size={9} className="text-neutral-400 flex-shrink-0" />
+                            <span className="text-[10px] text-neutral-400 truncate">{servicioNombre}</span>
+                        </div>
+                        {hora && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                                <Clock size={9} className="text-neutral-400 flex-shrink-0" />
+                                <span className="text-[10px] text-neutral-500">{hora}</span>
+                            </div>
+                        )}
+                    </div>
 
-                {/* Service */}
-                <div className="flex items-center gap-1 text-xs">
-                    <Scissors size={12} />
-                    <span className="truncate">{reserva.servicio?.nombre || 'Servicio'}</span>
+                    {/* Status dot */}
+                    <div
+                        className="flex-shrink-0 w-2 h-2 rounded-full mr-1"
+                        style={{ background: cfg.from, boxShadow: `0 0 6px ${cfg.from}` }}
+                    />
                 </div>
             </button>
 
-            {/* Tooltip */}
+            {/* ── TOOLTIP ──────────────────────────────────── */}
             {showTooltip && (
-                <div className="absolute z-50 left-full ml-2 top-0 w-64 p-3 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl">
-                    <div className="space-y-2 text-sm">
-                        <div className="flex items-center justify-between">
-                            <span className="font-bold text-white">{reserva.nombreCliente}</span>
-                            <Badge variant={reserva.estado === 'COMPLETADA' ? 'success' : 'primary'} size="sm">
-                                {statusLabels[reserva.estado]}
-                            </Badge>
+                <div
+                    className="absolute z-50 left-full ml-3 top-0 w-72 rounded-2xl overflow-hidden shadow-2xl pointer-events-none"
+                    style={{ background: 'rgba(15, 15, 20, 0.97)', border: `1px solid ${cfg.from}40` }}
+                >
+                    {/* Header gradient bar */}
+                    <div
+                        className="px-4 py-3 flex items-center gap-3"
+                        style={{ background: `linear-gradient(135deg, ${cfg.from}33, ${cfg.to}1a)` }}
+                    >
+                        {/* Barber avatar (large) */}
+                        <div
+                            className="flex-shrink-0 w-11 h-11 rounded-full ring-2 overflow-hidden flex items-center justify-center text-white text-sm font-bold"
+                            style={{ border: `2px solid ${cfg.from}80`, background: `linear-gradient(135deg, ${cfg.from}, ${cfg.to})` }}
+                        >
+                            {barberoFoto ? (
+                                <img src={barberoFoto} alt={barberoNombre} className="w-full h-full object-cover" />
+                            ) : (
+                                <span>{initials}</span>
+                            )}
                         </div>
-
-                        <div className="text-neutral-300">
-                            <div className="flex items-center gap-2">
-                                <Clock size={14} />
-                                <span>{reserva.timeSlot?.hora} ({reserva.timeSlot?.duracion || 30} min)</span>
+                        <div className="min-w-0 flex-1">
+                            <div className="font-bold text-white text-sm truncate">
+                                {reserva.nombreCliente || 'Cliente'}
                             </div>
-                        </div>
-
-                        <div className="text-neutral-300">
-                            <div className="flex items-center gap-2">
-                                <Scissors size={14} />
-                                <span>{reserva.servicio?.nombre}</span>
-                            </div>
-                        </div>
-
-                        {reserva.barbero && (
-                            <div className="text-neutral-300">
-                                <div className="flex items-center gap-2">
-                                    <User size={14} />
-                                    <span>{reserva.barbero.nombre}</span>
+                            {barberoNombre && (
+                                <div className="text-xs text-neutral-400 truncate">
+                                    con {barberoNombre}
                                 </div>
-                            </div>
+                            )}
+                        </div>
+                        {/* Status badge */}
+                        <span
+                            className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+                            style={{ background: cfg.from }}
+                        >
+                            {cfg.label}
+                        </span>
+                    </div>
+
+                    {/* Details */}
+                    <div className="px-4 py-3 space-y-2 text-sm">
+                        <TooltipRow icon={<Clock size={13} className="text-neutral-400" />}>
+                            <span className="text-white">{hora}</span>
+                            <span className="text-neutral-500 ml-1">({duracion} min)</span>
+                        </TooltipRow>
+
+                        <TooltipRow icon={<Scissors size={13} className="text-neutral-400" />}>
+                            <span className="text-neutral-300">{servicioNombre}</span>
+                        </TooltipRow>
+
+                        {reserva.emailCliente && (
+                            <TooltipRow icon={<span className="text-neutral-400 text-[10px]">@</span>}>
+                                <span className="text-neutral-400 text-xs">{reserva.emailCliente}</span>
+                            </TooltipRow>
                         )}
 
-                        {reserva.precio && (
-                            <div className="text-primary-500 font-semibold">
-                                ${reserva.precio.toLocaleString('es-CL')}
+                        {(reserva.precio > 0) && (
+                            <div
+                                className="mt-3 pt-2 border-t text-right font-bold text-base"
+                                style={{ borderColor: `${cfg.from}30`, color: cfg.from }}
+                            >
+                                ${(reserva.precio || 0).toLocaleString('es-CL')}
                             </div>
                         )}
                     </div>
@@ -104,22 +175,34 @@ export default function CeldaReserva({ reserva, onClick }) {
     );
 }
 
+function TooltipRow({ icon, children }) {
+    return (
+        <div className="flex items-center gap-2">
+            {icon}
+            <span className="flex-1 flex items-center gap-1">{children}</span>
+        </div>
+    );
+}
+
 CeldaReserva.propTypes = {
     reserva: PropTypes.shape({
         _id: PropTypes.string,
+        id: PropTypes.string,
         nombreCliente: PropTypes.string,
+        emailCliente: PropTypes.string,
         estado: PropTypes.string.isRequired,
+        hora: PropTypes.string,
+        duracion: PropTypes.number,
+        precio: PropTypes.number,
         timeSlot: PropTypes.shape({
             hora: PropTypes.string,
             duracion: PropTypes.number
         }),
-        servicio: PropTypes.shape({
-            nombre: PropTypes.string
-        }),
+        servicio: PropTypes.shape({ nombre: PropTypes.string }),
         barbero: PropTypes.shape({
-            nombre: PropTypes.string
+            nombre: PropTypes.string,
+            foto: PropTypes.string
         }),
-        precio: PropTypes.number
     }).isRequired,
     onClick: PropTypes.func.isRequired
 };

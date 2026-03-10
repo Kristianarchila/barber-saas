@@ -497,6 +497,26 @@ class MongoReservaRepository extends IReservaRepository {
         const doc = mongoDoc.toObject ? mongoDoc.toObject() : mongoDoc;
         const duracion = this.calculateDuration(doc.hora, doc.horaFin);
 
+        // Detect if barberoId was populated (object with _id) or is just an ID string/ObjectId
+        const barberoPopulated = doc.barberoId && typeof doc.barberoId === 'object' && doc.barberoId._id
+            ? {
+                id: doc.barberoId._id.toString(),
+                nombre: doc.barberoId.nombre,
+                foto: doc.barberoId.foto || null,
+                especialidades: doc.barberoId.especialidades || []
+            }
+            : null;
+
+        // Detect if servicioId was populated
+        const servicioPopulated = doc.servicioId && typeof doc.servicioId === 'object' && doc.servicioId._id
+            ? {
+                id: doc.servicioId._id.toString(),
+                nombre: doc.servicioId.nombre,
+                duracion: doc.servicioId.duracion,
+                precio: doc.servicioId.precio
+            }
+            : null;
+
         return new Reserva({
             id: doc._id.toString(),
             barberoId: doc.barberoId?._id?.toString() || doc.barberoId?.toString(),
@@ -519,7 +539,10 @@ class MongoReservaRepository extends IReservaRepository {
             // Preserve timezone if stored; fall back to Santiago default
             timezone: doc.timezone || 'America/Santiago',
             createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt
+            updatedAt: doc.updatedAt,
+            // Populated relation data
+            barbero: barberoPopulated,
+            servicio: servicioPopulated
         });
     }
 

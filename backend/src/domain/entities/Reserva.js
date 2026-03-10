@@ -28,7 +28,10 @@ class Reserva {
         precioSnapshot = null,
         timezone = 'America/Santiago',
         createdAt,
-        updatedAt
+        updatedAt,
+        // Populated objects (optional) — populated by repository when available
+        barbero = null,
+        servicio = null
     }) {
         this.id = id;
         this.barberoId = barberoId;
@@ -49,6 +52,9 @@ class Reserva {
         this.precioSnapshot = precioSnapshot;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        // Populated relation objects
+        this.barbero = barbero;   // { nombre, foto, especialidades }
+        this.servicio = servicio; // { nombre, duracion, precio }
 
         this.validateBusinessRules();
     }
@@ -222,7 +228,20 @@ class Reserva {
             depositoPagado: this.depositoPagado,
             montoDeposito: this.montoDeposito.amount,
             createdAt: this.createdAt,
-            updatedAt: this.updatedAt
+            updatedAt: this.updatedAt,
+            // Populated relation objects (null when not requested)
+            barbero: this.barbero ? {
+                id: this.barbero.id || this.barbero._id?.toString(),
+                nombre: this.barbero.nombre,
+                foto: this.barbero.foto || null,
+                especialidades: this.barbero.especialidades || []
+            } : null,
+            servicio: this.servicio ? {
+                id: this.servicio.id || this.servicio._id?.toString(),
+                nombre: this.servicio.nombre,
+                duracion: this.servicio.duracion,
+                precio: this.servicio.precio
+            } : null
         };
     }
 

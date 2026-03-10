@@ -66,22 +66,49 @@ export default function GridDiario({
                     </div>
 
                     {/* Barbero headers */}
-                    {barberos.map((barbero) => (
-                        <div
-                            key={barbero._id}
-                            className="p-3 text-center rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 bg-opacity-20 border border-primary-500 border-opacity-30"
-                        >
-                            <div className="font-bold text-white text-sm">
-                                {barbero.nombre}
-                            </div>
-                            {barbero.especialidades && barbero.especialidades.length > 0 && (
-                                <div className="text-xs text-neutral-400 mt-1">
-                                    {barbero.especialidades[0]}
+                    {barberos.map((barbero) => {
+                        const initials = barbero.nombre
+                            ? barbero.nombre.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+                            : '?';
+                        return (
+                            <div
+                                key={barbero._id}
+                                className="p-2 text-center rounded-xl flex flex-col items-center gap-1.5"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.08))',
+                                    border: '1px solid rgba(99,102,241,0.25)',
+                                }}
+                            >
+                                {/* Avatar */}
+                                <div
+                                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white text-sm font-bold ring-2"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                                        ringColor: 'rgba(99,102,241,0.4)',
+                                    }}
+                                >
+                                    {barbero.foto ? (
+                                        <img
+                                            src={barbero.foto}
+                                            alt={barbero.nombre}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                        />
+                                    ) : initials}
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                                <div className="font-bold text-white text-xs leading-tight">
+                                    {barbero.nombre}
+                                </div>
+                                {barbero.especialidades && barbero.especialidades.length > 0 && (
+                                    <div className="text-[10px] text-indigo-400 font-medium truncate max-w-full px-1">
+                                        {barbero.especialidades[0]}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
+
 
                 {/* Time slots grid */}
                 <div className="space-y-1">
