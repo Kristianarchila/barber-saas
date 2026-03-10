@@ -76,7 +76,18 @@ export const getMiBalance = async () => {
 
 // Top productos más vendidos del mes (dashboard financiero)
 export const getTopProductos = async () => {
-    const slug = window.location.pathname.split('/')[1];
-    const { data } = await api.get(`/barberias/${slug}/ventas/top-productos`);
-    return data.topProductos || [];
+    // Intentar obtener slug de la URL primero, si no, del localStorage (más seguro)
+    const slugFromUrl = window.location.pathname.split('/')[1];
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const slug = slugFromUrl && slugFromUrl !== 'admin' ? slugFromUrl : (user.barberiaSlug || '');
+
+    if (!slug) return [];
+
+    try {
+        const { data } = await api.get(`/barberias/${slug}/admin/ventas/top-productos`);
+        return data.topProductos || data || [];
+    } catch (error) {
+        console.error("Error fetching top productos:", error);
+        return [];
+    }
 };

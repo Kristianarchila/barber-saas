@@ -7,24 +7,39 @@ class GetReporteFinanciero {
     }
 
     async execute(barberiaId, { desde, hasta, barberoId }) {
-        const match = { barberiaId };
+        const mongoose = require('mongoose');
+        const targetBarberiaId = typeof barberiaId === 'string' ? new mongoose.Types.ObjectId(barberiaId) : barberiaId;
 
-        if (barberoId) match.barberoId = barberoId;
+        const match = { barberiaId: targetBarberiaId };
+
+        if (barberoId) match.barberoId = typeof barberoId === 'string' ? new mongoose.Types.ObjectId(barberoId) : barberoId;
+
         if (desde || hasta) {
             match.fecha = {};
-            if (desde) match.fecha.$gte = new Date(desde);
-            if (hasta) match.fecha.$lte = new Date(hasta);
+            try {
+                if (desde) {
+                    const d = new Date(desde);
+                    if (!isNaN(d.getTime())) match.fecha.$gte = d;
+                }
+                if (hasta) {
+                    const h = new Date(hasta);
+                    if (!isNaN(h.getTime())) match.fecha.$lte = h;
+                }
+            } catch (e) {
+                console.error("Invalid date filter in report", e);
+            }
+            if (Object.keys(match.fecha).length === 0) delete match.fecha;
         }
 
         // Match para hoy
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-        const matchHoy = { barberiaId, fecha: { $gte: hoy } };
+        const matchHoy = { barberiaId: targetBarberiaId, fecha: { $gte: hoy } };
 
         // Match mes anterior
         const inicioMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
         const finMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth(), 0, 23, 59, 59);
-        const matchMesAnterior = { barberiaId, fecha: { $gte: inicioMesAnterior, $lte: finMesAnterior } };
+        const matchMesAnterior = { barberiaId: targetBarberiaId, fecha: { $gte: inicioMesAnterior, $lte: finMesAnterior } };
 
         // Reporte general
         const [resumen, resumenHoy, resumenMesAnterior] = await Promise.all([

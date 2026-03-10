@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const events = require('../../../events');
+const events = require('../../../../events');
 
 /**
  * AuditLog Model
