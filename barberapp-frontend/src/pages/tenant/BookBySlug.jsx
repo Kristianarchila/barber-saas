@@ -535,17 +535,19 @@ export default function BookBySlug() {
                                 </div>
                             </div>
 
-                            {/* Mobile Bar Fixed Next Button - MEJORADO */}
-                            <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
+                            {/* Mobile Bar Fixed Next Button - FINAL POLISH */}
+                            <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
                                 <button 
                                     disabled={!formData.hora} 
                                     onClick={() => setStep(4)} 
-                                    className={`w-full py-6 px-6 md:px-8 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
+                                    className={`w-full py-5 px-5 rounded-2xl font-black uppercase text-[10px] tracking-wider transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.4)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
                                 >
-                                    <span className="truncate mr-2">CONFIRMAR {formData.hora || ''}</span>
-                                    <div className="flex items-center flex-shrink-0">
-                                        <div className="h-6 w-px bg-white/20 mx-3"></div>
-                                        <span className="text-sm font-black tracking-tighter">${selectedService?.precio}</span>
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                        <span className="truncate">CONFIRMAR {formData.hora || ''}</span>
+                                    </div>
+                                    <div className="flex items-center flex-shrink-0 ml-3">
+                                        <div className="h-4 w-px bg-white/20 mr-4"></div>
+                                        <span className="text-[13px] font-black tracking-tight">${selectedService?.precio}</span>
                                     </div>
                                 </button>
                             </div>
