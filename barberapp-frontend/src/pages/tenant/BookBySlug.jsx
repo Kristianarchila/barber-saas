@@ -724,14 +724,14 @@ export default function BookBySlug() {
                                 <button 
                                     disabled={!formData.hora} 
                                     onClick={() => setStep(4)} 
-                                    className={`w-full py-5 px-5 rounded-2xl font-black uppercase text-[10px] tracking-wider transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.4)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
+                                    className={`w-full py-5 px-6 rounded-2xl font-black uppercase text-[10px] tracking-tight transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.4)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
                                 >
-                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <div className="flex items-center gap-2 min-w-0">
                                         <span className="truncate">CONFIRMAR {formData.hora || ''}</span>
                                     </div>
-                                    <div className="flex items-center flex-shrink-0 ml-3">
+                                    <div className="flex items-center flex-shrink-0 ml-4">
                                         <div className="h-4 w-px bg-white/20 mr-4"></div>
-                                        <span className="text-[13px] font-black tracking-tight">${selectedService?.precio}</span>
+                                        <span className="text-[14px] font-black tracking-tight whitespace-nowrap">${selectedService?.precio}</span>
                                     </div>
                                 </button>
                             </div>
