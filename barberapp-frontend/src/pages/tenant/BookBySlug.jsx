@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
-    ChevronLeft, Clock, Search, Scissors, Loader2, User, CheckCircle2
+    ChevronLeft, Clock, Search, Scissors, Loader2, User, CheckCircle2, Sun, CloudSun, Moon
 } from "lucide-react";
 import { useBarberia } from "../../context/BarberiaContext";
 import {
@@ -509,12 +509,12 @@ const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => {
     const afternoon = turnos.filter(t => parseInt(t.split(':')[0]) >= 13 && parseInt(t.split(':')[0]) < 19);
     const evening = turnos.filter(t => parseInt(t.split(':')[0]) >= 19);
 
-    const TimeBlock = ({ title, slots, icon: Icon }) => {
+    const TimeBlock = ({ title, slots, icon: Icon, theme }) => {
         if (slots.length === 0) return null;
         return (
             <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-neutral-100 rounded-lg text-neutral-400">
+                    <div className={`p-2 rounded-lg ${theme.bg} ${theme.text}`}>
                         <Icon size={16} />
                     </div>
                     <span className="font-black uppercase text-[10px] tracking-[0.3em] text-neutral-400">{title}</span>
@@ -535,11 +535,11 @@ const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => {
                                 className={`group relative min-h-[64px] rounded-2xl border-2 font-black text-sm transition-all overflow-hidden ${selectedTime === t ? 'bg-black text-white border-black shadow-lg' : 'bg-white border-black/5 hover:border-black/20'}`}
                             >
                                 {isRecommended && selectedTime !== t && (
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/5 to-transparent opacity-50"></div>
+                                    <div className={`absolute inset-0 bg-gradient-to-tr ${theme.glow} to-transparent opacity-50`}></div>
                                 )}
                                 <span className="relative z-10">{t}</span>
                                 {isRecommended && selectedTime !== t && (
-                                    <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.8)]"></span>
+                                    <span className={`absolute top-1 right-1 w-1.5 h-1.5 ${theme.dot} rounded-full animate-pulse shadow-lg`}></span>
                                 )}
                             </motion.button>
                         );
@@ -555,9 +555,24 @@ const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => {
             <div className="absolute -top-20 -left-20 w-64 h-64 bg-neutral-100/50 rounded-full blur-3xl -z-10"></div>
             <div className="absolute top-1/2 -right-20 w-96 h-96 bg-neutral-50 rounded-full blur-3xl -z-10"></div>
 
-            <TimeBlock title="Sunrise / Mañana" slots={morning} icon={CheckCircle2} />
-            <TimeBlock title="Peak / Tarde" slots={afternoon} icon={Clock} />
-            <TimeBlock title="Nightfall / Noche" slots={evening} icon={User} />
+            <TimeBlock 
+                title="Sunrise / Mañana" 
+                slots={morning} 
+                icon={Sun} 
+                theme={{ bg: 'bg-orange-50', text: 'text-orange-400', glow: 'from-orange-400/5', dot: 'bg-orange-400' }} 
+            />
+            <TimeBlock 
+                title="Peak / Tarde" 
+                slots={afternoon} 
+                icon={CloudSun} 
+                theme={{ bg: 'bg-blue-50', text: 'text-blue-400', glow: 'from-blue-400/5', dot: 'bg-blue-400' }} 
+            />
+            <TimeBlock 
+                title="Nightfall / Noche" 
+                slots={evening} 
+                icon={Moon} 
+                theme={{ bg: 'bg-indigo-50', text: 'text-indigo-400', glow: 'from-indigo-400/5', dot: 'bg-indigo-400' }} 
+            />
         </div>
     );
 };
