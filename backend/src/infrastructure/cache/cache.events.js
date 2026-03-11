@@ -51,8 +51,9 @@ eventEmitter.on('servicio:deleted', ({ barberiaId }) => {
 // ========================================
 
 eventEmitter.on('reserva:created', ({ barberiaId, barberoId, fecha }) => {
-    // Invalidar disponibilidad
+    // Invalidar disponibilidad (caché interno y endpoint público)
     cacheService.delByPattern(`${barberiaId}:disponibilidad`);
+    cacheService.delByPattern(`pub:disponibilidad:`);
     cacheService.delByPattern(`${barberiaId}:agenda`);
 
     // Invalidar estadísticas
@@ -64,6 +65,7 @@ eventEmitter.on('reserva:created', ({ barberiaId, barberoId, fecha }) => {
 
 eventEmitter.on('reserva:updated', ({ barberiaId, barberoId }) => {
     cacheService.delByPattern(`${barberiaId}:disponibilidad`);
+    cacheService.delByPattern(`pub:disponibilidad:`);
     cacheService.delByPattern(`${barberiaId}:agenda`);
     cacheService.delByPattern(`${barberiaId}:stats`);
     logger.debug(`[Cache] Invalidated reserva cache after update`);
@@ -71,6 +73,7 @@ eventEmitter.on('reserva:updated', ({ barberiaId, barberoId }) => {
 
 eventEmitter.on('reserva:cancelled', ({ barberiaId }) => {
     cacheService.delByPattern(`${barberiaId}:disponibilidad`);
+    cacheService.delByPattern(`pub:disponibilidad:`);
     cacheService.delByPattern(`${barberiaId}:agenda`);
     cacheService.delByPattern(`${barberiaId}:stats`);
     logger.debug(`[Cache] Invalidated reserva cache after cancellation`);
@@ -89,7 +92,16 @@ eventEmitter.on('reserva:completed', ({ barberiaId }) => {
 eventEmitter.on('horario:updated', ({ barberiaId, barberoId }) => {
     cacheService.delByPattern(`${barberiaId}:horarios`);
     cacheService.delByPattern(`${barberiaId}:disponibilidad`);
+    cacheService.delByPattern(`pub:disponibilidad:`);
     logger.debug(`[Cache] Invalidated horarios cache for barbero ${barberoId}`);
+});
+
+// R-03 FIX: invalidar caché cuando se reagenda una reserva
+eventEmitter.on('reserva:rescheduled', ({ barberiaId, barberoId, fecha }) => {
+    cacheService.delByPattern(`${barberiaId}:disponibilidad`);
+    cacheService.delByPattern(`pub:disponibilidad:`);
+    cacheService.delByPattern(`${barberiaId}:agenda`);
+    logger.debug(`[Cache] Invalidated availability cache after reschedule for barberia ${barberiaId}`);
 });
 
 // ========================================

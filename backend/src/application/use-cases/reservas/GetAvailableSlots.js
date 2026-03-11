@@ -43,29 +43,28 @@ class GetAvailableSlots {
         );
 
         // 4. Filter out blocked time slots
+        // PERF FIX: Fetch ALL bloqueos for this date in a SINGLE DB query,
+        // then filter in-memory — avoids the previous N+1 query pattern
+        // where one DB call was made per slot.
         if (this.checkBloqueos && barberiaId) {
-            const filteredSlots = [];
+            try {
+                const bloqueoRepository = this.checkBloqueos.bloqueoRepository;
+                const bloqueos = await bloqueoRepository.findActiveByDate(barberiaId, fecha, barberoId);
 
-            for (const slot of availableSlots) {
-                try {
-                    const result = await this.checkBloqueos.execute({
-                        barberiaId,
-                        fecha,
-                        hora: slot,
-                        barberoId
+                if (bloqueos.length > 0) {
+                    availableSlots = availableSlots.filter(slot => {
+                        const bloqueado = bloqueos.some(bloqueo => {
+                            if (!bloqueo.appliesToBarbero(barberoId)) return false;
+                            return bloqueo.blocksDateTime(fecha, slot);
+                        });
+                        return !bloqueado;
                     });
-
-                    // Only include slot if it's not blocked
-                    if (!result.bloqueado) {
-                        filteredSlots.push(slot);
-                    }
-                } catch (error) {
-                    console.error(`Error checking bloqueo for slot ${slot}:`, error);
-                    // On error, exclude the slot to be safe
                 }
+                // If no bloqueos for the date, skip filtering entirely (fast path)
+            } catch (error) {
+                console.error('Error fetching bloqueos for slot filtering:', error);
+                // On error, return slots unfiltered (fail-open) rather than blocking all slots
             }
-
-            availableSlots = filteredSlots;
         }
 
         return availableSlots;

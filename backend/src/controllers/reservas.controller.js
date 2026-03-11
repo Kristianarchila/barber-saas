@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Reservas Controller (Hexagonal Architecture Version)
  * This controller acts as an adapter in the interfaces layer
  * It delegates business logic to use cases
@@ -6,6 +6,7 @@
 
 const container = require('../shared/Container');
 const cacheService = require('../infrastructure/cache/CacheService');
+const events = require('../events');
 
 // Single-flight registry for calendario (prevents stampede on cold cache)
 const calendarInflight = Object.create(null);
@@ -150,7 +151,8 @@ exports.reagendarReserva = async (req, res, next) => {
             req.params.id,
             {
                 fecha: req.body.fecha,
-                hora: req.body.hora
+                hora: req.body.hora,
+                barberiaId: req.user.barberiaId  // R-01 FIX: pasar barberiaId para aislamiento de tenant
             },
             req.user.id,
             isAdmin
@@ -159,6 +161,16 @@ exports.reagendarReserva = async (req, res, next) => {
         res.json({
             message: 'Reserva reagendada exitosamente',
             reserva: reserva.getDetails()
+        });
+
+        // R-02 FIX: emitir SSE para actualizar calendario en tiempo real
+        events.emit('reserva.reagendada', reserva.getDetails());
+
+        // R-03 FIX: invalidar caché de disponibilidad y agenda
+        events.emit('reserva:rescheduled', {
+            barberiaId: reserva.barberiaId,
+            barberoId:  reserva.barberoId,
+            fecha:      reserva.timeSlot?.date || reserva.fecha
         });
     } catch (error) {
         next(error);

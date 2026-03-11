@@ -11,6 +11,7 @@ const TTL = {
     barberia: 5 * 60, // 5 min  — configuración raramente cambia
     barberos: 2 * 60, // 2 min  — pueden ser activados/desactivados
     servicios: 3 * 60, // 3 min  — precios/disponibilidad moderadamente estables
+    disponibilidad: 30, // 30 seg — cambia frecuentemente cuando se crean reservas
 };
 
 // Base URL para íconos de fallback (los estáticos del frontend)
@@ -117,32 +118,43 @@ exports.getDisponibilidadBySlug = async (req, res, next) => {
             });
         }
 
-        // Get barberia first
-        const barberiaUseCase = container.getBarberiaBySlugUseCase;
-        const barberia = await barberiaUseCase.execute(slug);
+        const cacheKey = `pub:disponibilidad:${slug}:${barberoId}:${fecha}:${servicioId}`;
 
-        // Get service to obtain its duration
-        const servicio = await container.servicioRepository.findById(servicioId, barberia.id);
-        if (!servicio) {
-            return res.status(404).json({ message: "Servicio no encontrado" });
-        }
+        const result = await cacheService.wrap(cacheKey, async () => {
+            // Get barberia first
+            const barberiaUseCase = container.getBarberiaBySlugUseCase;
+            const barberia = await barberiaUseCase.execute(slug);
 
-        // Get available slots (use case expects duracion, not servicioId)
-        const useCase = container.getAvailableSlotsUseCase;
-        const slots = await useCase.execute({
-            barberiaId: barberia.id,
-            barberoId,
-            duracion: servicio.duracion,
-            fecha
-        });
+            // Get service to obtain its duration
+            const servicio = await container.servicioRepository.findById(servicioId, barberia.id);
+            if (!servicio) {
+                const err = new Error("Servicio no encontrado");
+                err.statusCode = 404;
+                throw err;
+            }
 
-        res.json({
-            barberoId,
-            fecha,
-            servicioId,
-            turnosDisponibles: slots
-        });
+            // Get available slots (use case expects duracion, not servicioId)
+            const useCase = container.getAvailableSlotsUseCase;
+            const slots = await useCase.execute({
+                barberiaId: barberia.id,
+                barberoId,
+                duracion: servicio.duracion,
+                fecha
+            });
+
+            return {
+                barberoId,
+                fecha,
+                servicioId,
+                turnosDisponibles: slots
+            };
+        }, TTL.disponibilidad);
+
+        res.json(result);
     } catch (error) {
+        if (error.statusCode === 404) {
+            return res.status(404).json({ message: error.message });
+        }
         next(error);
     }
 };

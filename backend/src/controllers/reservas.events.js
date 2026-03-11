@@ -153,3 +153,47 @@ events.on("reserva.completada", async (reserva) => {
   }
 });
 
+// Evento: Reserva reagendada
+// R-02 FIX: notifica admin y barbero para que el calendario se actualice en tiempo real
+events.on("reserva.reagendada", async (reserva) => {
+  try {
+    const sseManager = getSSEManager();
+
+    // Notificar al barbero asignado
+    if (reserva.barberoId) {
+      try {
+        const barbero = await Barbero.findById(reserva.barberoId).populate('usuarioId');
+        if (barbero?.usuarioId) {
+          sseManager.sendToUser(barbero.usuarioId.toString(), 'reserva_reagendada', {
+            reservaId: reserva.id,
+            clienteNombre: reserva.nombreCliente,
+            fecha: reserva.fecha,
+            hora: reserva.hora,
+            timestamp: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error('[SSE] Error notificando reagendado a barbero:', error.message);
+      }
+    }
+
+    // Notificar a admins de la barbería
+    sseManager.sendToBarberia(
+      reserva.barberiaId?.toString() || reserva.barberiaId,
+      'reserva_reagendada_admin',
+      {
+        reservaId: reserva.id,
+        clienteNombre: reserva.nombreCliente,
+        barberoNombre: reserva.barbero?.nombre || 'Sin asignar',
+        fecha: reserva.fecha,
+        hora: reserva.hora,
+        timestamp: new Date().toISOString()
+      },
+      ['BARBERO'] // Excluir barberos del broadcast a admins (ya recibieron el suyo)
+    );
+
+  } catch (error) {
+    console.error('[SSE] Error en evento reserva.reagendada:', error.message);
+  }
+});
+
