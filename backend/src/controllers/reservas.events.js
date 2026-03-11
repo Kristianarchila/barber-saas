@@ -148,6 +148,22 @@ events.on("reserva.completada", async (reserva) => {
         console.error('[SSE] Error notificando completado a barbero:', error.message);
       }
     }
+
+    // Notificar al admin de la barbería en tiempo real
+    sseManager.sendToBarberia(
+      reserva.barberiaId?.toString() || reserva.barberiaId,
+      'reserva_completada_admin',
+      {
+        reservaId: reserva._id?.toString() || reserva.id,
+        clienteNombre: reserva.nombreCliente,
+        barberoNombre: reserva.barberoId?.nombre || 'Sin asignar',
+        servicio: reserva.servicioId?.nombre || 'Servicio',
+        ingreso: reserva.precio || 0,
+        timestamp: new Date().toISOString()
+      },
+      ['BARBERO'] // Solo admins — el barbero ya recibió su notificación individual
+    );
+
   } catch (error) {
     console.error('[SSE] Error en evento reserva.completada:', error.message);
   }
