@@ -17,6 +17,30 @@ import AISuggestionBox from "../../components/booking/AISuggestionBox";
 import toast from "react-hot-toast";
 import { getAISuggestions } from "../../services/publicService";
 
+const AuraBackground = () => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div 
+            animate={{ 
+                x: [0, 100, 0], 
+                y: [0, 50, 0],
+                rotate: [0, 20, 0] 
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-neutral-100/40 rounded-full blur-[120px] will-change-transform"
+        />
+        <motion.div 
+            animate={{ 
+                x: [0, -80, 0], 
+                y: [0, 100, 0],
+                rotate: [0, -15, 0] 
+            }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-neutral-200/30 rounded-full blur-[120px] will-change-transform"
+        />
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+    </div>
+);
+
 // --- HELPERS ---
 const calcularHoraFin = (horaInicio, duracionMinutos) => {
     if (!horaInicio) return "";
@@ -210,9 +234,11 @@ export default function BookBySlug() {
     if (loadingContext) return <LoadingScreen />;
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900">
+        <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900 relative">
+            <AuraBackground />
+            
             {/* HEADER COMPACTO */}
-            <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/5">
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-black/5">
                 <div className="max-w-7xl mx-auto px-3 md:px-6 py-3 flex items-center justify-between gap-2">
                     <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0">
                         <ChevronLeft size={22} />
