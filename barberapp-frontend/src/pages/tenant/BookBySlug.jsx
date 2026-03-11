@@ -97,12 +97,12 @@ export default function BookBySlug() {
     // --- HANDLERS ---
     const handleSelect = (name, value) => {
         setFormData(prev => {
-            const新Data = {
+            const newData = {
                 ...prev,
                 [name]: value,
                 ...(['fecha', 'barberoId', 'servicioId'].includes(name) && { hora: "" })
             };
-            return 新Data;
+            return newData;
         });
         
         // Si ya hay servicio, barbero y fecha, no necesitamos cambiar de 'step',
