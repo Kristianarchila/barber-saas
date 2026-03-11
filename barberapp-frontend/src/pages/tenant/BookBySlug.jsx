@@ -349,15 +349,15 @@ export default function BookBySlug() {
                                                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
                                             />
                                         )}
-                                        <div className="relative flex items-center justify-between py-4 px-6 h-20">
-                                            <div className="flex flex-col items-start min-w-0 flex-1 pr-6">
+                                        <div className="relative flex items-center justify-between py-4 px-4 h-20">
+                                            <div className="flex flex-col items-start min-w-0 flex-1 pr-3">
                                                 <span className="text-[7px] font-black uppercase tracking-[0.4em] text-white/40 mb-1">Tu Experiencia</span>
                                                 <div className="flex items-center gap-2 min-w-0">
                                                     <span className="text-[11px] font-black uppercase tracking-widest truncate">CONFIRMAR {formData.hora}</span>
                                                     <ChevronRight size={14} className="text-white/20 shrink-0" />
                                                 </div>
                                             </div>
-                                            <div className="flex items-center shrink-0 border-l border-white/10 pl-6 my-1">
+                                            <div className="flex items-center shrink-0 border-l border-white/10 pl-4 my-1 min-w-[72px] justify-end">
                                                 <div className="flex flex-col items-end">
                                                     <div className="flex items-baseline gap-0.5">
                                                         <span className="text-[10px] font-black text-white/40">$</span>
