@@ -22,6 +22,20 @@ const EnergyGrid = () => (
     </div>
 );
 
+const ProgressBar = ({ currentStep, totalSteps = 5 }) => {
+    const progress = (currentStep / totalSteps) * 100;
+    return (
+        <div className="absolute top-0 left-0 w-full h-1 bg-neutral-100 overflow-hidden">
+            <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.8, ease: "circOut" }}
+                className="h-full bg-black shadow-[0_0_10px_rgba(0,0,0,0.3)]"
+            />
+        </div>
+    );
+};
+
 // --- HELPERS ---
 const calcularHoraFin = (horaInicio, duracionMinutos) => {
     if (!horaInicio) return "";
@@ -217,15 +231,33 @@ export default function BookBySlug() {
     return (
         <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900 relative">
             <EnergyGrid />
-            {/* HEADER COMPACTO */}
-            <header className="sticky top-0 z-50 bg-white/90 border-b border-black/5">
-                <div className="max-w-7xl mx-auto px-3 md:px-6 py-3 flex items-center justify-between gap-2">
-                    <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0">
-                        <ChevronLeft size={22} />
-                    </button>
-                    <h1 className="font-black uppercase tracking-tighter text-base md:text-2xl truncate text-center">{barberia?.nombre}</h1>
-                    {/* Indicador de paso */}
-                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 flex-shrink-0">{step}/4</span>
+            {/* HEADER COMPACTO CON PROGRESO */}
+            <header className="sticky top-0 z-50 bg-white/95 border-b border-black/5">
+                <ProgressBar currentStep={step} />
+                <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0">
+                            <ChevronLeft size={20} />
+                        </button>
+                        
+                        {/* LOGO DINÁMICO */}
+                        <div className="flex items-center gap-2 overflow-hidden">
+                            {barberia?.logo ? (
+                                <img src={barberia.logo} alt={barberia?.nombre} className="h-6 md:h-8 w-auto object-contain" />
+                            ) : (
+                                <span className="font-black text-xs md:text-sm tracking-widest uppercase truncate max-w-[120px] md:max-w-none">
+                                    {barberia?.nombre || "Cargando..."}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end">
+                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400">PASO</span>
+                            <span className="text-xs font-black tracking-widest">{step}/5</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -233,23 +265,23 @@ export default function BookBySlug() {
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.section key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                            {/* TÍTULO CINEMÁTICO */}
-                            <div className="mb-8 md:mb-16 text-center">
+                            {/* TÍTULO CINEMÁTICO RESPONSIVO */}
+                            <div className="mb-8 md:mb-16 text-center mt-4 md:mt-0">
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ duration: 0.8 }}
                                 >
-                                    <h2 className="text-5xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-6">
+                                    <h2 className="text-4xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-4 md:mb-6 px-4">
                                         Nuestros<br />
                                         <span className="text-transparent font-outline-2" style={{ WebkitTextStroke: '1.5px #000' }}>Servicios</span>
                                     </h2>
-                                    <div className="flex items-center justify-center gap-4 mb-8">
-                                        <div className="h-px w-12 bg-black/10"></div>
-                                        <p className="text-neutral-400 font-black text-[10px] uppercase tracking-[0.4em]">
-                                            {serviciosFiltrados.length} EXCELENCIAS DISPONIBLES
+                                    <div className="flex items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8">
+                                        <div className="h-px w-8 md:w-12 bg-black/10"></div>
+                                        <p className="text-neutral-400 font-black text-[9px] md:text-[10px] uppercase tracking-[0.4em]">
+                                            {serviciosFiltrados.length} EXCELENCIAS
                                         </p>
-                                        <div className="h-px w-12 bg-black/10"></div>
+                                        <div className="h-px w-8 md:w-12 bg-black/10"></div>
                                     </div>
                                 </motion.div>
 
@@ -302,13 +334,13 @@ export default function BookBySlug() {
                             exit={{ opacity: 0, y: -20 }}
                             className="max-w-6xl mx-auto"
                         >
-                            {/* TÍTULO CINEMÁTICO 2 */}
-                            <div className="mb-12 md:mb-20 text-center">
-                                <h2 className="text-5xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-6">
+                            {/* TÍTULO CINEMÁTICO 2 RESPONSIVO */}
+                            <div className="mb-10 md:mb-20 text-center mt-4 md:mt-0">
+                                <h2 className="text-4xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-4 md:mb-6 px-4">
                                     Elige tu<br />
                                     <span className="text-transparent font-outline-2" style={{ WebkitTextStroke: '1.5px #000' }}>Maestro</span>
                                 </h2>
-                                <p className="text-neutral-400 font-black text-[10px] uppercase tracking-[0.4em]">
+                                <p className="text-neutral-400 font-black text-[9px] md:text-[10px] uppercase tracking-[0.4em]">
                                     ARTISTAS DEL GROOMING
                                 </p>
                             </div>
@@ -665,19 +697,19 @@ const TimeGrid = ({ turnos, selectedTime, onSelect, loading }) => {
             <div className="absolute top-1/2 -right-20 w-96 h-96 bg-neutral-50 rounded-full blur-3xl -z-10"></div>
 
             <TimeBlock 
-                title="Sunrise / Mañana" 
+                title="Mañana" 
                 slots={morning} 
                 icon={Sun} 
                 theme={{ bg: 'bg-orange-50', text: 'text-orange-400', glow: 'from-orange-400/5', dot: 'bg-orange-400' }} 
             />
             <TimeBlock 
-                title="Peak / Tarde" 
+                title="Tarde" 
                 slots={afternoon} 
                 icon={CloudSun} 
                 theme={{ bg: 'bg-blue-50', text: 'text-blue-400', glow: 'from-blue-400/5', dot: 'bg-blue-400' }} 
             />
             <TimeBlock 
-                title="Nightfall / Noche" 
+                title="Noche" 
                 slots={evening} 
                 icon={Moon} 
                 theme={{ bg: 'bg-indigo-50', text: 'text-indigo-400', glow: 'from-indigo-400/5', dot: 'bg-indigo-400' }} 
