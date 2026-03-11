@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
-    ChevronLeft, Clock, Search, Scissors, Loader2, User, CheckCircle2, Sun, CloudSun, Moon
+    ChevronLeft, ChevronRight, Clock, Search, Scissors, Loader2, User, CheckCircle2, Sun, CloudSun, Moon
 } from "lucide-react";
 import { useBarberia } from "../../context/BarberiaContext";
 import {
