@@ -540,11 +540,13 @@ export default function BookBySlug() {
                                 <button 
                                     disabled={!formData.hora} 
                                     onClick={() => setStep(4)} 
-                                    className={`w-full py-6 px-8 rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
+                                    className={`w-full py-6 px-6 md:px-8 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
                                 >
-                                    <span>CONFIRMAR {formData.hora || ''}</span>
-                                    <div className="h-6 w-px bg-white/20 mx-2"></div>
-                                    <span className="text-sm">${selectedService?.precio}</span>
+                                    <span className="truncate mr-2">CONFIRMAR {formData.hora || ''}</span>
+                                    <div className="flex items-center flex-shrink-0">
+                                        <div className="h-6 w-px bg-white/20 mx-3"></div>
+                                        <span className="text-sm font-black tracking-tighter">${selectedService?.precio}</span>
+                                    </div>
                                 </button>
                             </div>
                         </motion.section>
