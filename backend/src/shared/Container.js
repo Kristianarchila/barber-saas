@@ -543,6 +543,19 @@ class Container {
         );
     }
 
+    get getAISlotSuggestionsUseCase() {
+        if (!this._instances.openAIAdapter) {
+            this._instances.openAIAdapter = new OpenAIAdapter(process.env.OPENAI_API_KEY);
+        }
+        return new GetAISlotSuggestions(
+            this._instances.openAIAdapter,
+            this.availabilityService,
+            this.barberoRepository,
+            this.servicioRepository,
+            this.barberiaRepository
+        );
+    }
+
     // ==========================================
     // USE CASES - SERVICIOS
     // ==========================================
