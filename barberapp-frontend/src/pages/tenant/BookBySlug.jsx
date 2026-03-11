@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -16,6 +16,22 @@ import JoinWaitingListModal from "../../components/modals/JoinWaitingListModal";
 import AISuggestionBox from "../../components/booking/AISuggestionBox";
 import toast from "react-hot-toast";
 import { getAISuggestions } from "../../services/publicService";
+
+// Cache de sesión: evita requests duplicados al backend durante la misma visita
+const availabilityCache = new Map();
+const getCachedDisponibilidad = async (slug, barberoId, fecha, servicioId) => {
+    const key = `${slug}|${barberoId}|${fecha}|${servicioId}`;
+    if (availabilityCache.has(key)) return availabilityCache.get(key);
+    const data = await getDisponibilidadBySlug(slug, barberoId, fecha, servicioId);
+    availabilityCache.set(key, data);
+    // Limpiar cache si supera 50 entradas para no consumir mucha memoria
+    if (availabilityCache.size > 50) {
+        const firstKey = availabilityCache.keys().next().value;
+        availabilityCache.delete(firstKey);
+    }
+    return data;
+};
+
 const EnergyGrid = () => (
     <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-[0.03] z-0">
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, black 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
@@ -76,6 +92,10 @@ export default function BookBySlug() {
         telefonoCliente: ""
     });
 
+    // Smart Suggest: sugerencias cuando el barbero preferido no tiene turnos
+    const [smartSuggest, setSmartSuggest] = useState(null); // { nextDays: [{fecha, turnos}], otherBarbers: [{barber, turnos}] }
+    const [loadingSmartSuggest, setLoadingSmartSuggest] = useState(false);
+
     // --- FILTRADO ---
     const categorias = useMemo(() => {
         const counts = { 'Todos': servicios.length };
@@ -115,17 +135,62 @@ export default function BookBySlug() {
         const abortController = new AbortController();
 
         const fetchTurnos = async () => {
-            // Manejamos 'any' como un barbero vacío para que el backend busque disponibilidad general
             const targetBarberId = formData.barberoId === 'any' ? "" : formData.barberoId;
             
             if (!formData.fecha || !formData.servicioId || !slug) return;
             
             setLoadingTurnos(true);
             setTurnosDisponibles([]);
+            setSmartSuggest(null);
             try {
-                const data = await getDisponibilidadBySlug(slug, targetBarberId, formData.fecha, formData.servicioId);
+                // Usar cache para evitar requests duplicados
+                const data = await getCachedDisponibilidad(slug, targetBarberId, formData.fecha, formData.servicioId);
                 if (!abortController.signal.aborted) {
-                    setTurnosDisponibles(data.turnosDisponibles || []);
+                    const turnos = data.turnosDisponibles || [];
+                    setTurnosDisponibles(turnos);
+
+                    const isSpecificBarber = formData.barberoId && formData.barberoId !== 'any';
+                    if (turnos.length === 0 && isSpecificBarber) {
+                        setLoadingSmartSuggest(true);
+                        try {
+                            const next7Days = Array.from({ length: 7 }, (_, i) =>
+                                dayjs(formData.fecha).add(i + 1, 'day').format('YYYY-MM-DD')
+                            );
+                            const otherBarbers = barberos.filter(b => b._id !== formData.barberoId);
+                            const [nextDaysResults, otherBarbersResults] = await Promise.all([
+                                Promise.all(
+                                    next7Days.map(async (fecha) => {
+                                        try {
+                                            // Cache: si ya se consultó este día, respuesta instantánea
+                                            const res = await getCachedDisponibilidad(slug, targetBarberId, fecha, formData.servicioId);
+                                            const t = res.turnosDisponibles || [];
+                                            return t.length > 0 ? { fecha, turnos: t.slice(0, 3) } : null;
+                                        } catch { return null; }
+                                    })
+                                ),
+                                Promise.all(
+                                    otherBarbers.map(async (barber) => {
+                                        try {
+                                            // Cache: si ya se consultó este barbero, respuesta instantánea
+                                            const res = await getCachedDisponibilidad(slug, barber._id, formData.fecha, formData.servicioId);
+                                            const t = res.turnosDisponibles || [];
+                                            return t.length > 0 ? { barber, turnos: t.slice(0, 3) } : null;
+                                        } catch { return null; }
+                                    })
+                                )
+                            ]);
+                            if (!abortController.signal.aborted) {
+                                setSmartSuggest({
+                                    nextDays: nextDaysResults.filter(Boolean).slice(0, 3),
+                                    otherBarbers: otherBarbersResults.filter(Boolean)
+                                });
+                            }
+                        } catch (e) {
+                            console.error("SmartSuggest error:", e);
+                        } finally {
+                            if (!abortController.signal.aborted) setLoadingSmartSuggest(false);
+                        }
+                    }
                 }
             } catch (error) {
                 if (!abortController.signal.aborted) {
@@ -139,12 +204,10 @@ export default function BookBySlug() {
             }
         };
 
-        const timer = setTimeout(fetchTurnos, 300);
-        return () => {
-            clearTimeout(timer);
-            abortController.abort();
-        };
-    }, [formData.fecha, formData.barberoId, formData.servicioId, slug]);
+        // Sin debounce: mostrar spinner inmediatamente
+        fetchTurnos();
+        return () => { abortController.abort(); };
+    }, [formData.fecha, formData.barberoId, formData.servicioId, slug, barberos]);
 
     // --- AI SUGGESTIONS LOGIC ---
     useEffect(() => {
@@ -234,6 +297,15 @@ export default function BookBySlug() {
     const selectedService = useMemo(() => servicios.find(s => s._id === formData.servicioId), [formData.servicioId, servicios]);
     const selectedBarber = useMemo(() => barberos.find(b => b._id === formData.barberoId), [formData.barberoId, barberos]);
 
+    // Auto-seleccionar HOY al entrar al Paso 2
+    useEffect(() => {
+        if (step === 2 && !formData.fecha) {
+            const today = new Date();
+            const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            setFormData(prev => ({ ...prev, fecha: iso }));
+        }
+    }, [step]);
+
     if (loadingContext) return <LoadingScreen />;
 
     return (
@@ -244,7 +316,14 @@ export default function BookBySlug() {
                 <ProgressBar currentStep={step} />
                 <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0">
+                        <button 
+                            onClick={() => {
+                                if (step === 4 || step === 3) setStep(2);
+                                else if (step > 1) setStep(s => s - 1);
+                                else navigate(-1);
+                            }} 
+                            className="p-2 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0"
+                        >
                             <ChevronLeft size={20} />
                         </button>
                         
@@ -514,24 +593,129 @@ export default function BookBySlug() {
                                         <TimeGrid turnos={turnosDisponibles} selectedTime={formData.hora} loading={loadingTurnos} onSelect={(t) => handleSelect('hora', t)} />
                                     </div>
 
-                                    {/* AI Suggestions Box */}
-                                    <div className="mt-10">
-                                        <AISuggestionBox
-                                            suggestion={aiSuggestion}
-                                            onSelectSlot={handleSelectAISlot}
-                                            loading={loadingAI}
-                                        />
-                                    </div>
-
-                                    {/* No slots available - Fallback */}
-                                    {!loadingTurnos && !loadingAI && turnosDisponibles.length === 0 && !aiSuggestion?.slots?.length && formData.fecha && (
-                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 bg-black/[0.02] border border-black/5 rounded-[2.5rem] p-10 text-center">
-                                            <h3 className="text-xl font-black uppercase tracking-tighter mb-4">No hay horarios disponibles para este barbero</h3>
-                                            <button onClick={() => setShowWaitingListModal(true)} className="px-8 py-4 bg-black text-white rounded-xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg">
-                                                Unirse a Lista de Espera
-                                            </button>
-                                        </motion.div>
+                                    {/* AI Suggestions Box — solo si no hay SmartSuggest activo */}
+                                    {!smartSuggest && (
+                                        <div className="mt-10">
+                                            <AISuggestionBox
+                                                suggestion={aiSuggestion}
+                                                onSelectSlot={handleSelectAISlot}
+                                                loading={loadingAI}
+                                            />
+                                        </div>
                                     )}
+
+                                    {/* ─── SMART SUGGEST PANEL ─────────────────────────── */}
+                                    <AnimatePresence>
+                                        {!loadingTurnos && turnosDisponibles.length === 0 && formData.fecha && formData.barberoId && formData.barberoId !== 'any' && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                className="mt-8 rounded-[2.5rem] overflow-hidden border border-black/8 bg-white shadow-xl"
+                                            >
+                                                {/* Header */}
+                                                <div className="bg-black px-8 py-6 flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                        <User size={18} className="text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-white font-black uppercase text-xs tracking-[0.2em]">
+                                                            {selectedBarber?.nombre || 'Este barbero'} no tiene turnos el {dayjs(formData.fecha).format('DD [de] MMMM')}
+                                                        </h3>
+                                                        <p className="text-white/50 text-[9px] font-black uppercase tracking-widest mt-1">Smart Suggest — Encontramos estas alternativas</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-6 md:p-8">
+                                                    {loadingSmartSuggest ? (
+                                                        <div className="flex items-center justify-center py-10 gap-3">
+                                                            <Loader2 className="animate-spin text-black/30" size={20} />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-black/30">Buscando alternativas...</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-8">
+                                                            {/* PRÓXIMOS DÍAS CON EL MISMO BARBERO */}
+                                                            {smartSuggest?.nextDays?.length > 0 && (
+                                                                <div>
+                                                                    <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-4 flex items-center gap-2">
+                                                                        <div className="h-px flex-1 bg-black/5"></div>
+                                                                        Próximos días con {selectedBarber?.nombre}
+                                                                        <div className="h-px flex-1 bg-black/5"></div>
+                                                                    </h4>
+                                                                    <div className="space-y-3">
+                                                                        {smartSuggest.nextDays.map(({ fecha, turnos }) => (
+                                                                            <div key={fecha} className="flex items-center gap-3 p-3 rounded-2xl bg-black/[0.02] hover:bg-black/[0.04] transition-colors">
+                                                                                <div className="flex-shrink-0 text-center bg-white rounded-xl p-2 border border-black/5 min-w-[52px]">
+                                                                                    <div className="text-[8px] font-black uppercase tracking-widest text-neutral-400">{dayjs(fecha).format('ddd')}</div>
+                                                                                    <div className="text-lg font-black leading-none">{dayjs(fecha).format('D')}</div>
+                                                                                </div>
+                                                                                <div className="flex flex-wrap gap-2 flex-1">
+                                                                                    {turnos.map(t => (
+                                                                                        <button
+                                                                                            key={t}
+                                                                                            onClick={() => { setFormData(prev => ({ ...prev, fecha: fecha, hora: t })); setStep(4); }}
+                                                                                            className="px-3 py-2 bg-black text-white rounded-xl text-[10px] font-black tracking-tight hover:bg-neutral-800 transition-colors shadow-sm"
+                                                                                        >
+                                                                                            {t}
+                                                                                        </button>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* OTROS BARBEROS DISPONIBLES HOY */}
+                                                            {smartSuggest?.otherBarbers?.length > 0 && (
+                                                                <div>
+                                                                    <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-4 flex items-center gap-2">
+                                                                        <div className="h-px flex-1 bg-black/5"></div>
+                                                                        Disponible hoy con otro maestro
+                                                                        <div className="h-px flex-1 bg-black/5"></div>
+                                                                    </h4>
+                                                                    <div className="space-y-3">
+                                                                        {smartSuggest.otherBarbers.map(({ barber, turnos }) => (
+                                                                            <div key={barber._id} className="flex items-center gap-3 p-3 rounded-2xl bg-black/[0.02] hover:bg-black/[0.04] transition-colors">
+                                                                                <img
+                                                                                    src={barber.foto || "https://res.cloudinary.com/diz8m6fxi/image/upload/v1710926715/ux-placeholder-barber.png"}
+                                                                                    className="w-12 h-12 rounded-2xl object-cover flex-shrink-0 border border-black/5"
+                                                                                />
+                                                                                <div className="flex-1 min-w-0">
+                                                                                    <div className="text-[10px] font-black uppercase tracking-tight truncate mb-2">{barber.nombre}</div>
+                                                                                    <div className="flex flex-wrap gap-2">
+                                                                                        {turnos.map(t => (
+                                                                                            <button
+                                                                                                key={t}
+                                                                                                onClick={() => { setFormData(prev => ({ ...prev, barberoId: barber._id, hora: t })); setStep(4); }}
+                                                                                                className="px-3 py-2 bg-black text-white rounded-xl text-[10px] font-black tracking-tight hover:bg-neutral-800 transition-colors shadow-sm"
+                                                                                            >
+                                                                                                {t}
+                                                                                            </button>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Sin ninguna alternativa */}
+                                                            {!loadingSmartSuggest && !smartSuggest?.nextDays?.length && !smartSuggest?.otherBarbers?.length && (
+                                                                <div className="text-center py-8">
+                                                                    <p className="text-sm font-black uppercase tracking-tighter text-neutral-400 mb-4">Sin disponibilidad cercana</p>
+                                                                    <button onClick={() => setShowWaitingListModal(true)} className="px-8 py-4 bg-black text-white rounded-xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg">
+                                                                        Unirse a Lista de Espera
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
 
@@ -696,7 +880,7 @@ const BarberCard = ({ barber, isSelected, onSelect }) => (
 );
 
 const DatePicker = ({ selectedDate, onSelect }) => {
-    const dates = Array.from({ length: 7 }, (_, i) => {
+    const dates = Array.from({ length: 14 }, (_, i) => {
         const d = new Date(); d.setDate(d.getDate() + i); return d;
     });
     const toLocalISO = (d) => {
@@ -708,7 +892,7 @@ const DatePicker = ({ selectedDate, onSelect }) => {
 
     return (
         <div className="relative">
-            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
+            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
                 {dates.map((d, i) => {
                     const iso = toLocalISO(d);
                     const active = selectedDate === iso;
@@ -716,18 +900,22 @@ const DatePicker = ({ selectedDate, onSelect }) => {
                     return (
                         <motion.button 
                             key={iso} 
-                            whileHover={{ y: -5 }}
-                            whileTap={{ scale: 0.95 }}
+                            whileTap={{ scale: 0.92 }}
                             onClick={() => onSelect(iso)} 
-                            className={`flex-shrink-0 w-20 h-28 md:w-24 md:h-32 rounded-[2rem] flex flex-col items-center justify-center transition-all relative overflow-hidden ${active ? 'bg-black text-white shadow-2xl scale-110 z-10' : 'bg-white border border-black/5 text-neutral-400 hover:border-black/20'}`}
+                            className={`flex-shrink-0 w-14 h-20 rounded-2xl flex flex-col items-center justify-center transition-all relative overflow-hidden ${
+                                active 
+                                    ? 'bg-black text-white shadow-lg scale-105 z-10' 
+                                    : isToday
+                                        ? 'bg-white border-2 border-black/20 text-neutral-600'
+                                        : 'bg-white border border-black/5 text-neutral-400'
+                            }`}
                         >
-                            {isToday && !active && (
-                                <span className="absolute top-2 text-[7px] font-black uppercase tracking-widest text-neutral-300">Today</span>
-                            )}
-                            <span className="text-[10px] font-black uppercase mb-1">{d.toLocaleDateString('es-ES', { weekday: 'short' })}</span>
-                            <span className="text-3xl md:text-4xl font-black tracking-tighter">{d.getDate()}</span>
+                            <span className={`text-[8px] font-black uppercase tracking-wider mb-0.5 ${active ? 'text-white/60' : isToday ? 'text-black/40' : 'text-neutral-300'}`}>
+                                {isToday && !active ? 'HOY' : d.toLocaleDateString('es-ES', { weekday: 'short' }).slice(0, 3).toUpperCase()}
+                            </span>
+                            <span className="text-xl font-black tracking-tighter leading-none">{d.getDate()}</span>
                             {active && (
-                                <motion.div layoutId="date-active" className="absolute bottom-2 w-1.5 h-1.5 bg-white rounded-full" />
+                                <motion.div layoutId="date-active" className="absolute bottom-2 w-1 h-1 bg-white rounded-full" />
                             )}
                         </motion.button>
                     );
