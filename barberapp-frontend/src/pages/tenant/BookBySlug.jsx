@@ -105,8 +105,10 @@ export default function BookBySlug() {
             return newData;
         });
         
-        // Si ya hay servicio, barbero y fecha, no necesitamos cambiar de 'step',
-        // todo sucede en la vista dinámica de la Etapa 2.
+        // Haptic feedback
+        if (window.navigator.vibrate) {
+            window.navigator.vibrate(10);
+        }
     };
 
     useEffect(() => {
@@ -265,6 +267,36 @@ export default function BookBySlug() {
                         </div>
                     </div>
                 </div>
+
+                {/* MOBILE FLOATING TICKET SUMMARY (Solo móvil, Paso 2 y 3) */}
+                <AnimatePresence>
+                    {step >= 2 && step <= 3 && (
+                        <motion.div
+                            initial={{ y: -50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -50, opacity: 0 }}
+                            className="lg:hidden bg-black text-white px-6 py-3 flex items-center justify-between border-t border-white/10 shadow-2xl"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden">
+                                    {selectedService?.imagen ? (
+                                        <img src={selectedService.imagen} className="w-full h-full object-cover opacity-70" />
+                                    ) : (
+                                        <Scissors size={14} className="text-white/40" />
+                                    )}
+                                </div>
+                                <div className="leading-none">
+                                    <span className="text-[7px] font-black uppercase tracking-widest text-white/40 block mb-1">Tu Servicio</span>
+                                    <span className="text-[10px] font-black uppercase tracking-tighter truncate max-w-[120px] block">{selectedService?.nombre}</span>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-[7px] font-black uppercase tracking-widest text-white/40 block mb-1">A Pagar</span>
+                                <span className="text-sm font-black tracking-tighter">${selectedService?.precio}</span>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </header>
 
             {/* SIDEBAR PERSISTENTE (MODO TICKET) - Aparece desde el Paso 2 */}
@@ -503,14 +535,16 @@ export default function BookBySlug() {
                                 </div>
                             </div>
 
-                            {/* Mobile Bar Fixed Next Button */}
+                            {/* Mobile Bar Fixed Next Button - MEJORADO */}
                             <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
                                 <button 
                                     disabled={!formData.hora} 
                                     onClick={() => setStep(4)} 
-                                    className={`w-full py-6 rounded-2xl font-black uppercase text-xs tracking-[0.3em] transition-all duration-500 ${formData.hora ? 'bg-black text-white shadow-2xl' : 'bg-neutral-200 text-neutral-400'}`}
+                                    className={`w-full py-6 px-8 rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all duration-500 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-400 pointer-events-none opacity-50'}`}
                                 >
-                                    Confirmar {formData.hora || ''}
+                                    <span>CONFIRMAR {formData.hora || ''}</span>
+                                    <div className="h-6 w-px bg-white/20 mx-2"></div>
+                                    <span className="text-sm">${selectedService?.precio}</span>
                                 </button>
                             </div>
                         </motion.section>
