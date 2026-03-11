@@ -16,6 +16,11 @@ import JoinWaitingListModal from "../../components/modals/JoinWaitingListModal";
 import AISuggestionBox from "../../components/booking/AISuggestionBox";
 import toast from "react-hot-toast";
 import { getAISuggestions } from "../../services/publicService";
+const EnergyGrid = () => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-[0.03] z-0">
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, black 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+    </div>
+);
 
 // --- HELPERS ---
 const calcularHoraFin = (horaInicio, duracionMinutos) => {
@@ -210,7 +215,8 @@ export default function BookBySlug() {
     if (loadingContext) return <LoadingScreen />;
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900">
+        <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900 relative">
+            <EnergyGrid />
             {/* HEADER COMPACTO */}
             <header className="sticky top-0 z-50 bg-white/90 border-b border-black/5">
                 <div className="max-w-7xl mx-auto px-3 md:px-6 py-3 flex items-center justify-between gap-2">
@@ -227,23 +233,35 @@ export default function BookBySlug() {
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.section key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                            {/* TÍTULO */}
-                            <div className="mb-6 md:mb-10">
-                                <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase leading-none mb-2">
-                                    Servicios<span className="text-transparent" style={{ WebkitTextStroke: '1px #000' }}>.</span>
-                                </h2>
-                                <p className="text-neutral-400 font-bold text-[10px] uppercase tracking-widest mb-4">
-                                    {serviciosFiltrados.length} servicios disponibles
-                                </p>
-                                <div className="relative">
+                            {/* TÍTULO CINEMÁTICO */}
+                            <div className="mb-8 md:mb-16 text-center">
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ duration: 0.8 }}
+                                >
+                                    <h2 className="text-5xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-6">
+                                        Nuestros<br />
+                                        <span className="text-transparent font-outline-2" style={{ WebkitTextStroke: '1.5px #000' }}>Servicios</span>
+                                    </h2>
+                                    <div className="flex items-center justify-center gap-4 mb-8">
+                                        <div className="h-px w-12 bg-black/10"></div>
+                                        <p className="text-neutral-400 font-black text-[10px] uppercase tracking-[0.4em]">
+                                            {serviciosFiltrados.length} EXCELENCIAS DISPONIBLES
+                                        </p>
+                                        <div className="h-px w-12 bg-black/10"></div>
+                                    </div>
+                                </motion.div>
+
+                                <div className="max-w-md mx-auto relative group">
                                     <input
                                         type="text"
-                                        placeholder="BUSCAR..."
+                                        placeholder="ENCUENTRA TU ESTILO..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-black/10 py-2.5 text-xs font-black tracking-widest outline-none focus:border-black transition-all"
+                                        className="w-full bg-white/50 border-b-2 border-black/5 py-4 px-2 text-[10px] font-black tracking-[0.2em] outline-none focus:border-black transition-all text-center group-hover:bg-white transition-all duration-500 rounded-t-xl"
                                     />
-                                    <Search className="absolute right-0 top-1/2 -translate-y-1/2 text-black/20" size={15} />
+                                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-black/20 group-hover:text-black transition-colors" size={16} />
                                 </div>
                             </div>
 
@@ -277,11 +295,32 @@ export default function BookBySlug() {
                     )}
 
                     {step === 2 && (
-                        <motion.section key="step2" className="max-w-4xl mx-auto">
-                            <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mb-8">Elige tu barbero</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+                        <motion.section 
+                            key="step2" 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="max-w-6xl mx-auto"
+                        >
+                            {/* TÍTULO CINEMÁTICO 2 */}
+                            <div className="mb-12 md:mb-20 text-center">
+                                <h2 className="text-5xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-6">
+                                    Elige tu<br />
+                                    <span className="text-transparent font-outline-2" style={{ WebkitTextStroke: '1.5px #000' }}>Maestro</span>
+                                </h2>
+                                <p className="text-neutral-400 font-black text-[10px] uppercase tracking-[0.4em]">
+                                    ARTISTAS DEL GROOMING
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
                                 {barberos.map(b => (
-                                    <BarberCard key={b._id} barber={b} isSelected={formData.barberoId === b._id} onSelect={() => { handleSelect('barberoId', b._id); setStep(3); }} />
+                                    <BarberCard 
+                                        key={b._id} 
+                                        barber={b} 
+                                        isSelected={formData.barberoId === b._id} 
+                                        onSelect={() => { handleSelect('barberoId', b._id); setStep(3); }} 
+                                    />
                                 ))}
                             </div>
                         </motion.section>
@@ -293,30 +332,30 @@ export default function BookBySlug() {
                             <motion.div 
                                 initial={{ y: -20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                className="mb-10 p-6 bg-white/40 backdrop-blur-md rounded-[2rem] border border-black/5 flex flex-wrap items-center justify-between gap-4"
+                                className="mb-10 p-8 bg-black/[0.02] border border-black/5 rounded-[2.5rem] flex flex-wrap items-center justify-between gap-6"
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0 -rotate-3">
                                         <img src={selectedBarber?.foto || "https://res.cloudinary.com/diz8m6fxi/image/upload/v1710926715/ux-placeholder-barber.png"} className="w-full h-full object-cover" alt={selectedBarber?.nombre} />
                                     </div>
                                     <div>
-                                        <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400">Seleccionaste a</span>
-                                        <span className="block font-black uppercase text-sm">{selectedBarber?.nombre}</span>
+                                        <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1">Maestro</span>
+                                        <span className="block font-black uppercase text-xl tracking-tighter">{selectedBarber?.nombre}</span>
                                     </div>
                                 </div>
-                                <div className="h-8 w-px bg-black/5 hidden md:block"></div>
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-black text-white rounded-xl">
-                                        <Scissors size={14} />
+                                <div className="h-10 w-px bg-black/5 hidden md:block"></div>
+                                <div className="flex items-center gap-6">
+                                    <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg rotate-3">
+                                        <Scissors size={20} />
                                     </div>
                                     <div>
-                                        <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400">Para el servicio</span>
-                                        <span className="block font-black uppercase text-sm">{selectedService?.nombre}</span>
+                                        <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1">Especialidad</span>
+                                        <span className="block font-black uppercase text-xl tracking-tighter">{selectedService?.nombre}</span>
                                     </div>
                                 </div>
                                 <button 
                                     onClick={() => setStep(1)} 
-                                    className="px-4 py-2 hover:bg-black/5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all"
+                                    className="px-8 py-3 bg-white border border-black/5 hover:bg-black hover:text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
                                 >
                                     Cambiar
                                 </button>
@@ -412,45 +451,115 @@ const ServiceGridCard = ({ service, onSelect }) => (
     <motion.div
         layout
         onClick={onSelect}
-        className="group bg-white rounded-[1.8rem] overflow-hidden border border-black/5 hover:shadow-2xl transition-all duration-500 cursor-pointer"
+        whileHover={{ y: -10, scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="group relative bg-white/70 backdrop-blur-sm rounded-[2.5rem] overflow-hidden border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.04)] hover:shadow-[0_32px_64px_rgba(0,0,0,0.08)] transition-all duration-700 cursor-pointer"
     >
-        <div className="relative h-40 sm:h-48 md:h-64 bg-neutral-100 overflow-hidden">
+        {/* Imagen de Fondo con Overlay */}
+        <div className="relative h-56 md:h-80 bg-neutral-100 overflow-hidden">
             {service.imagen ? (
-                <img src={service.imagen} alt={service.nombre} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <img src={service.imagen} alt={service.nombre} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out" />
             ) : (
-                <div className="w-full h-full flex items-center justify-center"><Scissors size={32} className="text-black/5" /></div>
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-200">
+                    <Scissors size={48} className="text-black/5" />
+                </div>
             )}
-            <div className="absolute top-4 right-4 bg-black/90 backdrop-blur-md text-white px-4 py-2 rounded-full">
-                <span className="text-sm md:text-lg font-black tracking-tighter">${service.precio}</span>
+            
+            {/* Glass Badges */}
+            <div className="absolute top-6 left-6 flex flex-col gap-2">
+                <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-white">
+                    <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400 leading-none mb-1">Inversión</span>
+                    <span className="block text-xl font-black tracking-tighter">${service.precio}</span>
+                </div>
+                <div className="bg-black/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg border border-white/10 w-fit">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-2">
+                        <Clock size={12} className="text-white/50" /> {service.duracion} MIN
+                    </span>
+                </div>
             </div>
-            <div className="absolute bottom-4 left-4 bg-white/90 px-3 py-1 rounded-full">
-                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">Premium</span>
+
+            {/* Premium Indicator */}
+            <div className="absolute top-6 right-6">
+                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-black animate-pulse"></div>
+                 </div>
+            </div>
+
+            {/* Gradient Overlay for Text Visibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-8 md:p-10 relative">
+            <div className="flex justify-between items-start mb-4">
+                <div className="max-w-[80%]">
+                    <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter leading-[0.9] mb-3 group-hover:translate-x-2 transition-transform duration-500">{service.nombre}</h3>
+                    <p className="text-neutral-400 text-[10px] md:text-xs font-bold uppercase tracking-wider leading-relaxed line-clamp-2">{service.descripcion || "Experiencia de grooming de alta gama diseñada para el caballero moderno."}</p>
+                </div>
+            </div>
+            
+            <div className="pt-8 flex items-center justify-between">
+                <div className="h-px flex-1 bg-black/5 mr-6"></div>
+                <div className="flex items-center gap-3 font-black text-[11px] uppercase tracking-[0.3em] group-hover:text-black transition-colors">
+                    RESERVAR <ChevronRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                </div>
             </div>
         </div>
 
-        <div className="p-4 md:p-8">
-            <h3 className="text-lg md:text-2xl font-black uppercase tracking-tighter mb-1.5 leading-none">{service.nombre}</h3>
-            <p className="text-neutral-400 text-xs font-medium mb-4 line-clamp-2">{service.descripcion || "Servicio especializado de alta gama."}</p>
-            <div className="flex items-center justify-between pt-5 border-t border-black/5">
-                <div className="flex items-center gap-2 text-black/30">
-                    <Clock size={14} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{service.duracion} MIN</span>
-                </div>
-                <div className="font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
-                    Reservar <span>→</span>
-                </div>
-            </div>
-        </div>
+        {/* Squishy Inner Glow - Subtle Visual Detail */}
+        <div className="absolute inset-0 pointer-events-none border-[12px] border-transparent group-hover:border-white/10 transition-all duration-700 rounded-[2.5rem]"></div>
     </motion.div>
 );
 
 const BarberCard = ({ barber, isSelected, onSelect }) => (
-    <div onClick={onSelect} className={`p-6 md:p-8 rounded-[2rem] border-2 transition-all cursor-pointer text-center ${isSelected ? 'border-black bg-white' : 'border-black/5 bg-white/50 hover:border-black/20'}`}>
-        <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-full bg-neutral-100 overflow-hidden shadow-inner">
-            {barber.foto ? <img src={barber.foto} className="w-full h-full object-cover" /> : <User className="m-auto mt-4 text-black/10" size={32} />}
+    <motion.div 
+        onClick={onSelect} 
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className={`relative p-8 md:p-12 rounded-[3.5rem] border-2 transition-all duration-700 cursor-pointer text-center group ${
+            isSelected 
+            ? 'border-black bg-white shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)]' 
+            : 'border-black/5 bg-white/40 backdrop-blur-sm hover:border-black/20 hover:bg-white'
+        }`}
+    >
+        {/* Selection Aura */}
+        {isSelected && (
+            <motion.div 
+                layoutId="aura"
+                className="absolute inset-0 rounded-[3.5rem] bg-black/5 z-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+            />
+        )}
+
+        <div className="relative z-10">
+            {/* Professional Squircle Container */}
+            <div className={`w-28 h-28 md:w-40 md:h-40 mx-auto mb-8 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all duration-700 transform ${
+                isSelected ? 'scale-110 -rotate-3 ring-4 ring-black/5' : 'group-hover:rotate-2'
+            }`}>
+                {barber.foto ? (
+                    <img src={barber.foto} className="w-full h-full object-cover" alt={barber.nombre} />
+                ) : (
+                    <div className="w-full h-full bg-neutral-100 flex items-center justify-center">
+                        <User className="text-black/10" size={48} />
+                    </div>
+                )}
+            </div>
+
+            <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-neutral-300 mb-2">Senior Barber</span>
+            <h3 className="font-black uppercase tracking-tighter text-xl md:text-2xl mb-4 leading-none">{barber.nombre}</h3>
+            
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                isSelected ? 'bg-black text-white' : 'bg-black/5 text-black/40 group-hover:bg-black/10'
+            }`}>
+                {isSelected ? 'Seleccionado' : 'Ver Agenda'}
+            </div>
         </div>
-        <h3 className="font-black uppercase tracking-tighter text-sm md:text-base">{barber.nombre}</h3>
-    </div>
+
+        {/* Decorative corner accent */}
+        <div className={`absolute top-8 right-8 w-2 h-2 rounded-full transition-all duration-700 ${isSelected ? 'bg-black scale-150' : 'bg-black/10'}`}></div>
+    </motion.div>
 );
 
 const DatePicker = ({ selectedDate, onSelect }) => {
