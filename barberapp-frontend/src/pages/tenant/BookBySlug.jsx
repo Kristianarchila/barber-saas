@@ -719,43 +719,42 @@ export default function BookBySlug() {
                                 </div>
                             </div>
 
-                            {/* Mobile Bar Fixed Next Button - ULTRA PREMIUM REDESIGN */}
-                            <div className="lg:hidden fixed bottom-8 left-6 right-6 z-50">
+                            {/* Mobile Bar Fixed Next Button - SAFE PREMIUM DESIGN */}
+                            <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
                                 <motion.div
-                                    initial={{ y: 100, opacity: 0 }}
+                                    initial={{ y: 50, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                    className="relative"
                                 >
                                     <button 
                                         disabled={!formData.hora} 
                                         onClick={() => setStep(4)} 
-                                        className={`w-full group relative overflow-hidden rounded-[2rem] transition-all duration-500 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] ${formData.hora ? 'bg-black text-white hover:scale-[1.02] active:scale-[0.98]' : 'bg-neutral-100 text-neutral-400 pointer-events-none'}`}
+                                        className={`w-full group relative overflow-hidden rounded-2xl transition-all duration-300 shadow-[0_15px_40px_-5px_rgba(0,0,0,0.4)] ${formData.hora ? 'bg-black text-white' : 'bg-neutral-100 text-neutral-400 pointer-events-none'}`}
                                     >
-                                        {/* Efecto de brillo premium al estar activo */}
+                                        {/* Shimmer Effect */}
                                         {formData.hora && (
                                             <motion.div 
                                                 animate={{ x: ['-100%', '200%'] }}
-                                                transition={{ repeat: Infinity, duration: 3, ease: "linear", delay: 1 }}
-                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent w-full h-full pointer-events-none"
+                                                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
                                             />
                                         )}
                                         
-                                        <div className="relative flex items-center justify-between py-6 px-8 h-20">
-                                            <div className="flex flex-col items-start gap-0.5">
-                                                <span className="text-[8px] font-black uppercase tracking-[0.4em] opacity-40">Reserva ahora</span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap">
+                                        <div className="relative flex items-center justify-between py-4 px-5 h-18">
+                                            <div className="flex flex-col items-start min-w-0 flex-1 pr-4">
+                                                <span className="text-[7px] font-black uppercase tracking-[0.3em] opacity-50 mb-0.5">Reserva Online</span>
+                                                <div className="flex items-center gap-1.5 min-w-0">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest truncate">
                                                         CONFIRMAR {formData.hora}
                                                     </span>
-                                                    <ChevronRight size={14} className="opacity-40 group-hover:translate-x-1 transition-transform" />
+                                                    <ChevronRight size={12} className="opacity-30 shrink-0" />
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-5">
-                                                <div className="h-8 w-px bg-white/10"></div>
+                                            <div className="flex items-center gap-4 shrink-0 border-l border-white/10 pl-4">
                                                 <div className="flex flex-col items-end">
-                                                    <span className="text-[16px] font-black tracking-tighter leading-none">${selectedService?.precio}</span>
-                                                    <span className="text-[7px] font-black uppercase tracking-widest mt-1 opacity-40">TOTAL</span>
+                                                    <span className="text-[15px] font-black tracking-tight leading-none">${selectedService?.precio}</span>
+                                                    <span className="text-[6px] font-black uppercase tracking-widest mt-1 opacity-40">TOTAL</span>
                                                 </div>
                                             </div>
                                         </div>
