@@ -16,6 +16,8 @@ const Suscripciones = lazy(() => import("../pages/superadmin/Suscripciones"));
 const CuentasPendientes = lazy(() => import("../pages/superadmin/CuentasPendientes"));
 const AuditLogs = lazy(() => import("../pages/superadmin/AuditLogs"));
 const IntegrityDashboard = lazy(() => import("../pages/superadmin/IntegrityDashboard"));
+const EmailLogs = lazy(() => import("../pages/superadmin/EmailLogs"));
+
 
 export default function SuperAdminRouter() {
   return (
@@ -62,6 +64,8 @@ export default function SuperAdminRouter() {
         <Route path="dashboard/cuentas-pendientes" element={<CuentasPendientes />} />
         <Route path="dashboard/auditoria" element={<AuditLogs />} />
         <Route path="dashboard/integridad" element={<IntegrityDashboard />} />
+        <Route path="dashboard/emails" element={<EmailLogs />} />
+
 
       </Route>
     </Routes>

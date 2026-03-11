@@ -12,6 +12,7 @@ import { useBarberia } from '../../../context/BarberiaContext';
 import WhatsAppButton from '../../../components/public/WhatsAppButton';
 import BrandedFooter from '../../../components/public/BrandedFooter';
 import ServicesCatalog from '../../../components/public/ServicesCatalog';
+import MarketplaceSection from '../../../components/public/MarketplaceSection';
 
 /* ─── TOKENS from UI UX Pro Max skill ─────────────────────────── */
 const T = {
@@ -384,6 +385,8 @@ export default function LuxuryTemplate({ barberia, servicios, barberos, resenas,
             <LuxHero barberia={barberia} onBook={onBook} />
             <LuxServices servicios={servicios} onBook={onBook} categorias={categorias} />
             <LuxTeam barberos={barberos} />
+            {/* MARKETPLACE: productos destacados, solo si tienda activa */}
+            <MarketplaceSection colorPrimary={T.gold} />
             <LuxReviews resenas={resenas} />
             <LuxCTA onBook={onBook} barberia={barberia} />
             <LuxLocation barberia={barberia} />

@@ -11,7 +11,8 @@ import {
   UserCheck,
   ShieldCheck,
   Shield,
-  Activity
+  Activity,
+  Mail
 } from "lucide-react";
 import { logout } from "../pages/auth/logout";
 import { getDashboardSuperAdmin } from "../services/superAdminService";
@@ -102,6 +103,11 @@ export default function SuperAdminLayout() {
       to: "/superadmin/dashboard/integridad",
       label: "Integridad",
       icon: <Shield size={20} />
+    },
+    {
+      to: "/superadmin/dashboard/emails",
+      label: "Emails",
+      icon: <Mail size={20} />
     }
   ];
 

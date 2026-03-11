@@ -7,6 +7,7 @@ class IInventarioRepository {
     async findByProductoId(productoId, barberiaId) { throw new Error('Method not implemented'); }
     async save(inventario) { throw new Error('Method not implemented'); }
     async update(id, data) { throw new Error('Method not implemented'); }
+    async registrarMovimientoStock(data) { throw new Error('Method not implemented'); }
 }
 
 module.exports = IInventarioRepository;

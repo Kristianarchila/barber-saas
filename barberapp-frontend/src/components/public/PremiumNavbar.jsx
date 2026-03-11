@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useBarberiaTheme } from '../../context/BarberiaThemeContext';
 import { useBarberia } from '../../context/BarberiaContext';
-import { useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowUpRight, Scissors } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Menu, X, ArrowUpRight, Scissors, ShoppingBag } from 'lucide-react';
 
 export default function PremiumNavbar() {
     const theme = useBarberiaTheme();
@@ -35,6 +35,17 @@ export default function PremiumNavbar() {
         { id: 'equipo', label: 'Equipo' },
         { id: 'contacto', label: 'Contacto' }
     ];
+
+    // Check if tienda is accessible
+    const [tiendaActiva, setTiendaActiva] = useState(false);
+    useEffect(() => {
+        if (!slug) return;
+        import('../../services/api').then(({ default: api }) => {
+            api.get(`/barberias/${slug}/tienda/productos?destacado=true`)
+                .then(r => setTiendaActiva((r.data.productos || []).length > 0))
+                .catch(() => setTiendaActiva(false));
+        });
+    }, [slug]);
 
     return (
         <>
@@ -145,6 +156,30 @@ export default function PremiumNavbar() {
                                     />
                                 </motion.button>
                             ))}
+
+                            {/* TIENDA LINK - solo si tienda activa */}
+                            {tiendaActiva && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.25, duration: 0.4 }}
+                                >
+                                    <Link
+                                        to={`/${slug}/tienda`}
+                                        className={`relative flex items-center gap-1.5 text-sm font-medium tracking-wide transition-all duration-300 group ${
+                                            scrolled ? 'text-black/70 hover:text-black' : 'text-white/80 hover:text-white'
+                                        }`}
+                                        style={{ fontFamily: 'var(--font-body)' }}
+                                    >
+                                        <ShoppingBag size={15} strokeWidth={2.5} />
+                                        Tienda
+                                        <span
+                                            className="absolute -bottom-1 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full"
+                                            style={{ backgroundColor: primaryColor }}
+                                        />
+                                    </Link>
+                                </motion.div>
+                            )}
 
                             {/* BOTÓN CTA - Diseño premium */}
                             <motion.button
@@ -286,6 +321,28 @@ export default function PremiumNavbar() {
                                         />
                                     </motion.button>
                                 ))}
+
+                                {/* Tienda en mobile - solo si activa */}
+                                {tiendaActiva && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.25, duration: 0.3 }}
+                                    >
+                                        <Link
+                                            to={`/${slug}/tienda`}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="w-full group flex items-center justify-between p-4 rounded-xl hover:bg-black/5 transition-all duration-300"
+                                        >
+                                            <span className="text-2xl font-bold text-black tracking-tight flex items-center gap-3"
+                                                style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>
+                                                <ShoppingBag size={22} style={{ color: primaryColor }} />
+                                                Tienda
+                                            </span>
+                                            <ArrowUpRight size={20} className="text-black/40" strokeWidth={2} />
+                                        </Link>
+                                    </motion.div>
+                                )}
 
                                 {/* Botón de reserva en mobile */}
                                 <motion.button

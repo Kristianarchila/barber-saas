@@ -4,10 +4,11 @@ const Pedido = require('../../../domain/entities/Pedido');
  * CreatePedido Use Case
  */
 class CreatePedido {
-    constructor(pedidoRepository, productoRepository, barberiaRepository) {
+    constructor(pedidoRepository, productoRepository, barberiaRepository, inventarioRepository) {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
         this.barberiaRepository = barberiaRepository;
+        this.inventarioRepository = inventarioRepository;
     }
 
     async execute(slug, data, user) {
@@ -68,15 +69,28 @@ class CreatePedido {
         // 5. Save Pedido
         const savedPedido = await this.pedidoRepository.save(pedido);
 
-        // 6. Update Stock and Sales Metadata for each product
+        // 6. Update Stock and Sales Metadata for each product using unified Inventory Logic
         for (const item of itemsProcesados) {
-            const updateData = {
-                $inc: {
-                    stock: -item.cantidad,
-                    'metadata.ventas': item.cantidad
-                }
-            };
-            await this.productoRepository.update(item.productoId, updateData);
+            try {
+                await this.inventarioRepository.registrarMovimientoStock({
+                    barberiaId: barberia.id,
+                    productoId: item.productoId,
+                    tipo: 'VENTA',
+                    cantidad: item.cantidad,
+                    motivo: 'PEDIDO_MARKETPLACE',
+                    referenciaId: savedPedido.id,
+                    usuarioId: user?.id || null
+                });
+
+                // Update sales metadata in product (stock is already updated by registrarMovimientoStock)
+                await this.productoRepository.update(item.productoId, {
+                    $inc: { 'metadata.ventas': item.cantidad }
+                });
+            } catch (error) {
+                console.error(`❌ [CreatePedido] Error sincronizando stock para ${item.nombre}:`, error.message);
+                // We don't throw here to avoid failing the order if stock update has a minor issue, 
+                // but since registrarMovimientoStock is transactional, it's safer.
+            }
         }
 
         return savedPedido;

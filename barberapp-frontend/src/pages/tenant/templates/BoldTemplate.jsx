@@ -5,6 +5,7 @@ import LocationSection from '../../../components/public/LocationSection'
 import BrandedFooter from '../../../components/public/BrandedFooter'
 import WhatsAppButton from '../../../components/public/WhatsAppButton'
 import MobileBottomNav from '../../../components/public/MobileBottomNav'
+import MarketplaceSection from '../../../components/public/MarketplaceSection'
 
 /**
  * BoldTemplate — Geometric, color-block layout driven by admin's primary color.
@@ -166,6 +167,9 @@ export default function BoldTemplate({ barberia, servicios, barberos, resenas })
                     </div>
                 </section>
             )}
+
+            {/* TIENDA: productos destacados, solo si tienda activa */}
+            <MarketplaceSection colorPrimary={color} />
 
             {/* BOOKING CTA */}
             <section className="py-32 text-center" style={{ backgroundColor: dark }}>

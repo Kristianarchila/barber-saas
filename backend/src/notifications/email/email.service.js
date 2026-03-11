@@ -4,6 +4,10 @@ const fs = require("fs").promises;
 const dayjs = require("dayjs");
 require("dayjs/locale/es");
 const Barberia = require("../../infrastructure/database/mongodb/models/Barberia");
+const NotificationLog = require("../../infrastructure/database/mongodb/models/NotificationLog");
+const ResendAdapter = require("../../infrastructure/external-services/email/ResendAdapter");
+
+const resend = new ResendAdapter(process.env.RESEND_API_KEY);
 
 /**
  * Crea un transportador configurado
@@ -79,6 +83,84 @@ const getTransporter = async (barberiaId = null) => {
 };
 
 /**
+ * Función auxiliar para registrar logs de email
+ */
+const logEmail = async ({ barberiaId, email, asunto, contenido, estado, errorMensaje, reservaId, metadata }) => {
+  try {
+    await NotificationLog.create({
+      barberia: barberiaId || null,
+      tipo: "email",
+      destinatario: {
+        email: email,
+      },
+      asunto,
+      contenido: contenido || "Contenido de email",
+      estado: estado === "success" ? "enviado" : "fallido",
+      errorMensaje,
+      reserva: reservaId || null,
+      metadata: {
+        ...metadata,
+        provider: process.env.RESEND_API_KEY ? "resend" : "nodemailer"
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error al registrar NotificationLog:", error.message);
+  }
+};
+
+/**
+ * Función genérica para enviar email (Nodemailer o Resend)
+ */
+const sendMailGeneric = async (mailOptions, barberiaId = null, reservaId = null) => {
+  try {
+    // Si hay API KEY de Resend, usar Resend (Enterprise)
+    if (process.env.RESEND_API_KEY) {
+      const result = await resend.sendEmail({
+        from: mailOptions.from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html
+      });
+      
+      await logEmail({
+        barberiaId,
+        email: mailOptions.to,
+        asunto: mailOptions.subject,
+        estado: "success",
+        reservaId,
+        metadata: { resendId: result.messageId }
+      });
+      
+      return result;
+    }
+
+    // Fallback a Nodemailer (Gmail/SMTP)
+    const transporter = await getTransporter(barberiaId);
+    const result = await transporter.sendMail(mailOptions);
+    
+    await logEmail({
+      barberiaId,
+      email: mailOptions.to,
+      asunto: mailOptions.subject,
+      estado: "success",
+      reservaId
+    });
+    
+    return result;
+  } catch (error) {
+    await logEmail({
+      barberiaId,
+      email: mailOptions.to,
+      asunto: mailOptions.subject,
+      estado: "error",
+      errorMensaje: error.message,
+      reservaId
+    });
+    throw error;
+  }
+};
+
+/**
  * Lee y procesa un template HTML
  */
 const getTemplate = async (templateName, data) => {
@@ -131,17 +213,17 @@ exports.reservaConfirmada = async ({
     });
 
     const mailOptions = {
-      from: `"${nombreBarberia}" <${transporter.options.auth.user}>`,
+      from: `"${nombreBarberia}" <${process.env.RESEND_API_KEY ? 'reservas@barbersaas.com' : (await getTransporter(barberiaId)).options.auth.user}>`,
       to: emailCliente,
       subject: `✅ Cita Confirmada - ${nombreBarberia}`,
       html
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailGeneric(mailOptions, barberiaId, null);
     console.log(`📧 Email de confirmación enviado a ${emailCliente}`);
   } catch (error) {
     console.error("❌ Error enviando email:", error);
-    throw error;
+    // No relanzar para no romper el flujo
   }
 };
 
@@ -181,17 +263,16 @@ exports.enviarSolicitudResena = async ({
     });
 
     const mailOptions = {
-      from: `"${nombreBarberia}" <${transporter.options.auth.user}>`,
+      from: `"${nombreBarberia}" <${process.env.RESEND_API_KEY ? 'opiniones@barbersaas.com' : (await getTransporter(barberiaId)).options.auth.user}>`,
       to: email,
       subject: `⭐ ¿Cómo fue tu experiencia en ${nombreBarberia}?`,
       html
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailGeneric(mailOptions, barberiaId, null);
     console.log(`📧 Email de solicitud de reseña enviado a ${email}`);
   } catch (error) {
     console.error("❌ Error enviando email de solicitud de reseña:", error);
-    throw error;
   }
 };
 
@@ -261,17 +342,16 @@ exports.sendWelcomePendingEmail = async ({ email, nombre }) => {
     html = html.replace(/{{fecha}}/g, dayjs().locale("es").format("D [de] MMMM [de] YYYY"));
 
     const mailOptions = {
-      from: `"Barber SaaS" <${process.env.EMAIL_USER}>`,
+      from: `"Barber SaaS" <${process.env.RESEND_API_KEY ? 'hola@barbersaas.com' : process.env.EMAIL_USER}>`,
       to: email,
       subject: "🎉 ¡Bienvenido a Barber SaaS! - Solicitud Recibida",
       html
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailGeneric(mailOptions, null, null);
     console.log(`📧 Email de bienvenida (pendiente) enviado a ${email}`);
   } catch (error) {
     console.error("❌ Error enviando email de bienvenida:", error);
-    throw error;
   }
 };
 
@@ -295,17 +375,16 @@ exports.sendAccountApprovedEmail = async ({ email, nombre, slug }) => {
     html = html.replace(/{{publicUrl}}/g, publicUrl);
 
     const mailOptions = {
-      from: `"Barber SaaS" <${process.env.EMAIL_USER}>`,
+      from: `"Barber SaaS" <${process.env.RESEND_API_KEY ? 'equipo@barbersaas.com' : process.env.EMAIL_USER}>`,
       to: email,
       subject: "✅ ¡Tu cuenta ha sido aprobada! - Comienza ahora",
       html
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailGeneric(mailOptions, null, null);
     console.log(`📧 Email de cuenta aprobada enviado a ${email}`);
   } catch (error) {
     console.error("❌ Error enviando email de aprobación:", error);
-    throw error;
   }
 };
 
@@ -367,16 +446,15 @@ exports.sendAccountRejectedEmail = async ({ email, nombre, razon }) => {
 </html>`;
 
     const mailOptions = {
-      from: `"Barber SaaS" <${process.env.EMAIL_USER}>`,
+      from: `"Barber SaaS" <${process.env.RESEND_API_KEY ? 'soporte@barbersaas.com' : process.env.EMAIL_USER}>`,
       to: email,
       subject: "Sobre tu solicitud en Barber SaaS",
       html
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailGeneric(mailOptions, null, null);
     console.log(`📧 Email de cuenta rechazada enviado a ${email}`);
   } catch (error) {
     console.error("❌ Error enviando email de rechazo:", error);
-    throw error;
   }
 };

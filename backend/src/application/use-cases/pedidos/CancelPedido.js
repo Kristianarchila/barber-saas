@@ -2,10 +2,11 @@
  * CancelPedido Use Case
  */
 class CancelPedido {
-    constructor(pedidoRepository, productoRepository, barberiaRepository) {
+    constructor(pedidoRepository, productoRepository, barberiaRepository, inventarioRepository) {
         this.pedidoRepository = pedidoRepository;
         this.productoRepository = productoRepository;
         this.barberiaRepository = barberiaRepository;
+        this.inventarioRepository = inventarioRepository;
     }
 
     async execute(slug, id, user) {
@@ -34,15 +35,26 @@ class CancelPedido {
             tracking: pedido.tracking
         });
 
-        // 4. Restore Stock
+        // 4. Restore Stock using unified Inventory Logic
         for (const item of pedido.items) {
-            const updateData = {
-                $inc: {
-                    stock: item.cantidad,
-                    'metadata.ventas': -item.cantidad
-                }
-            };
-            await this.productoRepository.update(item.productoId, updateData);
+            try {
+                await this.inventarioRepository.registrarMovimientoStock({
+                    barberiaId: barberia.id,
+                    productoId: item.productoId,
+                    tipo: 'DEVOLUCION',
+                    cantidad: item.cantidad,
+                    motivo: 'CANCELACION_PEDIDO',
+                    referenciaId: pedido.id,
+                    usuarioId: user.id
+                });
+
+                // Update sales metadata in product (stock is already updated by registrarMovimientoStock)
+                await this.productoRepository.update(item.productoId, {
+                    $inc: { 'metadata.ventas': -item.cantidad }
+                });
+            } catch (error) {
+                console.error(`❌ [CancelPedido] Error restaurando stock para ${item.productoId}:`, error.message);
+            }
         }
 
         return updatedPedido;

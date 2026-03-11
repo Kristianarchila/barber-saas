@@ -684,3 +684,42 @@ exports.getSystemIntegrity = async (req, res, next) => {
     next(error);
   }
 };
+
+// =========================================================
+// GESTIÓN DE NOTIFICACIONES Y EMAILS (Global)
+// =========================================================
+exports.obtenerLogsNotificaciones = async (req, res, next) => {
+  try {
+    const NotificationLog = require('../infrastructure/database/mongodb/models/NotificationLog');
+    const { tipo, estado, buscar, page = 1, limit = 50 } = req.query;
+
+    const query = {};
+    if (tipo) query.tipo = tipo;
+    if (estado) query.estado = estado;
+    if (buscar) {
+      query.$or = [
+        { "destinatario.email": { $regex: buscar, $options: 'i' } },
+        { asunto: { $regex: buscar, $options: 'i' } }
+      ];
+    }
+
+    const logs = await NotificationLog.find(query)
+      .populate('barberia', 'nombre slug')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    const total = await NotificationLog.countDocuments(query);
+
+    res.json({
+      logs,
+      total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      currentPage: parseInt(page)
+    });
+  } catch (error) {
+    console.error('❌ [SUPERADMIN] Error al obtener logs de notificaciones:', error);
+    next(error);
+  }
+};
+

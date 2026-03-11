@@ -103,4 +103,7 @@ router.get("/audit-logs", superAdminController.getAuditLogs);
 // SYSTEM INTEGRITY
 router.get("/integrity", superAdminController.getSystemIntegrity);
 
+// NOTIFICATION LOGS (GLOBAL)
+router.get("/notifications/logs", superAdminController.obtenerLogsNotificaciones);
+
 module.exports = router;

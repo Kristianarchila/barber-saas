@@ -697,7 +697,7 @@ class Container {
     }
 
     get updateStockUseCase() {
-        return new UpdateStock(this.productoRepository);
+        return new UpdateStock(this.productoRepository, this.inventarioRepository);
     }
 
     // ==========================================
@@ -937,7 +937,8 @@ class Container {
         return new CreatePedido(
             this.pedidoRepository,
             this.productoRepository,
-            this.barberiaRepository
+            this.barberiaRepository,
+            this.inventarioRepository
         );
     }
 
@@ -961,7 +962,8 @@ class Container {
         return new CancelPedido(
             this.pedidoRepository,
             this.productoRepository,
-            this.barberiaRepository
+            this.barberiaRepository,
+            this.inventarioRepository
         );
     }
 

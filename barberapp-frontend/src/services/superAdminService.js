@@ -116,3 +116,9 @@ export async function getSystemIntegrity() {
   const res = await api.get("/superadmin/integrity");
   return res.data;
 }
+
+export async function getNotificationLogs(params = {}) {
+  const res = await api.get("/superadmin/notifications/logs", { params });
+  return res.data;
+}
+

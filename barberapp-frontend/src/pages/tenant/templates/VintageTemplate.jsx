@@ -4,6 +4,7 @@ import LocationSection from '../../../components/public/LocationSection'
 import BrandedFooter from '../../../components/public/BrandedFooter'
 import WhatsAppButton from '../../../components/public/WhatsAppButton'
 import MobileBottomNav from '../../../components/public/MobileBottomNav'
+import MarketplaceSection from '../../../components/public/MarketplaceSection'
 
 /**
  * VintageTemplate — Classic 1950s barbershop aesthetic
@@ -145,6 +146,9 @@ export default function VintageTemplate({ barberia, servicios, barberos, resenas
                     </div>
                 </section>
             )}
+
+            {/* TIENDA: productos destacados, solo si tienda activa */}
+            <MarketplaceSection colorPrimary={primaryColor} />
 
             {/* BOOKING CTA */}
             <section className="py-20 text-center" style={{ backgroundColor: primaryColor }}>

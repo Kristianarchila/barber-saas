@@ -12,6 +12,7 @@ import { useBarberia } from '../../../context/BarberiaContext';
 import WhatsAppButton from '../../../components/public/WhatsAppButton';
 import BrandedFooter from '../../../components/public/BrandedFooter';
 import ServicesCatalog from '../../../components/public/ServicesCatalog';
+import MarketplaceSection from '../../../components/public/MarketplaceSection';
 
 /* ─── TOKENS from UI UX Pro Max skill ─────────────────────────── */
 const T = {
@@ -376,6 +377,8 @@ export default function RetroTemplate({ barberia, servicios, barberos, resenas, 
             <RetroHero barberia={barberia} onBook={onBook} />
             <RetroServices servicios={servicios} onBook={onBook} categorias={categorias} />
             <RetroTeam barberos={barberos} />
+            {/* MARKETPLACE: productos destacados, solo si tienda activa */}
+            <MarketplaceSection colorPrimary={T.maroon} />
             <RetroReviews resenas={resenas} />
             <RetroCTA onBook={onBook} barberia={barberia} />
             <BrandedFooter barberia={barberia} />

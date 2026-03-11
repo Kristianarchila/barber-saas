@@ -16,6 +16,7 @@ import WhatsAppButton from '../../../components/public/WhatsAppButton';
 import MobileBottomNav from '../../../components/public/MobileBottomNav';
 import BrandedFooter from '../../../components/public/BrandedFooter';
 import ServicesCatalog from '../../../components/public/ServicesCatalog';
+import MarketplaceSection from '../../../components/public/MarketplaceSection';
 
 /* ─────────────── GOOGLE FONTS ─────────────── */
 const Fonts = () => (
@@ -519,6 +520,8 @@ export default function PremiumTemplate({ barberia, servicios, barberos, resenas
             <Hero barberia={barberia} onBook={handleBook} onExplore={handleExplore} />
             <ServicesSection servicios={servicios} onBook={handleBook} categorias={categorias} />
             <TeamSection barberos={barberos} />
+            {/* MARKETPLACE: productos destacados, solo si tienda activa */}
+            <MarketplaceSection colorPrimary="#CA8A04" />
             <ReviewsSection resenas={resenas} />
             <LocationSection barberia={barberia} />
             <BrandedFooter barberia={barberia} />

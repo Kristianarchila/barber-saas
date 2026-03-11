@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useBarberia } from '../../../context/BarberiaContext';
 import WhatsAppButton from '../../../components/public/WhatsAppButton';
 import ServicesCatalog from '../../../components/public/ServicesCatalog';
+import MarketplaceSection from '../../../components/public/MarketplaceSection';
 
 /* ─── TOKENS — Swiss Modernism 2.0 from UI UX Pro Max ─────────── */
 // "display: grid, grid-template-columns: repeat(12, 1fr), gap: 1rem (8px base unit)"
@@ -374,6 +375,8 @@ export default function MinimalTemplate({ barberia, servicios, barberos, resenas
             <MinHero barberia={barberia} accent={accent} onBook={onBook} />
             <MinServices servicios={servicios} accent={accent} onBook={onBook} categorias={categorias} />
             <MinTeam barberos={barberos} accent={accent} />
+            {/* MARKETPLACE: productos destacados, solo si tienda activa */}
+            <MarketplaceSection colorPrimary={accent} />
             <MinReviews resenas={resenas} accent={accent} />
             <MinLocation barberia={barberia} accent={accent} onBook={onBook} />
             <MinFooter barberia={barberia} accent={accent} />
