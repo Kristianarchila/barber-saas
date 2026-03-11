@@ -261,7 +261,7 @@ export default function BookBySlug() {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-12">
+            <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-16">
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.section key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -312,7 +312,8 @@ export default function BookBySlug() {
                             </div>
 
                             {/* GRID OPTIMIZADO */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                            {/* GRID DE SERVICIOS ESCALABLE */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                                 <AnimatePresence mode='popLayout'>
                                     {serviciosFiltrados.map((s) => (
                                         <ServiceGridCard
@@ -332,7 +333,7 @@ export default function BookBySlug() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="max-w-6xl mx-auto"
+                            className="max-w-7xl mx-auto"
                         >
                             {/* TÍTULO CINEMÁTICO 2 RESPONSIVO */}
                             <div className="mb-10 md:mb-20 text-center mt-4 md:mt-0">
@@ -345,7 +346,8 @@ export default function BookBySlug() {
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+                            {/* GRID DE BARBEROS ESCALABLE */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
                                 {barberos.map(b => (
                                     <BarberCard 
                                         key={b._id} 
@@ -500,7 +502,7 @@ const ServiceGridCard = ({ service, onSelect }) => (
             {/* Glass Badges */}
             <div className="absolute top-6 left-6 flex flex-col gap-2">
                 <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-white">
-                    <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400 leading-none mb-1">Inversión</span>
+                    <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400 leading-none mb-1">Precio</span>
                     <span className="block text-xl font-black tracking-tighter">${service.precio}</span>
                 </div>
                 <div className="bg-black/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg border border-white/10 w-fit">
@@ -793,8 +795,7 @@ const ConfirmStep = ({ formData, service, barber, onConfirm, loading, onChange, 
                             {/* PRECIO FINAL */}
                             <div className="pt-10 border-t border-black/5">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="font-black uppercase text-[10px] tracking-widest text-neutral-400">Inversión</span>
-                                    <span className="text-neutral-400 text-xs">Pago en establecimiento</span>
+                                    <span className="font-black uppercase text-[10px] tracking-widest text-neutral-400">Precio</span>
                                 </div>
                                 <div className="flex justify-between items-baseline">
                                     <span className="font-black uppercase text-xl tracking-tighter">Total</span>
