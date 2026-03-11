@@ -96,32 +96,25 @@ export default function BookBySlug() {
 
     // --- HANDLERS ---
     const handleSelect = (name, value) => {
-        setFormData(prev => {
-            const新Data = {
-                ...prev,
-                [name]: value,
-                ...(['fecha', 'barberoId', 'servicioId'].includes(name) && { hora: "" })
-            };
-            return 新Data;
-        });
-        
-        // Si ya hay servicio, barbero y fecha, no necesitamos cambiar de 'step',
-        // todo sucede en la vista dinámica de la Etapa 2.
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+            ...(['fecha', 'barberoId', 'servicioId'].includes(name) && { hora: "" })
+        }));
     };
 
+    // --- FETCH AVAILABLE TURNOS ---
     useEffect(() => {
+        // F-02 FIX: AbortController prevents stale fetch results from appearing
+        // if the user selects date/barber/service rapidly
         const abortController = new AbortController();
 
         const fetchTurnos = async () => {
-            // Manejamos 'any' como un barbero vacío para que el backend busque disponibilidad general
-            const targetBarberId = formData.barberoId === 'any' ? "" : formData.barberoId;
-            
-            if (!formData.fecha || !formData.servicioId || !slug) return;
-            
+            if (!formData.fecha || !formData.barberoId || !formData.servicioId || !slug) return;
             setLoadingTurnos(true);
             setTurnosDisponibles([]);
             try {
-                const data = await getDisponibilidadBySlug(slug, targetBarberId, formData.fecha, formData.servicioId);
+                const data = await getDisponibilidadBySlug(slug, formData.barberoId, formData.fecha, formData.servicioId);
                 if (!abortController.signal.aborted) {
                     setTurnosDisponibles(data.turnosDisponibles || []);
                 }
@@ -137,6 +130,7 @@ export default function BookBySlug() {
             }
         };
 
+        // Debounce: 300ms before triggering the fetch
         const timer = setTimeout(fetchTurnos, 300);
         return () => {
             clearTimeout(timer);
@@ -267,100 +261,6 @@ export default function BookBySlug() {
                 </div>
             </header>
 
-            {/* SIDEBAR PERSISTENTE (MODO TICKET) - Aparece desde el Paso 2 */}
-            <AnimatePresence>
-                {step >= 2 && step <= 4 && (
-                    <motion.aside
-                        initial={{ x: 400, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 400, opacity: 0 }}
-                        className="fixed right-0 top-[73px] bottom-0 w-[400px] bg-white border-l border-black/5 z-40 hidden lg:flex flex-col p-8"
-                    >
-                        <div className="flex-grow">
-                            <div className="flex justify-between items-start mb-12">
-                                <div>
-                                    <h4 className="font-black uppercase text-[10px] tracking-[0.3em] text-neutral-400 mb-2">Tu Selección</h4>
-                                    <div className="h-1 w-12 bg-black rounded-full"></div>
-                                </div>
-                                <div className="bg-black/5 px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase text-neutral-400">
-                                    Resumen Live
-                                </div>
-                            </div>
-
-                            <div className="space-y-10">
-                                {/* SERVICIO */}
-                                <div className="flex items-start gap-5">
-                                    <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-neutral-100">
-                                        {selectedService?.imagen ? (
-                                            <img src={selectedService.imagen} className="w-full h-full object-cover" alt={selectedService.nombre} />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center"><Scissors size={24} className="text-black/10" /></div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <span className="block text-[8px] font-black uppercase text-neutral-400 mb-1">Servicio</span>
-                                        <p className="text-xl font-black uppercase tracking-tighter leading-none mb-2">{selectedService?.nombre}</p>
-                                        <div className="flex items-center gap-2 text-neutral-400">
-                                            <Clock size={10} />
-                                            <span className="text-[9px] font-bold uppercase tracking-widest">{selectedService?.duracion} MIN</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* BARBERO */}
-                                {selectedBarber && (
-                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-5">
-                                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0">
-                                            <img src={selectedBarber.foto || "https://res.cloudinary.com/diz8m6fxi/image/upload/v1710926715/ux-placeholder-barber.png"} className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <span className="block text-[8px] font-black uppercase text-neutral-400 mb-0.5">Especialista</span>
-                                            <p className="font-black uppercase text-xs tracking-tight">{selectedBarber.nombre}</p>
-                                        </div>
-                                    </motion.div>
-                                )}
-
-                                {/* FECHA Y HORA */}
-                                {formData.fecha && (
-                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-5">
-                                        <div className="p-3 bg-neutral-50 rounded-xl text-black">
-                                            <CheckCircle2 size={20} />
-                                        </div>
-                                        <div>
-                                            <span className="block text-[8px] font-black uppercase text-neutral-400 mb-0.5">Cita Programada</span>
-                                            <p className="font-black uppercase text-xs tracking-tight">
-                                                {dayjs(formData.fecha).format('DD MMM')} {formData.hora ? `• ${formData.hora}` : ''}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* PRECIO FINAL EN SIDEBAR */}
-                        <div className="pt-8 border-t border-black/5">
-                            <div className="flex justify-between items-baseline">
-                                <span className="font-black uppercase text-sm tracking-tighter">Total</span>
-                                <div className="flex items-baseline">
-                                    <span className="text-xs font-black mr-1">$</span>
-                                    <span className="text-4xl font-black tracking-tighter">{selectedService?.precio}</span>
-                                </div>
-                            </div>
-                            
-                            {step < 4 && (
-                                <button
-                                    onClick={() => formData.hora && setStep(4)}
-                                    disabled={!formData.hora}
-                                    className={`w-full mt-8 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] transition-all ${formData.hora ? 'bg-black text-white shadow-xl hover:scale-[1.02]' : 'bg-neutral-100 text-neutral-300 pointer-events-none'}`}
-                                >
-                                    Siguiente Paso →
-                                </button>
-                            )}
-                        </div>
-                    </motion.aside>
-                )}
-            </AnimatePresence>
-
             <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-16">
                 <AnimatePresence mode="wait">
                     {step === 1 && (
@@ -430,87 +330,126 @@ export default function BookBySlug() {
                     {step === 2 && (
                         <motion.section 
                             key="step2" 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className={`max-w-7xl mx-auto transition-all duration-700 ${step >= 2 ? 'lg:pr-[420px]' : ''}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="max-w-7xl mx-auto"
                         >
-                            <div className="grid grid-cols-1 gap-12">
-                                {/* SELECCIÓN DE MAESTRO */}
-                                <div>
-                                    <div className="mb-8">
-                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">Paso 2: Maestro</h2>
-                                        <p className="text-neutral-400 font-black text-[9px] uppercase tracking-[0.4em]">ELIGE TU ARTISTA O SMART-MATCH</p>
-                                    </div>
-                                    <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar">
-                                        {/* OPCIÓN CUALQUIER PROFESIONAL (SMART MATCH) */}
-                                        <button
-                                            onClick={() => handleSelect('barberoId', 'any')}
-                                            className={`flex-shrink-0 w-32 md:w-40 p-6 rounded-[2rem] border-2 transition-all text-center ${formData.barberoId === 'any' ? 'border-black bg-white shadow-lg' : 'border-black/5 bg-white/40 hover:border-black/20'}`}
-                                        >
-                                            <div className="w-16 h-16 mx-auto mb-4 bg-black text-white rounded-2xl flex items-center justify-center">
-                                                <User size={24} />
-                                            </div>
-                                            <span className="block font-black uppercase text-[10px] tracking-tight">Cualquiera</span>
-                                        </button>
-
-                                        {barberos.map(b => (
-                                            <button
-                                                key={b._id}
-                                                onClick={() => handleSelect('barberoId', b._id)}
-                                                className={`flex-shrink-0 w-32 md:w-40 p-6 rounded-[2rem] border-2 transition-all text-center ${formData.barberoId === b._id ? 'border-black bg-white shadow-lg' : 'border-black/5 bg-white/40 hover:border-black/20'}`}
-                                            >
-                                                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl overflow-hidden border border-black/5">
-                                                    <img src={b.foto || "https://res.cloudinary.com/diz8m6fxi/image/upload/v1710926715/ux-placeholder-barber.png"} className="w-full h-full object-cover" />
-                                                </div>
-                                                <span className="block font-black uppercase text-[10px] tracking-tight truncate">{b.nombre}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* SELECCIÓN DE FECHA Y HORA (AHORA EN EL MISMO PASO) */}
-                                <div className={`${!formData.barberoId ? 'opacity-20 pointer-events-none' : 'opacity-100'} transition-opacity duration-500`}>
-                                    <div className="mb-8">
-                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">Paso 3: Agenda</h2>
-                                        <p className="text-neutral-400 font-black text-[9px] uppercase tracking-[0.4em]">DISPONIBILIDAD EN TIEMPO REAL</p>
-                                    </div>
-                                    
-                                    <DatePicker selectedDate={formData.fecha} onSelect={(d) => handleSelect('fecha', d)} />
-                                    
-                                    <div className="mt-10">
-                                        <TimeGrid turnos={turnosDisponibles} selectedTime={formData.hora} loading={loadingTurnos} onSelect={(t) => handleSelect('hora', t)} />
-                                    </div>
-
-                                    {/* AI Suggestions Box */}
-                                    <div className="mt-10">
-                                        <AISuggestionBox
-                                            suggestion={aiSuggestion}
-                                            onSelectSlot={handleSelectAISlot}
-                                            loading={loadingAI}
-                                        />
-                                    </div>
-
-                                    {/* No slots available - Fallback */}
-                                    {!loadingTurnos && !loadingAI && turnosDisponibles.length === 0 && !aiSuggestion?.slots?.length && formData.fecha && (
-                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 bg-black/[0.02] border border-black/5 rounded-[2.5rem] p-10 text-center">
-                                            <h3 className="text-xl font-black uppercase tracking-tighter mb-4">No hay horarios disponibles para este barbero</h3>
-                                            <button onClick={() => setShowWaitingListModal(true)} className="px-8 py-4 bg-black text-white rounded-xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg">
-                                                Unirse a Lista de Espera
-                                            </button>
-                                        </motion.div>
-                                    )}
-                                </div>
+                            {/* TÍTULO CINEMÁTICO 2 RESPONSIVO */}
+                            <div className="mb-10 md:mb-20 text-center mt-4 md:mt-0">
+                                <h2 className="text-4xl md:text-9xl font-black tracking-[-0.05em] uppercase leading-[0.85] mb-4 md:mb-6 px-4">
+                                    Elige tu<br />
+                                    <span className="text-transparent font-outline-2" style={{ WebkitTextStroke: '1.5px #000' }}>Maestro</span>
+                                </h2>
+                                <p className="text-neutral-400 font-black text-[9px] md:text-[10px] uppercase tracking-[0.4em]">
+                                    ARTISTAS DEL GROOMING
+                                </p>
                             </div>
 
-                            {/* Mobile Bar Fixed Next Button */}
-                            <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
+                            {/* GRID DE BARBEROS ESCALABLE */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
+                                {barberos.map(b => (
+                                    <BarberCard 
+                                        key={b._id} 
+                                        barber={b} 
+                                        isSelected={formData.barberoId === b._id} 
+                                        onSelect={() => { handleSelect('barberoId', b._id); setStep(3); }} 
+                                    />
+                                ))}
+                            </div>
+                        </motion.section>
+                    )}
+
+                    {step === 3 && (
+                        <motion.section key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto">
+                            {/* CABECERA DE SELECCIÓN - Contexto Inmediato */}
+                            <motion.div 
+                                initial={{ y: -20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="mb-10 p-8 bg-black/[0.02] border border-black/5 rounded-[2.5rem] flex flex-wrap items-center justify-between gap-6"
+                            >
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0 -rotate-3">
+                                        <img src={selectedBarber?.foto || "https://res.cloudinary.com/diz8m6fxi/image/upload/v1710926715/ux-placeholder-barber.png"} className="w-full h-full object-cover" alt={selectedBarber?.nombre} />
+                                    </div>
+                                    <div>
+                                        <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1">Maestro</span>
+                                        <span className="block font-black uppercase text-xl tracking-tighter">{selectedBarber?.nombre}</span>
+                                    </div>
+                                </div>
+                                <div className="h-10 w-px bg-black/5 hidden md:block"></div>
+                                <div className="flex items-center gap-6">
+                                    <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg rotate-3">
+                                        <Scissors size={20} />
+                                    </div>
+                                    <div>
+                                        <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1">Especialidad</span>
+                                        <span className="block font-black uppercase text-xl tracking-tighter">{selectedService?.nombre}</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setStep(1)} 
+                                    className="px-8 py-3 bg-white border border-black/5 hover:bg-black hover:text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+                                >
+                                    Cambiar
+                                </button>
+                            </motion.div>
+
+                            <div className="flex justify-between items-end mb-8">
+                                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">Horario</h2>
+                                <div className="text-right">
+                                    <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-neutral-300">Marzo 2026</span>
+                                    <div className="h-1 w-8 bg-black ml-auto mt-1 rounded-full"></div>
+                                </div>
+                            </div>
+                            
+                            <DatePicker selectedDate={formData.fecha} onSelect={(d) => handleSelect('fecha', d)} />
+                            
+                            <div className="mt-12">
+                                <TimeGrid turnos={turnosDisponibles} selectedTime={formData.hora} loading={loadingTurnos} onSelect={(t) => handleSelect('hora', t)} />
+                            </div>
+
+                            {/* AI Suggestions Box */}
+                            <div className="mt-10">
+                                <AISuggestionBox
+                                    suggestion={aiSuggestion}
+                                    onSelectSlot={handleSelectAISlot}
+                                    loading={loadingAI}
+                                />
+                            </div>
+
+                            {/* No slots available - Fallback */}
+                            {!loadingTurnos && !loadingAI && turnosDisponibles.length === 0 && !aiSuggestion?.slots?.length && formData.fecha && (
+                                <motion.div 
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="mt-12 bg-white/50 border border-black/5 backdrop-blur-xl rounded-[2.5rem] p-10 text-center"
+                                >
+                                    <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Clock className="text-neutral-300" size={24} />
+                                    </div>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">No hay horarios disponibles</h3>
+                                    <p className="text-neutral-400 font-bold text-xs uppercase mb-8">¿Te avisamos si alguien cancela?</p>
+                                    <button
+                                        onClick={() => setShowWaitingListModal(true)}
+                                        className="px-10 py-5 bg-black text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:scale-105 transition-all shadow-xl"
+                                    >
+                                        Unirse a Lista de Espera 
+                                    </button>
+                                </motion.div>
+                            )}
+
+                            <div className="sticky bottom-6 mt-16 px-4 md:px-0">
                                 <button 
                                     disabled={!formData.hora} 
                                     onClick={() => setStep(4)} 
-                                    className={`w-full py-6 rounded-2xl font-black uppercase text-xs tracking-[0.3em] transition-all duration-500 ${formData.hora ? 'bg-black text-white shadow-2xl' : 'bg-neutral-200 text-neutral-400'}`}
+                                    className={`w-full py-7 rounded-[2rem] font-black uppercase text-xs tracking-[0.4em] transition-all duration-500 flex items-center justify-center gap-4 ${formData.hora ? 'bg-black text-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] translate-y-0 scale-100' : 'bg-neutral-100 text-neutral-300 translate-y-4 scale-95 opacity-50'}`}
                                 >
-                                    Confirmar {formData.hora || ''}
+                                    {formData.hora ? (
+                                        <>CONFIRMAR DATOS <span className="opacity-50">→</span></>
+                                    ) : (
+                                        "ELIGE UNA HORA"
+                                    )}
                                 </button>
                             </div>
                         </motion.section>
