@@ -121,6 +121,14 @@ class ResilientEmailService {
         );
     }
 
+    async sendAccountRejectedEmail(data) {
+        return sendEmailSafe(
+            (d) => this.baseService.sendAccountRejectedEmail(d),
+            data,
+            'account_rejected'
+        );
+    }
+
     /**
      * Obtener estado del circuit breaker
      */

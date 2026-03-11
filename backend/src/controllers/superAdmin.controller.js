@@ -582,12 +582,20 @@ exports.rejectAccount = async (req, res, next) => {
     const { id } = req.params;
     const { razon } = req.body;
     const userRepository = container.userRepository;
+    const emailService = require('../notifications/emailService');
 
     const updatedUser = await userRepository.updateById(id, {
       estadoCuenta: 'RECHAZADA'
     });
 
-    // TODO: Send rejection email
+    // Enviar email de rechazo con motivo
+    emailService.sendAccountRejectedEmail({
+      email: updatedUser.email,
+      nombre: updatedUser.nombre,
+      razon: razon || null
+    }).catch(err => {
+      console.error('❌ Error enviando email de rechazo:', err.message);
+    });
 
     res.json({
       message: 'Cuenta rechazada',
