@@ -140,7 +140,7 @@ export default function BookBySlug() {
     if (loadingContext) return <LoadingScreen />;
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900 relative">
+        <div className="min-h-screen bg-[#FAFAFA] font-sans text-neutral-900 relative overflow-x-hidden">
             <EnergyGrid />
 
             {/* HEADER */}
@@ -292,7 +292,7 @@ export default function BookBySlug() {
 
                     {/* PASO 2+3: Barbero + Agenda */}
                     {step === 2 && (
-                        <motion.section key="step2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-7xl mx-auto lg:pr-[420px]">
+                        <motion.section key="step2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-7xl mx-auto lg:pr-[420px] pb-32 lg:pb-0">
                             <div className="grid grid-cols-1 gap-12">
                                 <div>
                                     <div className="mb-8">
@@ -338,33 +338,39 @@ export default function BookBySlug() {
                                 </div>
                             </div>
 
-                            {/* Botón móvil */}
-                            <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
-                                <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-                                    <button disabled={!formData.hora} onClick={() => setStep(4)}
-                                        className={`w-full group relative overflow-hidden rounded-2xl transition-all duration-300 shadow-[0_15px_40px_-5px_rgba(0,0,0,0.4)] ${formData.hora ? "bg-black text-white" : "bg-neutral-100 text-neutral-400 pointer-events-none"}`}
+                            {/* Botón móvil sticky */}
+                            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+                                <motion.div initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+                                    <button
+                                        disabled={!formData.hora}
+                                        onClick={() => setStep(4)}
+                                        className={`w-full rounded-2xl shadow-[0_15px_40px_-5px_rgba(0,0,0,0.35)] transition-all duration-300 ${
+                                            formData.hora
+                                                ? 'bg-black text-white active:scale-[0.98]'
+                                                : 'bg-neutral-100 text-neutral-400 pointer-events-none'
+                                        }`}
                                     >
-                                        {formData.hora && (
-                                            <motion.div animate={{ x: ["-100%", "200%"] }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
-                                            />
-                                        )}
-                                        <div className="relative flex items-center justify-between py-4 px-4 h-20">
-                                            <div className="flex flex-col items-start min-w-0 flex-1 pr-3">
-                                                <span className="text-[7px] font-black uppercase tracking-[0.4em] text-white/40 mb-1">Tu Experiencia</span>
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <span className="text-[11px] font-black uppercase tracking-widest truncate">CONFIRMAR {formData.hora}</span>
-                                                    <ChevronRight size={14} className="text-white/20 shrink-0" />
+                                        <div className="flex items-stretch h-[68px]">
+                                            {/* Lado izquierdo - texto */}
+                                            <div className="flex flex-col justify-center items-start px-5 flex-1 min-w-0">
+                                                <span className="text-[7px] font-black uppercase tracking-[0.35em] opacity-40 mb-1 block">
+                                                    Tu Experiencia
+                                                </span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-[12px] font-black uppercase tracking-wider leading-none">
+                                                        Confirmar {formData.hora || '—'}
+                                                    </span>
+                                                    <ChevronRight size={13} className="opacity-30 flex-shrink-0" />
                                                 </div>
                                             </div>
-                                            <div className="flex items-center shrink-0 border-l border-white/10 pl-4 my-1 min-w-[72px] justify-end">
-                                                <div className="flex flex-col items-end">
-                                                    <div className="flex items-baseline gap-0.5">
-                                                        <span className="text-[10px] font-black text-white/40">$</span>
-                                                        <span className="text-[18px] font-black tracking-tighter leading-none">{selectedService?.precio}</span>
-                                                    </div>
-                                                    <span className="text-[6px] font-black uppercase tracking-[0.2em] mt-1.5 text-white/30">TOTAL</span>
-                                                </div>
+                                            {/* Separador */}
+                                            <div className="w-px bg-white/10 my-3" />
+                                            {/* Lado derecho - precio */}
+                                            <div className="flex flex-col justify-center items-end px-5 w-24 flex-shrink-0">
+                                                <span className="text-[6px] font-black uppercase tracking-[0.2em] opacity-30 mb-1">Total</span>
+                                                <span className="text-[15px] font-black tracking-tight leading-none">
+                                                    ${selectedService?.precio ?? '—'}
+                                                </span>
                                             </div>
                                         </div>
                                     </button>
