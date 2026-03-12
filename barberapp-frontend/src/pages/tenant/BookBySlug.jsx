@@ -33,7 +33,7 @@ const EnergyGrid = () => (
     </div>
 );
 
-const ProgressBar = ({ currentStep, totalSteps = 5 }) => (
+const ProgressBar = ({ currentStep, totalSteps = 4 }) => (
     <div className="absolute top-0 left-0 w-full h-1 bg-neutral-100 overflow-hidden">
         <motion.div
             initial={{ width: 0 }}
@@ -127,7 +127,7 @@ export default function BookBySlug() {
         try {
             if (rescheduleToken) await reagendarReservaByToken(rescheduleToken, formData);
             else                 await crearReservaBySlug(slug, formData.barberoId, formData);
-            setStep(5);
+            setStep(4);
         } catch (e) {
             const msg = e.response?.data?.message || e.message || "Error al procesar la reserva.";
             if (msg.includes("bloqueado") || msg.includes("no puede reservar")) setErrorApi("❌ Tu cuenta está temporalmente bloqueada.");
@@ -160,13 +160,13 @@ export default function BookBySlug() {
                     </div>
                     <div className="flex flex-col items-end">
                         <span className="text-[8px] font-black uppercase tracking-[0.2em] text-neutral-400">PASO</span>
-                        <span className="text-xs font-black tracking-widest">{step}/5</span>
+                        <span className="text-xs font-black tracking-widest">{step}/4</span>
                     </div>
                 </div>
 
                 {/* Mini ticket en móvil */}
                 <AnimatePresence>
-                    {step >= 2 && step <= 3 && (
+                    {step >= 2 && step <= 2 && (
                         <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -50, opacity: 0 }}
                             className="lg:hidden bg-black text-white px-6 py-3 flex items-center justify-between border-t border-white/10"
                         >
@@ -190,7 +190,7 @@ export default function BookBySlug() {
 
             {/* SIDEBAR DESKTOP */}
             <AnimatePresence>
-                {step >= 2 && step <= 4 && (
+                {step >= 2 && step <= 3 && (
                     <motion.aside initial={{ x: 400, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 400, opacity: 0 }}
                         className="fixed right-0 top-[73px] bottom-0 w-[400px] bg-white border-l border-black/5 z-40 hidden lg:flex flex-col p-8"
                     >
@@ -240,8 +240,8 @@ export default function BookBySlug() {
                                 <span className="font-black uppercase text-sm tracking-tighter">Total</span>
                                 <div className="flex items-baseline"><span className="text-xs font-black mr-1">$</span><span className="text-4xl font-black tracking-tighter">{selectedService?.precio}</span></div>
                             </div>
-                            {step < 4 && (
-                                <button onClick={() => formData.hora && setStep(4)} disabled={!formData.hora}
+                            {step < 3 && (
+                                <button onClick={() => formData.hora && setStep(3)} disabled={!formData.hora}
                                     className={`w-full mt-8 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] transition-all ${formData.hora ? "bg-black text-white shadow-xl hover:scale-[1.02]" : "bg-neutral-100 text-neutral-300 pointer-events-none"}`}
                                 >
                                     Siguiente Paso →
@@ -296,7 +296,7 @@ export default function BookBySlug() {
                             <div className="grid grid-cols-1 gap-12">
                                 <div>
                                     <div className="mb-8">
-                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">Paso 2: Maestro</h2>
+                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">Paso 1: Maestro</h2>
                                         <p className="text-neutral-400 font-black text-[9px] uppercase tracking-[0.4em]">ELIGE TU ARTISTA O SMART-MATCH</p>
                                     </div>
                                     <BarberSelector barberos={barberos} selectedBarberoId={formData.barberoId} onSelect={id => handleSelect("barberoId", id)} />
@@ -304,7 +304,7 @@ export default function BookBySlug() {
 
                                 <div className={`${!formData.barberoId ? "opacity-20 pointer-events-none" : "opacity-100"} transition-opacity duration-500`}>
                                     <div className="mb-8">
-                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">Paso 3: Agenda</h2>
+                                        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-2">Paso 2: Agenda</h2>
                                         <p className="text-neutral-400 font-black text-[9px] uppercase tracking-[0.4em]">DISPONIBILIDAD EN TIEMPO REAL</p>
                                     </div>
 
@@ -343,7 +343,7 @@ export default function BookBySlug() {
                                 <motion.div initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
                                     <button
                                         disabled={!formData.hora}
-                                        onClick={() => setStep(4)}
+                                        onClick={() => setStep(3)}
                                         className={`w-full rounded-2xl shadow-[0_15px_40px_-5px_rgba(0,0,0,0.35)] transition-all duration-300 ${
                                             formData.hora
                                                 ? 'bg-black text-white active:scale-[0.98]'
@@ -379,8 +379,8 @@ export default function BookBySlug() {
                         </motion.section>
                     )}
 
-                    {step === 4 && <ConfirmStep formData={formData} service={selectedService} barber={selectedBarber} onConfirm={handleConfirmar} loading={reservando} onChange={handleSelect} errorApi={errorApi} />}
-                    {step === 5 && <SuccessScreen formData={formData} service={selectedService} barberia={barberia} />}
+                    {step === 3 && <ConfirmStep formData={formData} service={selectedService} barber={selectedBarber} onConfirm={handleConfirmar} loading={reservando} onChange={handleSelect} errorApi={errorApi} />}
+                    {step === 4 && <SuccessScreen formData={formData} service={selectedService} barberia={barberia} />}
                 </AnimatePresence>
             </main>
 
