@@ -25,8 +25,9 @@ export function useAvailability({ slug, barberoId, fecha, servicioId }) {
         const abortController = new AbortController();
 
         const fetchTurnos = async () => {
+            // Si "any" → no hay barberoId real; SmartSuggest se encarga de buscar disponibilidad entre todos
             const targetBarberId = barberoId === "any" ? "" : barberoId;
-            if (!fecha || !servicioId || !slug) return;
+            if (!fecha || !servicioId || !slug || !targetBarberId) return;
 
             setLoadingTurnos(true);
             setTurnosDisponibles([]);

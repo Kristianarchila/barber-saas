@@ -9,7 +9,8 @@ export function useAISuggestions({ barberiaId, barberoId, servicioId, fecha, tur
     useEffect(() => {
         const fetch = async () => {
             const noSlots = !loadingTurnos && turnosDisponibles.length === 0;
-            const hasContext = fecha && barberoId && servicioId && barberiaId;
+            // Excluir "any": no hay barberoId real para mandar a la IA
+            const hasContext = fecha && barberoId && barberoId !== "any" && servicioId && barberiaId;
 
             if (noSlots && hasContext) {
                 setLoadingAI(true);
